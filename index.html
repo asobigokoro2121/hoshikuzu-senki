@@ -757,7 +757,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v98</span>
+    <span class="t-ver">v99</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1006,11 +1006,6 @@ ugf_tank|ガードタンク|車両|220|52|3|1|80|mortar,vulcan,cluster|-|×◎�
 ugf_gunner|キャノンガード|支援|640|77|4|2|140|rifle,vulcan,cannon2|reactive|○◎○△×|ugf_fortress,ugf_trooper2|visor,heavy,cannon
 ugf_trooper2|トルーパーII|汎用|600|97|5|2|160|rifle,saber,bshield|-|○◎○△×|ugf_knight,ugf_gunner,ugf_scout,ugf_striker|visor,std,shield
 ugf_scout|スカイスカウト|可変|420|104|6|0|130|bmg,saber,transform|-|○◎○○◎|ugf_valkyr,ugf_trooper2,ugf_striker|crest,slim,wings
-lun_harrier|ハリアー|可変|560|80|6|1|140|rifle,saber,transform|-|◎◎○○△|lun_strix,lun_sylph,lun_frame2|crest,slim,wings
-lun_strix|ストリクス|可変|1800|134|7|0|300|rifle,twin,transform|stealth|◎◎○○△|lun_celestia,lun_seraph|crest,slim,wings
-orb_skylark|スカイラーク|可変|600|84|6|1|140|bgat,saber,transform|-|◎◎○○△|orb_stella,orb_vanguard,orb_glider|crest,slim,wings
-sea_manta|マンタ|可変|1500|128|6|0|280|bmg,claw,transform|-|△○○△◎|sea_tempest,sea_marlin|fin,aqua,fins
-jup_rover|ローバー|可変|520|100|5|1|140|mg,pile,transform|-|◎○◎○×|jup_bastion,jup_storm,jup_tremor|visor,heavy,none
 ugf_knight|ナイトギア|主力|1500|135|6|0|260|rifle,saber,mpod|command|○◎○△×|ugf_paladin,ugf_fortress|horn,std,backpack
 ugf_fortress|フォートレス|重装|1350|124|3|0|240|rail,vulcan,mpod|barrier|○◎◎○×|ugf_knight,ugf_dreadnought|dome,heavy,cannon
 ugf_valkyr|ヴァルキュリア|可変|1700|162|7|0|260|brifle2,saber,transform|-|○◎○○◎|ugf_paladin|crest,slim,wings
@@ -1040,6 +1035,7 @@ col_berserker_g|ベルセルク・ガロ機|専用機|2200|130|8|0|320|shotgun,d
 col_slasher|スラッシャー|強襲|1200|134|7|0|260|smart,katana,snare|overdrive|◎○○△×|col_warlord,col_comet|horn,slim,backpack
 lun_frame|フレームMk1|汎用|320|80|5|1|90|bmg,saber,vulcan|-|◎◎○△×|lun_frame2,lun_arbalest,lun_mirage,lun_sylph,lun_harrier|visor,slim,none
 lun_frame2|フレームMk2|汎用|700|83|5|2|160|rifle,saber,scatter|-|◎◎○△×|lun_seraph,lun_arbalest,lun_volt|visor,slim,shield
+lun_harrier|ハリアー|可変|560|80|6|1|140|rifle,saber,transform|-|◎◎○○△|lun_strix,lun_sylph,lun_frame2|crest,slim,wings
 lun_arbalest|アーバレスト|支援|760|67|4|0|170|brifle2,turret,bcannon|medic|◎◎○△×|lun_halberd,lun_frame2|visor,heavy,cannon
 lun_mirage|ミラージュ|高機動|600|73|7|0|150|rifle,boomer,incom|stealth|◎○○△×|lun_seraph|crest,slim,backpack
 lun_halberd|ハルバード|重装|1700|141|4|0|280|rifle,twin,sweep|barrier|◎◎○△×|lun_seraph,lun_gloria|horn,heavy,cannon
@@ -1052,6 +1048,7 @@ lun_aria|アリア|主力|1900|138|7|0|300|laser,twin,turret|-|◎◎○○×|lu
 lun_celestia|セレスティア|最上位|3700|182|7|0|420|plasma,saber,sweep|barrier|◎◎○○△|lun_aria|crest,std,halo
 lun_aria_r|アリア・リオ機|専用機|2400|140|8|0|320|laser,twin,bit|awaken|◎◎○○×|lun_celestia|crest,slim,halo
 lun_volt|ヴォルト|主力|1500|132|7|0|290|arc,saber,turret|-|◎○○○×|lun_celestia,lun_aria|crest,slim,wings
+lun_strix|ストリクス|可変|1800|134|7|0|300|rifle,twin,transform|stealth|◎◎○○△|lun_celestia,lun_seraph|crest,slim,wings
 ast_miner|マイナー|作業機|170|57|3|1|70|way3,claw,mine|-|◎○○○×|ast_digger,ast_guard,ast_tug|dome,round,none
 ast_wasp|ワスプ|戦闘機|200|55|7|1|90|vulcan,vulcan,missile|-|◎○○○○|ast_merc|none,fighter,none
 ast_guard|ガードマン|汎用|460|93|4|1|120|gat,hammer,missile|reactive|◎◎○○×|ast_digger,ast_merc,ast_howitzer|visor,heavy,shield
@@ -1080,6 +1077,7 @@ sea_marlin|マーリン|主力|1700|132|7|0|290|rifle,lance,hmiss|command|×◎�
 sea_tempest|テンペスト|最上位|3400|186|7|0|420|rail,lance,cluster|crisis|△◎○○◎|sea_marlin|fin,heavy,fins
 sea_marlin_n|マーリン・ナミ機|専用機|2200|140|8|0|320|rifle,lance,hmiss|crisis|△◎○△◎|sea_tempest|fin,aqua,fins
 sea_eel|イール|水陸両用|1500|126|7|0|260|arc,whip,torpedo|stealth|△○○△◎|sea_tempest,sea_marlin|fin,aqua,fins
+sea_manta|マンタ|可変|1500|128|6|0|280|bmg,claw,transform|-|△○○△◎|sea_tempest,sea_marlin|fin,aqua,fins
 psy_acolyte|アコライト|汎用|360|73|5|1|100|bmg,saber,snare|-|○○◎◎×|psy_vessel,psy_wraith,psy_cantor|mask,slim,none
 psy_wraith|レイス|高機動|560|90|7|1|150|rifle,whip,incom|stealth|○○◎◎×|psy_specter,psy_oracle|mask,slim,wings
 psy_vessel|ヴェッセル|支援|520|78|4|1|150|rifle,saber,bit|medic|○○◎◎×|psy_oracle,psy_wraith|mask,round,halo
@@ -1096,6 +1094,7 @@ psy_eclipse|エクリプス|最上位|3400|210|6|0|420|grav,twin,bit|awaken|◎�
 jup_hopper|ホッパー|汎用|340|84|4|1|100|mg,claw,mine|-|◎○○△×|jup_bastion,jup_storm,jup_ranger,jup_tremor,jup_rover|visor,heavy,none
 jup_pike|パイク|格闘|480|84|6|1|120|shotgun,lance,snare|-|◎○○△×|jup_raptor,jup_storm|crest,slim,none
 jup_ranger|レンジャー|支援|540|92|5|1|140|rail,saber,turret|medic|◎○○△×|jup_storm,jup_bastion|visor,round,cannon
+jup_rover|ローバー|可変|520|100|5|1|140|mg,pile,transform|-|◎○◎○×|jup_bastion,jup_storm,jup_tremor|visor,heavy,none
 jup_bastion|バスティオン|重装|1600|145|3|0|250|cannon2,hammer,bshield|barrier|◎○◎○×|jup_colossus,jup_storm,jup_tremor|dome,heavy,shield
 jup_storm|ストーム|主力|1900|150|6|0|290|arc,lance,cluster|-|◎○○○×|jup_sovereign,jup_colossus,jup_raptor|horn,std,backpack
 jup_raptor|ラプター|高機動|1800|128|8|0|290|brifle2,fang,hmiss|overdrive|◎△△△×|jup_sovereign,jup_storm|fin,slim,wings
@@ -1107,6 +1106,7 @@ jup_tremor|トレマー|重装|1800|172|4|0|280|mortar,hammer,grav|reactive|◎�
 orb_rigger|リガー|作業機|320|82|5|1|100|way3,claw,turret|-|◎◎○○△|orb_tether,orb_astro,orb_beacon|dome,round,none
 orb_astro|アストロ|汎用|340|88|5|1|120|rifle,saber,mine|-|◎◎○○△|orb_vanguard,orb_tether,orb_skylark|dome,std,none
 orb_glider|グライダー|高機動|620|80|7|1|140|brifle2,boomer,hmiss|-|◎◎○○△|orb_stella,orb_vanguard|crest,slim,wings
+orb_skylark|スカイラーク|可変|600|84|6|1|140|bgat,saber,transform|-|◎◎○○△|orb_stella,orb_vanguard,orb_glider|crest,slim,wings
 orb_tether|テザー|支援|1000|145|5|0|250|rail,whip,snare|medic|◎◎○○△|orb_pillar,orb_vanguard,orb_beacon|dome,heavy,cannon
 orb_vanguard|ヴァンガード|主力|1500|146|6|0|290|rifle,lance,bshield|command|◎◎○○△|orb_pillar,orb_zenith,orb_stella|horn,std,shield
 orb_stella|ステラ|高機動|2200|124|8|0|290|laser,twin,hmiss|overdrive|◎◎○△△|orb_zenith,orb_vanguard|crest,slim,wings
@@ -14729,6 +14729,8 @@ function zukanSync() {
 }
 // 系統の段：量産機 → 発展機 → 最上位・専用機
 const tierOf = T => T.bt > 0 ? 0 : (T.cls === '最上位' || T.cls === '専用機') ? 2 : 1;
+// 図鑑の並び：量産機→発展機→最上位→専用機、同じ段は安い順
+const zkSort = list => list.map((T, i) => [T, i]).sort(([a, i], [b, j]) => tierOf(a) - tierOf(b) || (a.cls === '専用機') - (b.cls === '専用機') || a.cost - b.cost || i - j).map(([T]) => T);
 async function openEncyclopedia(tab = 'unit') {
   const Z = zukanSync();
   const units = Object.values(UNITS), ships = Object.keys(SHIPS), pilots = Object.keys(PILOT_BASE);
@@ -14747,16 +14749,16 @@ async function openEncyclopedia(tab = 'unit') {
     const uCell = T => { const k = seenU(T.id), col = T.f ? FAC[T.f].color : '#c9b98a'; return k ? `<button class="enc ${k === 2 ? 'got' : ''}" data-act="unit" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${col}" data-size="58"></span><span>${T.name}</span></button>` : `<div class="enc unknown"><span class="q">？</span><span>？？？</span></div>`; };
     if (tab === 'unit') {
       h += '<p class="dim small">戦った機体は「遭遇」、自軍に加えた機体は「入手」（金の枠）として記録されます。記録はゲームをまたいで残ります。</p>';
-      for (const F of facs) h += `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${units.filter(T => T.f === F.id).map(uCell).join('')}</div>`;
+      for (const F of facs) h += `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${zkSort(units.filter(T => T.f === F.id)).map(uCell).join('')}</div>`;
       h += `<h4>可変機</h4><p>種別が「可変」の機体は、戦闘中に「変形」ボタン（3番目）で別の形態に変形できます。戦闘機・航行・戦車の形態に変わると、使う武器がまるごと入れ替わり、速さも変わります。弾数は形態ごとに別々に数えます。もう一度押すと人型に戻ります（変形の直後は少しのあいだ撃てません）。機体の詳細で、変形後の武器を確かめられます。</p>`;
       h += `<h4>固有特技・連携攻撃</h4><p>名有りパイロットには、1人ずつ違う「固有特技」があります（覚醒・回避・指揮など。パイロットの詳細で確認できます）。決まった二人が同じ戦場で近くにいると「連携攻撃」のボタン（キーボードはX）が光り、2機で強力な攻撃を放てます（使うと22秒待ち）。敵や自動で戦う味方も使ってきます。</p>
     <h4>因縁とライバル</h4><p>因縁のある二人が敵味方に分かれて出会うと、戦闘の前に会話が入ります。各勢力の看板エースは、敵として出てくると名乗りを上げ、少し手強くなります。捕虜にすると、仲間に迎える場面があります。</p>
-    <h4>傭兵</h4><div class="enc-grid">${units.filter(T => !T.f).map(uCell).join('')}</div>`;
+    <h4>傭兵</h4><div class="enc-grid">${zkSort(units.filter(T => !T.f)).map(uCell).join('')}</div>`;
     } else if (tab === 'tree') {
       h += '<p class="dim small">左から量産機・発展機・最上位機。機体をタップすると進化先がわかります。</p>';
       for (const F of facs) {
         const us = units.filter(T => T.f === F.id);
-        h += `<h4>${facBadge(F.id)} ${F.name}</h4><div class="zk-tree">${[0, 1, 2].map(t => `<div class="zk-col"><small>${['量産機', '発展機', '最上位・専用機'][t]}</small>${us.filter(T => tierOf(T) === t).map(uCell).join('')}</div>`).join('')}</div>`;
+        h += `<h4>${facBadge(F.id)} ${F.name}</h4><div class="zk-tree">${[0, 1, 2].map(t => `<div class="zk-col"><small>${['量産機', '発展機', '最上位・専用機'][t]}</small>${zkSort(us.filter(T => tierOf(T) === t)).map(uCell).join('')}</div>`).join('')}</div>`;
       }
     } else if (tab === 'ship') {
       for (const F of facs) h += `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${ships.filter(t => SHIPS[t].f === F.id).map(t => seenS(t) ? `<button class="enc ${seenS(t) === 2 ? 'got' : ''}" data-act="ship" data-t="${t}"><span class="sthumb" data-sthumb="${t}" data-size="58"></span><span>${SHIPS[t].name}</span></button>` : `<div class="enc unknown"><span class="q">？</span><span>？？？</span></div>`).join('')}</div>`;
