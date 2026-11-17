@@ -12877,7 +12877,7 @@ function renderBattle(B) {
     banner(c, cw, ch, B.over.reason === 'retreat' ? '撤退' : W ? '勝利' : '敗北', sub, W ? '#ffe27a' : '#ff8a8a');
   }
   drawCutin(B, c, cw, ch);
-  if (B.paused) banner(c, cw, ch, '一時停止', 'もう一度押すと再開', '#cfd6ff');
+  if (B.paused) banner(c, cw, ch, '一時停止', '「再開」を押すと続きから', '#cfd6ff');
   else if (B.ordOpen) { c.save(); c.font = `bold 12px ${FONT_BODY}`; c.textAlign = 'center'; c.lineWidth = 4; c.strokeStyle = 'rgba(5,7,16,.9)'; c.fillStyle = '#ffe27a'; const ty = ch - 230; c.strokeText('指示を選んでいる間は時間が止まります', cw / 2, ty); c.fillText('指示を選んでいる間は時間が止まります', cw / 2, ty); c.restore(); }
 }
 function fitText(c, s, maxW) {
@@ -13042,7 +13042,7 @@ function buildBattleDom(B) {
     if (ev.code === 'KeyX') { if (!B.over) { const P = comboFor(B); if (P) fireCombo(B, P); } return; }
     if (ev.code === 'Space') { cycleCtrl(B); ev.preventDefault(); return; }
     if (ev.code === 'KeyZ') { B.zoom = !B.zoom; return; }
-    if (ev.code === 'Escape') { B.paused = !B.paused; return; }
+    if (ev.code === 'Escape') { B.paused = !B.paused; renderTopButtons(B); return; }
     B.input.keys[ev.code] = true;
     if (ev.code.startsWith('Arrow')) ev.preventDefault();
   });
@@ -13105,7 +13105,7 @@ function renderTopButtons(B) {
   const q = a => B.dom.top.querySelector(`[data-act="${a}"]`);
   q('auto').classList.toggle('on', B.auto);
   q('zoom').classList.toggle('on', B.zoom);
-  q('pause').classList.toggle('on', B.paused);
+  q('pause').classList.toggle('on', B.paused); q('pause').textContent = B.paused ? '再開' : '停止';
   q('speed').textContent = '×' + B.speed;
   B.dom.ordB.innerHTML = `<small>指示</small>${ORDERS[B.order].short}`;
   renderSwap(B);
