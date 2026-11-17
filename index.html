@@ -757,7 +757,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v97</span>
+    <span class="t-ver">v98</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -4080,10 +4080,12 @@ const FX = {
   },
   pilotText(id) { const p = G.pilots[id]; return `パイロット「${p.name}」（${SKILLS[p.skill]?.name || '－'}）が加わった`; },
   // 隣の中立エリアを1つ加える
-  flip(f, pred = () => true) {
+  // fixed：毎回同じエリアを選ぶ（工場→都市→資源→軌道港→要塞…の順、同じなら地図の並び順）
+  flip(f, pred = () => true, fixed = false) {
     const cand = Object.keys(G.areas).filter(a => !G.areas[a].owner && AREAS[a].links.some(b => G.areas[b].owner === f) && !squadsAt(a).length && !unitsAt(a).length && pred(AREAS[a]));
     if (!cand.length) return null;
-    const a = pick(cand); G.areas[a].owner = f; G.areas[a].q = []; delete G.areas[a].fh;
+    const KO = ['factory', 'city', 'resource', 'port', 'launch', 'fort'], ko = id => { const i = KO.indexOf(AREAS[id].kind); return i < 0 ? KO.length : i; };
+    const a = fixed ? cand.sort((x, y) => ko(x) - ko(y))[0] : pick(cand); G.areas[a].owner = f; G.areas[a].q = []; delete G.areas[a].fh;
     return `${AREAS[a].name}が加わった`;
   },
   // いちばん勢いのある敵の資金を削る
@@ -15047,7 +15049,7 @@ const CLEAR_REWARDS = [
   { f: 'col', name: '彗星の教え', desc: 'はじめにいる全機体の経験値 +80', run: f => FX.expAll(f, 80) },
   { f: 'lun', name: '月の先行投資', desc: '最初の8ターン、収入 +25%', run: f => FX.inc(f, 0.25, 8) },
   { f: 'ast', name: '公社の倉庫', desc: '改造パーツを3つ', run: f => FX.parts(f, 3) },
-  { f: 'sea', name: '海の盟約', desc: 'となりの中立エリアが1つ、はじめから味方に', run: f => FX.flip(f) || FX.gold(f, 400) },
+  { f: 'sea', name: '海の盟約', desc: 'となりの中立エリアが1つ、はじめから味方に', run: f => FX.flip(f, undefined, true) || FX.gold(f, 400) }, // はじめの領土が毎回変わらないよう、選ぶエリアは固定
   { f: 'psy', name: '導きの声', desc: '名のあるパイロット全員の経験 +40', run: f => FX.growAll(f, 40) },
   { f: 'orb', name: '天柱の交易', desc: '他勢力の機体を1機、首都に配備', run: f => FX.foreign(f) },
   { f: 'jup', name: '開拓者の工具', desc: '強い順に2機を改造+1', run: f => FX.mod(f, 2) },
