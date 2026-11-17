@@ -1,4 +1,11 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+</head>
+<body>
 <title>星屑戦記</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3841,7 +3848,7 @@ function comboFor(B) {
   B.comboCd = B.comboCd || {};
   return comboPairs(B, 0).find(P => (P.a === e || P.b === e) && P.near && !(B.comboCd[P.key] > 0)) || null;
 }
-function comboCdLeft(B) { const e = B.ctrl; if (!e) return 0; B.comboCd = B.comboCd || {}; const P = comboPairs(B, 0).find(P => P.a === e || P.b === e); return P ? Math.max(0, B.comboCd[P.key] || 0) : -1; }
+function comboCdLeft(B) { const e = B.ctrl; if (!e) return -1; B.comboCd = B.comboCd || {}; const P = comboPairs(B, 0).find(P => P.a === e || P.b === e); return P ? Math.max(0, B.comboCd[P.key] || 0) : -1; }
 function fireCombo(B, P) {
   B.comboCd = B.comboCd || {};
   const { C, a, b } = P, foes = B.ents.filter(o => o.alive && o.side !== a.side && o.kind !== 'deco');
@@ -4496,7 +4503,10 @@ const SFX = {
   init() { if (this.ctx) return; try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; } },
   play(name) {
     if (!this.ctx || this.vol <= 0) return;
-    const a = this.ctx, now = a.currentTime, out = a.createGain(); out.gain.value = this.vol * 0.35; out.connect(a.destination);
+    const a = this.ctx, now = a.currentTime;
+    // 同じ音を短い間に重ねて鳴らさない（弾幕で音の部品が増えすぎて重くなるのを防ぐ）
+    this.lastT = this.lastT || {}; if (now - (this.lastT[name] ?? -9) < 0.04) return; this.lastT[name] = now;
+    const out = a.createGain(); out.gain.value = this.vol * 0.35; out.connect(a.destination);
     const tone = (type, f0, f1, dur, vol = 1, delay = 0) => {
       const o = a.createOscillator(), g = a.createGain(); o.type = type;
       o.frequency.setValueAtTime(f0, now + delay); o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), now + delay + dur);
@@ -4504,8 +4514,9 @@ const SFX = {
       o.connect(g); g.connect(out); o.start(now + delay); o.stop(now + delay + dur + 0.02);
     };
     const noise = (dur, vol = 1, hp = 400) => {
-      const len = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      const len = Math.floor(a.sampleRate * dur); this.nbuf = this.nbuf || {};
+      let buf = this.nbuf[len];
+      if (!buf) { buf = this.nbuf[len] = a.createBuffer(1, len, a.sampleRate); const d = buf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len); }
       const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
       f.type = 'lowpass'; f.frequency.value = hp; g.gain.value = vol; src.buffer = buf; src.connect(f); f.connect(g); g.connect(out); src.start(now);
     };
@@ -4661,6 +4672,8 @@ const MUSIC = {
   tick() {
     const a = SFX.ctx, S = this.song; if (!a || !S) return;
     const sd = 60 / S.bpm / 4, total = S.chords.length * 16;
+    // 裏に回ってタイマーが止まっていた分は鳴らさずに飛ばす（戻った瞬間に大量の音を作って固まるのを防ぐ）
+    if (this.next < a.currentTime - 0.25) { const miss = Math.ceil((a.currentTime - this.next) / sd); this.next += miss * sd; this.step = S.once ? Math.min(total, this.step + miss) : (this.step + miss) % total; }
     while (this.next < a.currentTime + 0.15) {
       if (this.step >= total) {
         if (S.once) { const n = this.then || this.want; this.stop(0.4); if (n && n !== this.cur) setTimeout(() => this.play(n), 450); return; }
@@ -5512,7 +5525,7 @@ function unitTop(t) {
   } catch (e) {}
   return (D._top = Math.max(30, top));
 }
-function armAngle(face, aim) { let a = face > 0 ? aim : Math.PI - aim; while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; }
+function armAngle(face, aim) { const T = Math.PI * 2; let a = (face > 0 ? aim : Math.PI - aim) % T; if (!Number.isFinite(a)) return 0; if (a > Math.PI) a -= T; else if (a < -Math.PI) a += T; return a; }
 // 銃口の位置（戦闘の座標）
 function unitMuzzle(t, x, y, r, face, aim) {
   const D = DES[t]; if (!D) return [x, y];
@@ -11700,16 +11713,19 @@ function startBattle(ctx, root) {
     const frame = now => {
       if (BT !== B) return;
       let dt = Math.min(0.05, (now - B.last) / 1000); B.last = now;
-      tickCutin(B, dt);
-      if (B.cut && B.intro <= 0 && B.cut.t < B.cut.slow) dt *= 0.22; // カットインの出だしは時間をゆっくりに
-      if (B.hitstop > 0) { B.hitstop -= dt; dt *= 0.15; } // 撃破の瞬間に一瞬止める
-      B.ordOpen = !!B.dom?.ordMenu?.isConnected; // 指示の欄を開いている間は時間を止める
-      if (!B.paused && !B.ordOpen) {
-        const steps = B.speed;
-        for (let i = 0; i < steps && !B.finished; i++) stepBattle(B, dt);
-      }
-      renderBattle(B);
-      updateHud(B);
+      // 1コマの処理で例外が出ても、戦闘が止まらないように次のコマへ進める
+      try {
+        tickCutin(B, dt);
+        if (B.cut && B.intro <= 0 && B.cut.t < B.cut.slow) dt *= 0.22; // カットインの出だしは時間をゆっくりに
+        if (B.hitstop > 0) { B.hitstop -= dt; dt *= 0.15; } // 撃破の瞬間に一瞬止める
+        B.ordOpen = !!B.dom?.ordMenu?.isConnected; // 指示の欄を開いている間は時間を止める
+        if (!B.paused && !B.ordOpen) {
+          const steps = B.speed;
+          for (let i = 0; i < steps && !B.finished; i++) stepBattle(B, dt);
+        }
+      } catch (e) { battleFault(B, e); }
+      try { renderBattle(B); } catch (e) { battleFault(B, e); }
+      try { updateHud(B); } catch (e) { battleFault(B, e); }
       if (!B.finished) B.raf = requestAnimationFrame(frame);
     };
     B.raf = requestAnimationFrame(frame);
@@ -11776,7 +11792,7 @@ const alive = e => e.alive;
 function foesOf(B, e) { return B.ents.filter(o => o.alive && o.side !== e.side); }
 function nearest(list, x, y) { let b = null, bd = 1e9; for (const o of list) { const d = Math.hypot(o.x - x, o.y - y); if (d < bd) { bd = d; b = o; } } return b; }
 function angTo(a, b) { return Math.atan2(b.y - a.y, b.x - a.x); }
-function angDiff(a, b) { let d = b - a; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; }
+function angDiff(a, b) { const T = Math.PI * 2; let d = (b - a) % T; if (!Number.isFinite(d)) return 0; if (d > Math.PI) d -= T; else if (d < -Math.PI) d += T; return d; } // 値が壊れていても無限ループにしない
 
 function stepBattle(B, dt) {
   if (B.intro > 0) { B.intro -= dt; return; }
@@ -11893,7 +11909,7 @@ function toggleTransform(B, e) {
   if (e.wT || e.wN) {
     if (e.transformed) { e.wN = e.w; e.ammoN = e.ammo; e.w = e.wT; e.ammo = e.ammoT; }
     else { e.wT = e.w; e.ammoT = e.ammo; e.w = e.wN; e.ammo = e.ammoN; }
-    e.cd = e.cd.map(x => Math.max(x, 0.35)); e.chg = [0, 0, 0]; e.wind = [0, 0, 0]; e.rt = [0, 0, 0];
+    e.cd = [0, 1, 2].map(i => Math.max(e.cd[i] || 0, 0.35)); e.chg = [0, 0, 0]; e.wind = [0, 0, 0]; e.rt = [0, 0, 0];
   }
   e.tfCd = 1.0; e.tfT = 0.35;
   SFX.play('select');
@@ -12643,6 +12659,12 @@ function fortAbility(B, e, dt) {
   } else e.abT = 99;
 }
 
+// 想定外の例外：記録して続ける。続けて起きるなら戦闘を打ち切って結果に進む
+function battleFault(B, e) {
+  console.error(e);
+  B.faults = (B.faults || 0) + 1;
+  if (B.faults > 120 && !B.finished) { try { if (!B.over) endBattle(B, B.ctx.attacker === 0 ? 1 : 0, 'timeout'); } catch (_) {} if (B.faults > 240) finishBattle(B); }
+}
 // ---------- 勝敗 ----------
 function checkEnd(B) {
   for (const s of [0, 1]) {
@@ -13105,6 +13127,7 @@ function renderCombo(B) {
   cb.hidden = left < 0;
   if (left < 0) return;
   const pr = comboPairs(B, 0).find(Q => Q.a === B.ctrl || Q.b === B.ctrl);
+  if (!P && !pr) { cb.hidden = true; return; }
   const h = P ? `<small>連携攻撃（X）</small>${P.C.name}` : left > 0 ? `<small>連携攻撃</small>あと${Math.ceil(left)}秒` : `<small>連携攻撃</small>${(pr.a === B.ctrl ? pr.b : pr.a).pilot.name}に近づく`;
   if (cb.dataset.h !== h) { cb.dataset.h = h; cb.innerHTML = h; }
   cb.disabled = !P; cb.classList.toggle('on', !!P);
@@ -15095,4 +15118,5 @@ if (window.claude?.hot?.ready) window.claude.hot.ready(startApp);
 else startApp(window.claude?.hot?.data ?? {});
 </script>
 
-</body></html>
+</body>
+</html>
