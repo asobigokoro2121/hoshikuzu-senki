@@ -757,7 +757,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v96</span>
+    <span class="t-ver">v97</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -10152,38 +10152,31 @@ function drawSwing(c, B, sw) {
 // 鞭：根元から波打って伸びる赤熱の線。少し前の形を残像として重ねる
 function drawWhip(c, B, x, y, R, h, span, col, fade) {
   c.globalCompositeOperation = 'lighter';
-  for (let g = 3; g >= 0; g--) {
-    const q = h - span * g * 0.2, al = fade * (g ? 0.28 / g : 1), pts = [];
-    for (let i = 0; i <= 14; i++) { const u = i / 14, r = R * u, wv = Math.sin(u * 9 - B.t * 30) * 7 * u * (1 - u * 0.4); pts.push([x + Math.cos(q) * r - Math.sin(q) * wv, y + Math.sin(q) * r + Math.cos(q) * wv]); }
-    const line = (w, s) => { c.strokeStyle = s; c.lineWidth = w; c.beginPath(); pts.forEach(([px, py], i) => i ? c.lineTo(px, py) : c.moveTo(px, py)); c.stroke(); };
-    line(5, hexA(col, 0.45 * al)); line(2, hexA(col, 0.9 * al)); if (!g) line(0.9, `rgba(255,245,220,${al})`);
-    if (!g) glowDot(c, pts[14][0], pts[14][1], 8 * fade, col, 0.9 * fade);
+  const path = q => { const pts = []; for (let i = 0; i <= 14; i++) { const u = i / 14, r = R * u, wv = Math.sin(u * 9 - B.t * 30) * 7 * u * (1 - u * 0.4); pts.push([x + Math.cos(q) * r - Math.sin(q) * wv, y + Math.sin(q) * r + Math.cos(q) * wv]); } return pts; };
+  for (let g = 3; g >= 1; g--) { const pts = path(h - span * g * 0.2), al = fade * 0.3 / g; c.strokeStyle = hexA(col, al); c.lineWidth = 4; c.beginPath(); pts.forEach(([px, py], i) => i ? c.lineTo(px, py) : c.moveTo(px, py)); c.stroke(); }
+  const pts = path(h);
+  c.strokeStyle = hexA(col, 0.5 * fade); c.lineWidth = 7; c.beginPath(); pts.forEach(([px, py], i) => i ? c.lineTo(px, py) : c.moveTo(px, py)); c.stroke(); // 赤熱のにじみ
+  c.globalCompositeOperation = 'source-over';
+  for (let i = 2; i < pts.length; i++) { // 節：金属の小片を連ね、継ぎ目を光らせる
+    const [ax, ay] = pts[i - 1], [bx, by] = pts[i], a = Math.atan2(by - ay, bx - ax), len = Math.hypot(bx - ax, by - ay), hw = 2.6 - i * 0.1;
+    c.save(); c.translate(ax, ay); c.rotate(a);
+    c.beginPath(); c.moveTo(0, -hw); c.lineTo(len * 0.8, -hw * 0.7); c.lineTo(len, 0); c.lineTo(len * 0.8, hw * 0.7); c.lineTo(0, hw); c.closePath();
+    c.fillStyle = wGrad(c, -hw, hw, '#d9dee8', '#8a91a2', '#4a5062'); c.fill(); c.strokeStyle = W_OL; c.lineWidth = 1; c.stroke();
+    c.restore();
+    c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = `rgba(255,170,80,${0.9 * fade})`; c.beginPath(); c.arc(bx, by, 1.4, 0, 7); c.fill(); c.restore();
   }
+  c.globalCompositeOperation = 'lighter'; glowDot(c, pts[14][0], pts[14][1], 8 * fade, col, 0.9 * fade);
 }
 // 突き：槍・ドリル・牙・杭打ち。前へ伸びる穂先と、後ろへ流れる速さの線
 function drawThrust(c, B, sw, e, k, st, col, fade) {
   const ca = Math.cos(sw.a), sa = Math.sin(sw.a), x = e.x, y = e.y;
   c.globalCompositeOperation = 'lighter';
   for (let i = -2; i <= 2; i++) { const ox = -sa * i * 6, oy = ca * i * 6, L = 34 + (2 - Math.abs(i)) * 16; fxLine(c, x + ox - ca * L, y + oy - sa * L, x + ox - ca * (e.r * 0.6), y + oy - sa * (e.r * 0.6), 1.3, hexA(col, 0.45 * fade)); }
-  const out = st === 'pile' ? (k < 0.18 ? k / 0.18 : 1) : 1, base = e.r * 0.7, L = (st === 'pile' ? sw.range * 0.9 : sw.range * 0.55 + 14) * out;
-  c.save(); c.translate(x + ca * base, y + sa * base); c.rotate(sw.a);
-  if (st === 'pile') { // 杭が一気に飛び出し、根元で衝撃の輪
-    c.fillStyle = `rgba(210,216,228,${0.9 * fade})`; c.fillRect(0, -2.6, L, 5.2); c.fillStyle = `rgba(255,255,255,${0.9 * fade})`; c.fillRect(0, -0.9, L, 1.8);
-    c.beginPath(); c.moveTo(L, -3.6); c.lineTo(L + 9, 0); c.lineTo(L, 3.6); c.fill();
-    if (k < 0.35) { const q = k / 0.35; c.strokeStyle = `rgba(255,220,160,${0.9 * (1 - q)})`; c.lineWidth = 2.4 * (1 - q) + 0.4; c.beginPath(); c.ellipse(L + 6, 0, 3 + 5 * q, 7 + 10 * q, 0, 0, 7); c.stroke(); glowDot(c, L + 6, 0, 11 * (1 - q), col, 0.8 * (1 - q)); }
-    for (const m of [-1, 1]) { c.fillStyle = `rgba(230,230,240,${0.35 * fade})`; c.beginPath(); c.arc(-4 - 10 * k, m * (6 + 10 * k), 4 + 6 * k, 0, 7); c.fill(); } // 排気の煙
-  } else if (st === 'drill') { // ドリル：回る溝の入った円すい
-    c.fillStyle = hexA(col, 0.35 * fade); c.beginPath(); c.moveTo(0, -9); c.lineTo(L, 0); c.lineTo(0, 9); c.closePath(); c.fill();
-    c.strokeStyle = `rgba(255,236,200,${0.85 * fade})`; c.lineWidth = 1.3;
-    for (let i = 0; i < 5; i++) { const u = ((i / 5 + B.t * 6) % 1), px = u * L, hw = 9 * (1 - u); c.beginPath(); c.moveTo(px, -hw); c.lineTo(px + 6 * (1 - u), hw); c.stroke(); }
-  } else if (st === 'claw') { // 牙：前へ走る三本の爪の光
-    for (const m of [-1, 0, 1]) { fxLine(c, 0, m * 7, L, m * 3, 3.2, hexA(col, 0.6 * fade)); fxLine(c, L * 0.3, m * 6, L, m * 3, 1.1, `rgba(255,248,230,${fade})`); }
-  } else { // ビームランス：細長い光の穂先
-    c.fillStyle = hexA(col, 0.4 * fade); c.beginPath(); c.moveTo(0, -7); c.lineTo(L + 10, 0); c.lineTo(0, 7); c.closePath(); c.fill();
-    c.fillStyle = `rgba(255,255,255,${0.9 * fade})`; c.beginPath(); c.moveTo(0, -2.2); c.lineTo(L + 12, 0); c.lineTo(0, 2.2); c.closePath(); c.fill();
-  }
-  c.restore();
-  if (st !== 'pile') glowDot(c, x + ca * (base + L), y + sa * (base + L), 12 * fade, col, 0.75 * fade);
+  const out = st === 'pile' ? (k < 0.18 ? k / 0.18 : 1) : 1, base = e.r * 0.55, L = (st === 'pile' ? sw.range * 0.9 : sw.range * 0.55 + 14) * out;
+  const tx = x + ca * (base + L + 12), ty = y + sa * (base + L + 12);
+  if (st === 'pile' && k < 0.35) { const q = k / 0.35; c.save(); c.translate(tx, ty); c.rotate(sw.a); c.strokeStyle = `rgba(255,220,160,${0.9 * (1 - q)})`; c.lineWidth = 2.4 * (1 - q) + 0.4; c.beginPath(); c.ellipse(0, 0, 3 + 5 * q, 7 + 10 * q, 0, 0, 7); c.stroke(); c.restore(); glowDot(c, tx, ty, 11 * (1 - q), col, 0.8 * (1 - q)); }
+  else if (st !== 'pile') glowDot(c, tx, ty, 10 * fade, col, 0.7 * fade);
+  if (st === 'drill' && !B.paused && Math.random() < 0.6) B.fx.push({ kind: 'ember', x: tx, y: ty, vx: Math.cos(sw.a + rand(-2, 2)) * rand(60, 140), vy: Math.sin(sw.a + rand(-2, 2)) * rand(60, 140), t: 0, life: rand(0.12, 0.25) });
 }
 // 格闘の当たり：対象を横切る鋭い一閃と、斬った向きへ散る火花（打撃は衝撃の輪）
 function drawMeleeHit(c, f, k) {
@@ -10211,75 +10204,161 @@ function drawMeleeHit(c, f, k) {
 }
 
 // 振っている武器そのもの：機体の絵の上に、刃先の向きへ大きくはっきり描く
+// 刃や面は振る向き（+y）を向く。金属は上が明るく下が暗いグラデーション、太い暗い縁取り
+const W_OL = '#121520';
+function wGrad(c, y0, y1, hi, mid, lo) { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, hi); g.addColorStop(0.45, mid); g.addColorStop(1, lo); return g; }
+const wSteel = (c, y0, y1) => wGrad(c, y0, y1, '#f6f9ff', '#bcc6d6', '#69728a');
+const wGun = (c, y0, y1) => wGrad(c, y0, y1, '#9aa2b4', '#5c6378', '#30354a');
+function wPoly(c, pts, fill, lw = 1.5) { c.beginPath(); for (let i = 0; i < pts.length; i += 2) i ? c.lineTo(pts[i], pts[i + 1]) : c.moveTo(pts[i], pts[i + 1]); c.closePath(); c.fillStyle = fill; c.fill(); c.strokeStyle = W_OL; c.lineWidth = lw; c.stroke(); }
+function wRect(c, x, y, w, h, fill, lw = 1.4) { c.beginPath(); c.rect(x, y, w, h); c.fillStyle = fill; c.fill(); c.strokeStyle = W_OL; c.lineWidth = lw; c.stroke(); }
+function wRivet(c, x, y, r = 1.1) { c.fillStyle = '#e8edf6'; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); c.fillStyle = 'rgba(20,22,32,.6)'; c.beginPath(); c.arc(x + r * 0.3, y + r * 0.3, r * 0.55, 0, 7); c.fill(); }
+// 握り：巻き紐の菱形模様
+function wGrip(c, x0, x1, h) {
+  wRect(c, x0, -h, x1 - x0, h * 2, wGrad(c, -h, h, '#3c3f52', '#24273a', '#14161f'));
+  c.strokeStyle = 'rgba(150,160,190,.55)'; c.lineWidth = 0.8;
+  for (let x = x0 + 2; x < x1 - 1; x += 3.2) { c.beginPath(); c.moveTo(x, -h + 0.6); c.lineTo(x + 2.4, h - 0.6); c.moveTo(x + 2.4, -h + 0.6); c.lineTo(x, h - 0.6); c.stroke(); }
+}
+// ビームの柄：刻みの入った筒と、二本の爪で挟んだ発振口
+function beamHilt(c, x0, x1, col) {
+  wRect(c, x0, -3, x1 - x0 - 6, 6, wGun(c, -3, 3));
+  c.fillStyle = 'rgba(20,22,32,.7)'; for (let x = x0 + 2; x < x1 - 8; x += 2.6) c.fillRect(x, -3, 1, 6); // 滑り止め
+  wRect(c, x1 - 6, -4.2, 6, 8.4, wGun(c, -4.2, 4.2));
+  wPoly(c, [x1 - 2, -4.2, x1 + 3, -6.5, x1 + 2, -3], wSteel(c, -6.5, -3), 1.1); wPoly(c, [x1 - 2, 4.2, x1 + 3, 6.5, x1 + 2, 3], wSteel(c, 3, 6.5), 1.1);
+  c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = hexA(col, 0.9); c.fillRect(x1 - 4.5, -4.2, 1.6, 8.4); c.restore(); // 光る輪
+}
+// 光の刃：根元が太く先が尖る。にじみ・暗い縁・色・白い芯
+function beamEdge(c, x0, x1, w, col, t = 0) {
+  const fl = 1 + Math.sin(t * 61) * 0.06, hw = w / 2 * fl;
+  const shape = (k) => { c.beginPath(); c.moveTo(x0, -hw * k); c.lineTo(x1 - w * 1.1, -hw * 0.9 * k); c.lineTo(x1 + w * 0.2 * (k - 1), 0); c.lineTo(x1 - w * 1.1, hw * 0.9 * k); c.lineTo(x0, hw * k); c.closePath(); };
+  c.save();
+  c.globalCompositeOperation = 'lighter'; shape(2.3); c.fillStyle = hexA(col, 0.22); c.fill(); shape(1.6); c.fillStyle = hexA(col, 0.3); c.fill();
+  c.globalCompositeOperation = 'source-over'; shape(1.3); c.fillStyle = 'rgba(16,19,30,.75)'; c.fill();
+  shape(1); c.fillStyle = col; c.fill();
+  shape(0.45); c.fillStyle = '#ffffff'; c.fill();
+  c.restore();
+}
+const WS = 1.25; // 武器の太さ・大きさの倍率（長さは振りの届く距離に合わせる）
 function drawSwingWeapon(c, B, sw) {
-  const e = sw.e, wid = e.w[sw.s], st = swingStyle(wid), col = swingCol(e, wid);
+  const e = sw.e, wid = e.w[sw.s], st = swingStyle(wid), col = swingCol(e, wid), bcol = beamColOf(e);
   const k = Math.min(1, sw.t / sw.dur), fade = k < 0.75 ? 1 : Math.max(0, 1 - (k - 0.75) / 0.25);
   if (fade <= 0) return;
-  const OL = '#141722';
   c.save(); c.globalAlpha = fade; c.lineJoin = 'round'; c.lineCap = 'round';
-  if (sw.thrust || st === 'pile') { // 突き：機体の前に穂先・杭を構えた形で描く
-    const base = e.r * 0.55, out = st === 'pile' ? (k < 0.18 ? k / 0.18 : 1) : 1, L = (st === 'pile' ? sw.range * 0.9 : sw.range * 0.55 + 14) * out;
-    c.translate(e.x + Math.cos(sw.a) * base, e.y + Math.sin(sw.a) * base); c.rotate(sw.a);
-    if (st === 'pile') { // 杭打ち機の筒と、飛び出す杭
-      c.fillStyle = '#d9dee8'; c.strokeStyle = OL; c.lineWidth = 1.6; c.beginPath(); c.rect(-2, -2.8, L + 2, 5.6); c.fill(); c.stroke();
-      c.beginPath(); c.moveTo(L, -4.2); c.lineTo(L + 11, 0); c.lineTo(L, 4.2); c.closePath(); c.fill(); c.stroke();
-      c.fillStyle = '#5b6274'; c.beginPath(); c.rect(-14, -7, 16, 14); c.fill(); c.stroke(); c.fillStyle = '#ffb347'; c.fillRect(-11, -4.5, 3, 9);
-    } else if (st === 'drill') { // 溝のある金属の円すい
-      c.fillStyle = '#b9c0cc'; c.strokeStyle = OL; c.lineWidth = 1.6; c.beginPath(); c.moveTo(-2, -10); c.lineTo(L + 4, 0); c.lineTo(-2, 10); c.closePath(); c.fill(); c.stroke();
-      c.strokeStyle = '#59606e'; c.lineWidth = 1.4; for (let i = 0; i < 5; i++) { const u = (i / 5 + B.t * 6) % 1, px = -2 + u * (L + 6), hw = 10 * (1 - u); c.beginPath(); c.moveTo(px, -hw); c.lineTo(px + 7 * (1 - u), hw); c.stroke(); }
-      c.fillStyle = 'rgba(255,255,255,.55)'; c.beginPath(); c.moveTo(0, -7); c.lineTo(L, -1); c.lineTo(0, -3); c.closePath(); c.fill();
-    } else if (st === 'claw') { // 前へ突き出す三本の爪
-      for (const m of [-1, 0, 1]) { c.fillStyle = '#d8dce6'; c.strokeStyle = OL; c.lineWidth = 1.4; c.beginPath(); c.moveTo(0, m * 6 - 2.5); c.quadraticCurveTo(L * 0.6, m * 6 - 3, L, m * 3); c.quadraticCurveTo(L * 0.6, m * 6 + 2, 0, m * 6 + 2.5); c.closePath(); c.fill(); c.stroke(); }
-    } else { // ビームランス：柄と光の穂先
-      c.strokeStyle = OL; c.lineWidth = 5; c.beginPath(); c.moveTo(-10, 0); c.lineTo(6, 0); c.stroke(); c.strokeStyle = '#7a8296'; c.lineWidth = 3; c.stroke();
-      swingBeam(c, 6, L + 12, 6.5, col);
-    }
+  if (sw.thrust || st === 'pile') { // 突き：機体の前に構えた形
+    const base = e.r * 0.55, out = st === 'pile' ? (k < 0.18 ? k / 0.18 : 1) : 1; let L = (st === 'pile' ? sw.range * 0.9 : sw.range * 0.55 + 14) * out;
+    c.translate(e.x + Math.cos(sw.a) * base, e.y + Math.sin(sw.a) * base); c.rotate(sw.a); c.scale(WS, WS); L /= WS;
+    if (st === 'pile') wPile(c, L, k);
+    else if (st === 'drill') wDrill(c, L, B.t);
+    else if (st === 'claw') { wGauntlet(c, -8); for (const m of [-1, 0, 1]) wTalon(c, 0, m * 5.5, L, m * 2.5 + 2, 2.6); }
+    else wLance(c, L, bcol, B.t);
     c.restore(); return;
   }
-  const { R, head } = swingPose(sw), r0 = e.r * 0.25, heads = sw.spin ? [head] : [head];
-  for (const h of heads) {
-    c.save(); c.translate(e.x, e.y); c.rotate(h);
-    const L = R - r0;
+  const P = swingPose(sw), head = P.head, R = P.R / WS, r0 = e.r * 0.25 / WS, L = R - r0;
+  c.translate(e.x, e.y); c.rotate(head); c.scale(WS, WS);
+  if (st === 'beam' && sw.spin) { // ツインブレード：中央の柄から前後に光の刃
+    wTwinHilt(c, bcol); beamEdge(c, 11, R, 6.5, bcol, B.t); c.rotate(Math.PI); beamEdge(c, 11, R, 6.5, bcol, B.t + 1);
+  } else {
     c.translate(r0, 0);
-    if (st === 'beam' && sw.spin) { // 両刃：中央の柄から前後に光の刃
-      c.fillStyle = '#4a5064'; c.strokeStyle = OL; c.lineWidth = 1.4; c.beginPath(); c.rect(-r0 - 5, -2.6, 10, 5.2); c.fill(); c.stroke();
-      c.translate(-r0, 0); swingBeam(c, 5, R, 6.5, col); c.rotate(Math.PI); swingBeam(c, 5, R, 6.5, col);
-    } else if (st === 'beam') { // ビームサーベル：柄と光の刃
-      c.fillStyle = '#4a5064'; c.strokeStyle = OL; c.lineWidth = 1.4; c.beginPath(); c.rect(-2, -2.6, 11, 5.2); c.fill(); c.stroke();
-      swingBeam(c, 9, L, 7, col);
-    } else if (st === 'steel') { // 斬艦刀：反りのある長い刃・鍔・柄
-      c.fillStyle = '#2b2f3c'; c.strokeStyle = OL; c.lineWidth = 1.4; c.beginPath(); c.rect(-4, -2.4, 12, 4.8); c.fill(); c.stroke();
-      c.fillStyle = '#c9a14a'; c.beginPath(); c.ellipse(8, 0, 2, 5.5, 0, 0, 7); c.fill(); c.stroke();
-      const BL = L + 4; c.fillStyle = '#e8eef8'; c.beginPath(); c.moveTo(10, -3.2); c.quadraticCurveTo(BL * 0.6, -6, BL, -6.5); c.quadraticCurveTo(BL * 0.62, 1, 10, 3); c.closePath(); c.fill(); c.lineWidth = 1.5; c.stroke();
-      c.strokeStyle = 'rgba(150,170,200,.9)'; c.lineWidth = 1; c.beginPath(); c.moveTo(12, 0.4); c.quadraticCurveTo(BL * 0.6, -2.4, BL - 4, -5.6); c.stroke(); // 刃文
-      c.strokeStyle = 'rgba(255,255,255,.95)'; c.lineWidth = 1.1; c.beginPath(); c.moveTo(12, -2.6); c.quadraticCurveTo(BL * 0.6, -5.4, BL - 2, -6.2); c.stroke();
-    } else if (st === 'heat') { // ヒートアックス：柄と赤熱した刃
-      c.strokeStyle = OL; c.lineWidth = 5.5; c.beginPath(); c.moveTo(-2, 0); c.lineTo(L - 4, 0); c.stroke(); c.strokeStyle = '#6b6f7e'; c.lineWidth = 3.2; c.stroke();
-      c.fillStyle = '#9aa0ae'; c.strokeStyle = OL; c.lineWidth = 1.5; c.beginPath(); c.moveTo(L - 14, -3); c.lineTo(L - 4, -13); c.quadraticCurveTo(L + 6, 0, L - 4, 13); c.lineTo(L - 14, 3); c.closePath(); c.fill(); c.stroke();
-      c.save(); c.globalCompositeOperation = 'lighter'; c.strokeStyle = 'rgba(255,150,60,.95)'; c.lineWidth = 3; c.beginPath(); c.moveTo(L - 4, -12); c.quadraticCurveTo(L + 5, 0, L - 4, 12); c.stroke(); c.strokeStyle = 'rgba(255,240,200,.95)'; c.lineWidth = 1.1; c.stroke(); c.restore();
-    } else if (st === 'claw') { // アイアンクロー：手の先から三本の鉤爪
-      for (const m of [-1, 0, 1]) { const ex = L * 0.75; c.fillStyle = '#d0d5e0'; c.strokeStyle = OL; c.lineWidth = 1.4; c.beginPath(); c.moveTo(0, m * 5 - 2.4); c.quadraticCurveTo(ex * 0.7, m * 6 - 3, ex, m * 7 + 3); c.quadraticCurveTo(ex * 0.6, m * 6 + 2, 0, m * 5 + 2.4); c.closePath(); c.fill(); c.stroke(); }
-      c.fillStyle = '#5b6274'; c.beginPath(); c.rect(-6, -9, 8, 18); c.fill(); c.stroke();
-    } else if (st === 'blunt') { // ハンマー：長い柄と大きな頭
-      c.strokeStyle = OL; c.lineWidth = 6; c.beginPath(); c.moveTo(-2, 0); c.lineTo(L - 6, 0); c.stroke(); c.strokeStyle = '#787e8e'; c.lineWidth = 3.6; c.stroke();
-      c.fillStyle = '#8d94a4'; c.strokeStyle = OL; c.lineWidth = 1.8; c.beginPath(); c.rect(L - 14, -12, 16, 24); c.fill(); c.stroke();
-      c.fillStyle = '#b8bfcc'; c.fillRect(L - 12, -10, 5, 20); c.fillStyle = '#ffb347'; c.fillRect(L - 4, -9, 3, 18);
-    } else if (st === 'whip') { // ヒートウィップ：柄だけ（鞭本体は軌跡の線）
-      c.fillStyle = '#4a5064'; c.strokeStyle = OL; c.lineWidth = 1.4; c.beginPath(); c.rect(-2, -3, 12, 6); c.fill(); c.stroke();
-    }
-    c.restore();
+    if (st === 'beam') { beamHilt(c, -6, 11, bcol); beamEdge(c, 11, L + 10, 7.5, bcol, B.t); }
+    else if (st === 'steel') wKatana(c, L);
+    else if (st === 'heat') wAxe(c, L, B.t);
+    else if (st === 'claw') { wGauntlet(c, -6); for (const m of [-1, 0, 1]) wTalon(c, 6, m * 5.5, L + 2, m * 4 + 10, 3); }
+    else if (st === 'blunt') wHammer(c, L, B.t);
+    else if (st === 'whip') { wGrip(c, -4, 7, 2.6); wRect(c, 7, -4.5, 4, 9, wGun(c, -4.5, 4.5)); wRivet(c, 9, 0); }
   }
   c.restore();
 }
-// 光の刃：外側のにじみ・色の刃・白い芯
-function swingBeam(c, x0, x1, w, col) {
-  c.save(); c.lineCap = 'round';
-  c.globalCompositeOperation = 'lighter'; c.strokeStyle = hexA(col, 0.3); c.lineWidth = w * 2.4; c.beginPath(); c.moveTo(x0, 0); c.lineTo(x1, 0); c.stroke(); // にじみ
-  c.globalCompositeOperation = 'source-over';
-  c.strokeStyle = 'rgba(20,23,34,.8)'; c.lineWidth = w + 2.4; c.stroke(); // 背景や軌跡から浮かせる暗い縁
-  c.strokeStyle = col; c.lineWidth = w; c.stroke();
-  c.strokeStyle = '#ffffff'; c.lineWidth = w * 0.42; c.beginPath(); c.moveTo(x0, 0); c.lineTo(x1 - w * 0.3, 0); c.stroke();
+function wTwinHilt(c, col) {
+  wGrip(c, -6, 6, 3);
+  for (const m of [-1, 1]) { c.save(); c.scale(m, 1); wRect(c, 6, -3.8, 5, 7.6, wGun(c, -3.8, 3.8)); wPoly(c, [9, -3.8, 13, -6, 12, -2.6], wSteel(c, -6, -2.6), 1); wPoly(c, [9, 3.8, 13, 6, 12, 2.6], wSteel(c, 2.6, 6), 1); c.globalCompositeOperation = 'lighter'; c.fillStyle = hexA(col, 0.9); c.fillRect(8.2, -3.8, 1.4, 7.6); c.restore(); }
+  wRivet(c, 0, 0, 1.4);
+}
+// 斬艦刀：幅広の反った刃。峰に機械の刻み、鎬の線、刃文、大きな角鍔、長い柄
+function wKatana(c, L) {
+  const BL = L + 8;
+  wGrip(c, -12, 8, 2.8); wRect(c, -15, -3.4, 3.4, 6.8, wGun(c, -3.4, 3.4)); // 柄頭
+  wRect(c, 8, -8.5, 4, 17, wGrad(c, -8.5, 8.5, '#f0cf78', '#c19438', '#7a5b1e')); wRivet(c, 10, -5.5, 0.9); wRivet(c, 10, 5.5, 0.9); // 鍔
+  wRect(c, 12, -4.5, 5, 9, wGun(c, -4.5, 4.5)); // はばき
+  const blade = [17, -5.2, BL * 0.55, -6.8, BL - 6, -7.4, BL + 4, -4.2, BL - 2, 3.4, BL * 0.55, 4.4, 17, 4.6];
+  wPoly(c, blade, wSteel(c, -7.4, 4.6), 1.7);
+  c.strokeStyle = 'rgba(80,92,120,.85)'; c.lineWidth = 1; c.beginPath(); c.moveTo(18, -1.2); c.quadraticCurveTo(BL * 0.55, -2.4, BL - 4, -3.6); c.lineTo(BL + 3, -4); c.stroke(); // 鎬
+  c.fillStyle = 'rgba(40,46,62,.75)'; for (let x = 22; x < BL - 10; x += 6) c.fillRect(x, -6.4 - (x / BL) * 1, 2.4, 1.6); // 峰の刻み
+  c.strokeStyle = 'rgba(170,215,255,.9)'; c.lineWidth = 0.9; c.beginPath(); // 刃文
+  for (let x = 18; x <= BL - 4; x += 2) { const y = 1.8 + (x / BL) * 0.6 + Math.sin(x * 0.9) * 0.7; x === 18 ? c.moveTo(x, y) : c.lineTo(x, y); } c.stroke();
+  c.strokeStyle = '#ffffff'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(18, 4); c.quadraticCurveTo(BL * 0.55, 3.8, BL - 2, 3); c.lineTo(BL + 3, -3.6); c.stroke(); // 刃先の光
+}
+// ヒートアックス：帯を巻いた柄、角ばった斧頭、後ろの突起、赤熱した刃
+function wAxe(c, L, t) {
+  wRect(c, -6, -2.6, L + 4, 5.2, wGun(c, -2.6, 2.6)); for (const x of [2, 12, L - 22]) wRect(c, x, -3.2, 3, 6.4, '#8a8f9e', 1);
+  wPoly(c, [L - 2, -2.6, L + 6, 0, L - 2, 2.6], wSteel(c, -2.6, 2.6), 1.2); // 先端の突起
+  wPoly(c, [L - 14, -3.5, L - 12, -13, L - 6, -3.5], wSteel(c, -13, -3), 1.3); // 後ろの突起
+  // 斧頭：柄の近くは細く、振る向きへ大きく広がる三日月の刃
+  c.beginPath(); c.moveTo(L - 15, -4); c.lineTo(L - 1, -4); c.lineTo(L, 4); c.lineTo(L + 10, 15); c.quadraticCurveTo(L - 4, 30, L - 26, 20); c.lineTo(L - 16, 4); c.closePath();
+  c.fillStyle = wGrad(c, -4, 26, '#cfd6e2', '#8b93a4', '#4b5163'); c.fill(); c.strokeStyle = W_OL; c.lineWidth = 1.7; c.stroke();
+  c.fillStyle = 'rgba(20,22,32,.75)'; c.fillRect(L - 14, 6, 9, 1.5); c.fillRect(L - 15, 9.5, 10, 1.5); wRivet(c, L - 4, 0.3, 1); wRivet(c, L - 12, 0.3, 1);
+  c.save(); c.globalCompositeOperation = 'lighter'; const p = 0.8 + 0.2 * Math.sin(t * 40);
+  c.strokeStyle = `rgba(255,120,40,${0.55 * p})`; c.lineWidth = 6; c.beginPath(); c.moveTo(L + 10, 15); c.quadraticCurveTo(L - 4, 30, L - 26, 20); c.stroke();
+  c.strokeStyle = `rgba(255,190,90,${0.95 * p})`; c.lineWidth = 2.6; c.stroke(); c.strokeStyle = 'rgba(255,250,220,.95)'; c.lineWidth = 1; c.stroke();
   c.restore();
+}
+// アイアンクロー：籠手と、節のある鉤爪（刃先は赤熱）
+function wGauntlet(c, x) {
+  wRect(c, x - 4, -10, 17, 20, wGun(c, -10, 10), 1.6);
+  for (const y of [-6.5, 0, 6.5]) wRect(c, x + 9, y - 2.6, 6, 5.2, wSteel(c, y - 2.6, y + 2.6), 1.1);
+  wRivet(c, x + 3, -5.5); wRivet(c, x + 3, 5.5);
+}
+function wTalon(c, x0, y0, x1, y1, w) {
+  const mx = (x0 + x1) / 2, my = (y0 + y1) / 2 - 3;
+  c.beginPath(); c.moveTo(x0, y0 - w); c.quadraticCurveTo(mx, my - w * 1.2, x1, y1); c.quadraticCurveTo(mx, my + w * 0.8, x0, y0 + w); c.closePath();
+  c.fillStyle = wSteel(c, y0 - w, y1); c.fill(); c.strokeStyle = W_OL; c.lineWidth = 1.4; c.stroke();
+  c.strokeStyle = 'rgba(30,34,48,.7)'; c.lineWidth = 0.9; c.beginPath(); const jx = x0 + (x1 - x0) * 0.42, jy = y0 + (my - y0) * 0.7; c.moveTo(jx, jy - w * 0.9); c.lineTo(jx + 1, jy + w * 0.9); c.stroke(); // 節
+  c.save(); c.globalCompositeOperation = 'lighter'; c.strokeStyle = 'rgba(255,160,70,.9)'; c.lineWidth = 1.3; c.beginPath(); c.moveTo(jx, jy + w * 0.6); c.quadraticCurveTo(mx + 2, my + w * 0.6, x1, y1); c.stroke(); c.restore();
+}
+// ハンマー：握りの帯と長い柄、打撃面のある大きな頭、後ろの噴射口と炎
+function wHammer(c, L, t) {
+  wRect(c, -6, -3, L - 2, 6, wGun(c, -3, 3)); wGrip(c, -6, 8, 3.2); for (const x of [16, L - 24]) wRect(c, x, -3.6, 3, 7.2, '#8a8f9e', 1);
+  const hx = L - 16;
+  // 噴射の炎（振る向きと反対の -y 側）
+  c.save(); c.globalCompositeOperation = 'lighter'; const fl = 14 + Math.sin(t * 50) * 3;
+  c.fillStyle = 'rgba(255,140,50,.5)'; c.beginPath(); c.moveTo(hx + 4, -20); c.lineTo(hx + 10, -20 - fl * 1.4); c.lineTo(hx + 16, -20); c.fill();
+  c.fillStyle = 'rgba(255,240,190,.9)'; c.beginPath(); c.moveTo(hx + 6.5, -20); c.lineTo(hx + 10, -20 - fl * 0.8); c.lineTo(hx + 13.5, -20); c.fill(); c.restore();
+  wPoly(c, [hx + 3, -13, hx + 2, -21, hx + 18, -21, hx + 17, -13], wGun(c, -21, -13), 1.4); // 噴射口
+  wRect(c, hx - 2, -14, 24, 26, wGrad(c, -14, 12, '#a9b1c2', '#6e7689', '#3c4254'), 1.8); // 頭
+  c.save(); c.beginPath(); c.rect(hx - 2, -6, 24, 7); c.clip(); c.fillStyle = '#f2c14e'; c.fillRect(hx - 2, -6, 24, 7); c.fillStyle = '#1b1d26'; for (let x = hx - 8; x < hx + 24; x += 6) { c.beginPath(); c.moveTo(x, 1); c.lineTo(x + 3, 1); c.lineTo(x + 10, -6); c.lineTo(x + 7, -6); c.fill(); } c.restore(); // 警告の縞
+  c.strokeStyle = W_OL; c.lineWidth = 1.2; c.strokeRect(hx - 2, -6, 24, 7);
+  wRect(c, hx - 4, 11, 28, 6, wSteel(c, 11, 17), 1.7); // 打撃面
+  for (const x of [hx + 1, hx + 17]) { wRivet(c, x, -10); wRivet(c, x, 7); }
+}
+// ビームランス：長い柄と羽根状の鍔、円すいの光の穂先
+function wLance(c, L, col, t) {
+  wRect(c, -18, -2.4, 26, 4.8, wGun(c, -2.4, 2.4)); wGrip(c, -14, -2, 2.8);
+  wPoly(c, [4, -3, 10, -10, 13, -9, 11, -3], wSteel(c, -10, -3), 1.2); wPoly(c, [4, 3, 10, 10, 13, 9, 11, 3], wSteel(c, 3, 10), 1.2);
+  wRect(c, 8, -4, 6, 8, wGun(c, -4, 4));
+  c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = hexA(col, 0.9); c.fillRect(12, -4, 1.4, 8); c.restore();
+  beamEdge(c, 14, L + 16, 9, col, t);
+}
+// ドリル：溝が回る金属の円すいと、ボルト留めの基部
+function wDrill(c, L, t) {
+  const x0 = 4, x1 = L + 8, r = 11;
+  wRect(c, -10, -12, 14, 24, wGun(c, -12, 12), 1.7); for (const y of [-8, 8]) wRivet(c, -6, y);
+  c.save(); c.beginPath(); c.moveTo(x0, -r); c.lineTo(x1, 0); c.lineTo(x0, r); c.closePath(); c.fillStyle = wSteel(c, -r, r); c.fill(); c.clip();
+  c.fillStyle = 'rgba(60,66,86,.75)';
+  for (let i = -1; i < 7; i++) { const u = ((i / 6 + t * 3) % 1 + 1) % 1, px = x0 + u * (x1 - x0 + 10) - 6; c.beginPath(); c.moveTo(px, -r); c.lineTo(px + 4, -r); c.lineTo(px + 12, r); c.lineTo(px + 8, r); c.closePath(); c.fill(); }
+  c.restore();
+  c.beginPath(); c.moveTo(x0, -r); c.lineTo(x1, 0); c.lineTo(x0, r); c.closePath(); c.strokeStyle = W_OL; c.lineWidth = 1.7; c.stroke();
+  c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 1.1; c.beginPath(); c.moveTo(x0 + 2, -r + 2.5); c.lineTo(x1 - 4, -1); c.stroke();
+}
+// パイルバンカー：弾倉つきの箱型の機関部と、撃ち出される杭
+function wPile(c, L, k) {
+  const x1 = Math.max(12, L);
+  wRect(c, 6, -2.8, x1 - 4, 5.6, wSteel(c, -2.8, 2.8), 1.6); // 杭
+  wPoly(c, [x1 + 2, -4, x1 + 13, 0, x1 + 2, 4], wSteel(c, -4, 4), 1.5);
+  c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1; c.beginPath(); c.moveTo(8, -1.3); c.lineTo(x1 + 8, -1.3); c.stroke();
+  wRect(c, -18, -8.5, 24, 17, wGun(c, -8.5, 8.5), 1.8); // 機関部
+  wRect(c, 6, -6, 5, 12, wGun(c, -6, 6), 1.4); // 砲口
+  c.beginPath(); c.arc(-10, -9, 6.5, 0, 7); c.fillStyle = wGun(c, -15, -3); c.fill(); c.strokeStyle = W_OL; c.lineWidth = 1.5; c.stroke(); // 弾倉
+  for (let i = 0; i < 6; i++) { const q = i * 1.047 + k * 2; c.fillStyle = i ? '#c9a24a' : '#ffcf6a'; c.beginPath(); c.arc(-10 + Math.cos(q) * 3.6, -9 + Math.sin(q) * 3.6, 1.3, 0, 7); c.fill(); }
+  c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = `rgba(255,170,70,${0.9 - k * 0.6})`; c.fillRect(-3, -4.5, 7, 2.2); c.fillRect(-3, 2.3, 7, 2.2); c.restore();
+  for (const x of [-15, 1]) for (const y of [-5.5, 5.5]) wRivet(c, x, y);
 }
 
 // 自動生成（tools/pfaces.py）：名前つきパイロットの描き起こし顔
