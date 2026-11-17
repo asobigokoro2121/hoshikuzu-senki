@@ -84,6 +84,7 @@ h1, h2, h3, h4 { font-family: var(--f-disp); font-weight: 400; margin: 0; text-w
 /* ---------- タイトル ---------- */
 .title { justify-content: flex-start; padding-block: 40px 22px; padding-inline: 20px; }
 .title .t-menu { margin-top: auto; margin-bottom: 18px; }
+.title .t-ver { position: absolute; right: 10px; bottom: 6px; font-size: 11px; color: rgba(200,210,240,.45); letter-spacing: .05em; pointer-events: none; }
 #title-cv { position: absolute; inset: 0; width: 100%; height: 100%; }
 .t-logo { position: relative; text-align: center; }
 .t-kicker { font-family: var(--f-disp); font-size: 11px; letter-spacing: .4em; color: var(--muted); display: inline-flex; align-items: center; gap: 10px; }
@@ -756,6 +757,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
+    <span class="t-ver">v94</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
