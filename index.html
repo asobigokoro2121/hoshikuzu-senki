@@ -763,7 +763,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v102</span>
+    <span class="t-ver">v103</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -832,7 +832,7 @@ const BAL = {
   fuse: 0.5,                 // 近接信管が働く距離（爆風半径に対する割合）
   barrierBeam: 0.8,          // 位相バリアが受けるビームダメージの倍率
   evade: { base: 5, per: 6, pil: 3, max: 30 }, // 機動回避：速度が base を超えた分×per%（パイロットの操縦ランク1つにつき+pil%）
-  shootHp: { shell: 3, gren: 3, miss: 3, hom: 2 }, // 撃ち落とせる弾の耐久（機銃の弾1発で1減る）
+  shootHp: { shell: 3, gren: 2, miss: 3, hom: 2, cluster: 3 }, // 撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
   lvDmg: 0.03, lvHp: 0.03,   // 機体のレベル1つごとの攻撃力・HPの上昇
   // 機体のレベル：戦闘で得た経験値を「進化」か「レベルアップ」に使う。レベルアップの費用は lvUpBase から少しずつ増える
   lvUpBase: 40, lvUpGrow: 0.15,
@@ -912,10 +912,10 @@ const WEAPONS = {
   scatter: { name: '拡散ビーム', cat: 'charge', attr: 'beam', pow: 14, charge: 0.8, cd: 0.9, speed: 620, width: 4, spread: 3 },
   grenade: { name: 'グレネード', cat: 'launcher', attr: 'solid', pow: 36, cd: 1.0, speed: 330, range: 240, blast: 46, shoot: true },
   bazooka: { name: 'バズーカ', cat: 'launcher', attr: 'solid', pow: 36, cd: 1.2, speed: 370, range: 380, blast: 38, shoot: true },
-  missile: { name: 'ミサイル', cat: 'missile', attr: 'solid', pow: 23, cd: 0.9, speed: 290, turns: 2, blast: 24, shoot: true, range: 440 },
-  mpod:    { name: 'ミサイルポッド', cat: 'missile', attr: 'solid', pow: 11, cd: 1.3, speed: 290, turns: 2, blast: 20, shoot: true, spread: 3, range: 440 },
-  torpedo: { name: '魚雷', cat: 'missile', attr: 'solid', pow: 28, cd: 1.3, speed: 280, turns: 1, blast: 32, shoot: true, range: 480 },
-  hmiss:   { name: '追尾ミサイル', cat: 'homing', attr: 'solid', pow: 16, cd: 1.8, speed: 250, count: 2, blast: 20, shoot: true, life: 5 },
+  missile: { name: 'ミサイル', cat: 'missile', attr: 'solid', pow: 30, turnR: 2.4, homT: 1.8, cd: 0.9, speed: 290, turns: 2, blast: 24, shoot: true, range: 440 },
+  mpod:    { name: 'ミサイルポッド', cat: 'missile', attr: 'solid', pow: 14, turnR: 2.2, homT: 1.6, cd: 1.3, speed: 290, turns: 2, blast: 20, shoot: true, spread: 3, range: 440 },
+  torpedo: { name: '魚雷', cat: 'missile', attr: 'solid', pow: 36, turnR: 1.3, homT: 2.2, cd: 1.3, speed: 280, turns: 1, blast: 32, shoot: true, range: 480 },
+  hmiss:   { name: '追尾ミサイル', cat: 'homing', attr: 'solid', pow: 21, cd: 1.8, speed: 250, count: 2, blast: 20, shoot: true, life: 5 },
   bit:     { name: 'ビット', cat: 'bit', attr: 'beam', pow: 4.6, cd: 6, life: 4.5, needSense: true },
   incom:   { name: '有線ビット', cat: 'bit', attr: 'beam', pow: 5, cd: 6, life: 4, wired: true },
   reflect: { name: '反射刃', cat: 'reflect', attr: 'melee', pow: 8.5, cd: 1.6, speed: 300, spread: 3, life: 2.5 },
@@ -935,14 +935,14 @@ const WEAPONS = {
   // 暴走巨大兵器だけが使う武器
   gcannon: { name: '破城砲', cat: 'charge', attr: 'beam', pow: 62, charge: 1.8, cd: 2.4, speed: 640, width: 22, pierce: true },
   gham:    { name: '巨腕', cat: 'melee', attr: 'melee', pow: 44, cd: 1.5, range: 86, arc: 160, knock: 120 },
-  gmiss:   { name: '拡散ミサイル', cat: 'missile', attr: 'solid', pow: 11, cd: 1.9, speed: 270, turns: 2, blast: 24, shoot: true, spread: 6, range: 460 },
+  gmiss:   { name: '拡散ミサイル', cat: 'missile', attr: 'solid', pow: 13, turnR: 2, homT: 1.6, cd: 1.9, speed: 270, turns: 2, blast: 24, shoot: true, spread: 6, range: 460 },
   ubeam:   { name: '収束光線', cat: 'charge', attr: 'beam', pow: 54, charge: 1.3, cd: 1.8, speed: 860, width: 16, pierce: true },
   usweep:  { name: '円環レーザー', cat: 'sweep', attr: 'beam', pow: 17, cd: 2.3, range: 400, arcA: 1.7, dur: 0.75 },
   umiss:   { name: '光弾の雨', cat: 'homing', attr: 'beam', pow: 11, cd: 1.7, speed: 300, count: 5, blast: 16, shoot: true, life: 5 },
   lgat:    { name: '多連装機関砲', cat: 'rapid', attr: 'solid', pow: 7.2, rate: 0.07, speed: 450, range: 340 },
   lcannon: { name: '集合主砲', cat: 'shell', attr: 'solid', pow: 46, cd: 1.6, speed: 420, blast: 48, shoot: true },
-  lswarm:  { name: '群体ミサイル', cat: 'cluster', attr: 'solid', pow: 15, cd: 1.6, speed: 290, range: 380, count: 10, blast: 22, shoot: true },
-  cluster: { name: 'クラスターミサイル', cat: 'cluster', attr: 'solid', pow: 16, cd: 1.7, speed: 280, range: 340, count: 6, blast: 22, shoot: true },
+  lswarm:  { name: '群体ミサイル', cat: 'cluster', attr: 'solid', pow: 18, cd: 1.6, speed: 290, range: 380, count: 10, blast: 22, shoot: true },
+  cluster: { name: 'クラスターミサイル', cat: 'cluster', attr: 'solid', pow: 20, cd: 1.7, speed: 280, range: 340, count: 6, blast: 22, shoot: true },
   laser:   { name: '照射レーザー', cat: 'laser', attr: 'beam', pow: 1.6, rate: 0.08, range: 300 },
   f_laser: { name: '迎撃レーザー', cat: 'laser', attr: 'beam', pow: 1.7, rate: 0.08, range: 460 }, // 天柱の砲台用（射程が長い）
   bshield: { name: 'ビームシールド', cat: 'shield', attr: 'beam' },
@@ -959,14 +959,14 @@ const WEAPONS = {
   bgat:    { name: 'ビームガトリング', cat: 'rapid', attr: 'beam', pow: 4.4, rate: 0.09, speed: 500, range: 310 },
   // 変形したときの武器
   nosegun: { name: '機首機関砲', cat: 'rapid', attr: 'solid', pow: 4.4, rate: 0.09, speed: 540, range: 300, noWind: true },
-  amiss:   { name: '空対地ミサイル', cat: 'missile', attr: 'solid', pow: 15, cd: 1.0, speed: 340, turns: 2, blast: 22, shoot: true, spread: 2, range: 420 },
+  amiss:   { name: '空対地ミサイル', cat: 'missile', attr: 'solid', pow: 19, turnR: 2.6, homT: 1.6, cd: 1.0, speed: 340, turns: 2, blast: 22, shoot: true, spread: 2, range: 420 },
   wbeam:   { name: '主翼ビーム砲', cat: 'rifle', attr: 'beam', pow: 10, cd: 0.45, speed: 620, max: 2, twin: true },
   ram:     { name: 'ラムアタック', cat: 'dash', attr: 'melee', pow: 28, cd: 1.2, range: 150, reach: 26 },
   hcannon: { name: '戦車砲', cat: 'shell', attr: 'solid', pow: 28, cd: 0.95, speed: 480, blast: 26, shoot: true },
   // 戦艦用
   s_beam:  { name: '連装ビーム砲', cat: 'rifle', attr: 'beam', pow: 14, cd: 1.3, speed: 480, max: 2, twin: true },
   s_mega:  { name: '主砲', cat: 'charge', attr: 'beam', pow: 40, charge: 2.0, cd: 3, speed: 660, width: 12, pierce: true },
-  s_miss:  { name: '艦載ミサイル', cat: 'missile', attr: 'solid', pow: 12, cd: 2.4, speed: 250, turns: 2, blast: 24, shoot: true, spread: 2, range: 520 },
+  s_miss:  { name: '艦載ミサイル', cat: 'missile', attr: 'solid', pow: 15, turnR: 2, homT: 2, cd: 2.4, speed: 250, turns: 2, blast: 24, shoot: true, spread: 2, range: 520 },
   s_flak:  { name: '対空機銃', cat: 'rapid', attr: 'solid', pow: 2, rate: 0.16, speed: 400, range: 250, spread: 2 },
 };
 // 弾数：1回の戦闘で撃てる回数（押し続ける武器は1発ごとに1つ減る）。近接は無制限。戦艦と砲台は無制限
@@ -1136,7 +1136,7 @@ col_emperor_r|エンペラー・レン機|専用機|4100|192|7|0|420|mega,saber,
 lun_gloria_y|グローリア・ユナ機|専用機|4300|198|8|0|420|rifle,twin,bit|awaken|◎◎○○△|lun_gloria|crest,std,halo
 ast_tycoon_i|タイクーン・アイヴィ機|専用機|3700|222|6|0|420|rail,axe,hmiss|barrier|◎○○○×|ast_tycoon|horn,heavy,backpack
 sea_leviathan_m|リヴァイアサン・ミオ機|専用機|4000|222|6|0|420|mega,twin,torpedo|crisis|×○××◎|sea_leviathan|dome,heavy,fins
-psy_nirvana_s|ニルヴァーナ・シオン機|専用機|4100|216|7|0|420|scatter,twin,bit|awaken|◎◎◎○×|psy_nirvana|crest,std,halo
+psy_nirvana_s|ニルヴァーナ・シオン機|専用機|4100|216|7|0|420|mega,twin,bit|awaken|◎◎◎○×|psy_nirvana|crest,std,halo
 jup_sovereign_v|ソブリン・ヴェラ機|専用機|4100|222|8|0|420|brifle2,fang,sweep|crisis|◎○○○△|jup_sovereign|crest,std,halo
 orb_zenith_m|ゼニス・ミカ機|専用機|4100|198|8|0|420|laser,saber,sweep|awaken|◎◎○○△|orb_zenith|crest,std,halo
 mrc_ronin|ローニン|傭兵|0|140|7|0|999|lrifle,axe,hmiss|crisis|◎◎◎○○||horn,slim,backpack
@@ -1793,7 +1793,7 @@ const WEAPON_DESC = {
   way3: '3方向に弾をばらまく機銃。', bmg: 'ビームの弾を連射する。', rifle: '機動兵器の標準的なビーム兵器。', lrifle: '射程の長い実弾ライフル。弾が速い。',
   brifle2: '2丁のビームガンで同時に撃つ。', cannon: '着弾で爆発する砲弾を撃つ。', cannon2: '2門のキャノンで砲弾を撃ち込む。',
   bcannon: '溜めて撃つビーム砲。', mega: '最強クラスの溜めビーム砲。太い光が敵を貫く。', pierce: '敵を貫いて後ろの敵にも当たる溜めビーム。', scatter: '溜めると3方向に広がるビーム。',
-  grenade: '弧を描いて飛ぶ擲弾。爆風が広い。', bazooka: '大きな爆発を起こすロケット弾。', missile: '敵を追って曲がるミサイル。', mpod: '3発同時に撃つ小型ミサイル。',
+  grenade: '弧を描いて飛ぶ擲弾。爆風が広い。', bazooka: '大きな爆発を起こすロケット弾。', missile: '敵を追って曲がるミサイル。', mpod: '3発同時に撃つ小型ミサイル。1発ずつ敵を追って曲がる。',
   torpedo: '水中でも進む強力なミサイル。', hmiss: 'どこまでも敵を追う追尾ミサイル。', bit: '感応者の意思で飛ぶ小型砲台。まわりから敵を撃つ。', incom: 'ワイヤーでつながったビット。感応者でなくても使える。',
   reflect: '壁で跳ね返る刃を3枚放つ。', bomb: '真下に爆弾を落とす。', shotgun: '近いほど強い散弾。', flame: '押している間、炎を浴びせ続ける。',
   rail: '照準を合わせてから撃つ超高速の弾。壁も機体も貫く。', lance: 'ビームの槍を構えて突進し、敵を貫く。', drill: '回転するドリルで突進する。', fang: '牙のような刃で素早く突進する。',
@@ -1805,7 +1805,7 @@ const WEAPON_DESC = {
   smart: '照準装置つきのビーム銃。1回で3発を素早く撃つ。', katana: '巨大な実体剣。広く重い一撃で敵を吹き飛ばす。',
   mortar: '高く弾を打ち上げ、障害物を越えて敵のいた場所に落とす。',
   pile: '腕の杭を火薬で打ち出す。射程は短いが、当たれば装甲ごと貫いて吹き飛ばす。', bgat: 'ビームの小粒を回転砲身からばらまく。押している間、撃ち続ける。',
-  nosegun: '戦闘機形態の機首に積んだ機関砲。すぐに撃ち始められる。', amiss: '戦闘機形態の翼の下から2発ずつ撃つミサイル。',
+  nosegun: '戦闘機形態の機首に積んだ機関砲。すぐに撃ち始められる。', amiss: '戦闘機形態の翼の下から2発ずつ撃つミサイル。敵を追って曲がる。',
   wbeam: '戦闘機形態の主翼に並べたビーム砲。2本同時に撃つ。', ram: '航行形態のまま加速して体当たりする。',
   hcannon: '戦車形態の主砲。まっすぐ飛ぶ重い砲弾で、当たると爆発する。',
 };
@@ -12701,7 +12701,7 @@ function fire(B, e, s) {
     case 'launcher': shot(B, e, s, a, { r: 6, kind: 'gren', color: '#ffcf6a', shootable: true, blast: w.blast }); SFX.play('missile'); e.cd[s] = w.cd; break;
     case 'missile': {
       const n = w.spread || 1;
-      for (let i = 0; i < n; i++) shot(B, e, s, a + (i - (n - 1) / 2) * 0.35, { r: 4, kind: 'miss', color: '#ff8a5a', shootable: true, blast: w.blast, turns: w.turns, turnT: 0.25, tgt });
+      for (let i = 0; i < n; i++) shot(B, e, s, a + (i - (n - 1) / 2) * 0.35, { r: 4, kind: 'miss', color: '#ff8a5a', shootable: true, blast: w.blast, turnR: w.turnR || 2, homT: w.homT || 1.5, delay: 0.12, tgt });
       SFX.play('missile'); e.cd[s] = w.cd; break;
     }
     case 'homing': {
@@ -12917,6 +12917,10 @@ function updateShots(B, dt) {
       if (p.life <= 0) { o.boomOut = Math.max(0, (o.boomOut || 1) - 1); continue; }
     }
     if (p.kind === 'flame') { const k = Math.max(0, 1 - 1.4 * dt); p.vx *= k; p.vy *= k; p.r += dt * 14; }
+    if (p.kind === 'miss' && p.homT > 0) { // 発射直後を過ぎたら、誘導が切れるまで狙った敵へ曲がり続ける
+      p.delay -= dt;
+      if (p.delay <= 0) { p.homT -= dt; const tg = p.tgt?.alive ? p.tgt : nearest(B.ents.filter(o => o.alive && o.side !== p.side), p.x, p.y); if (tg) { const cur = Math.atan2(p.vy, p.vx), d = angDiff(cur, angTo(p, tg)), na = cur + clamp(d, -p.turnR * dt, p.turnR * dt), sp = Math.hypot(p.vx, p.vy); p.vx = Math.cos(na) * sp; p.vy = Math.sin(na) * sp; } }
+    }
     if (p.kind === 'miss' && p.turns > 0) {
       p.turnT -= dt;
       if (p.turnT <= 0) {
@@ -12974,13 +12978,14 @@ function updateShots(B, dt) {
     for (const s of shootables) {
       if (dead.has(s)) continue;
       for (const q of keep) {
-        // 撃ち落とせるのは機銃・ビットの弾だけ。弾ごとに耐久がある
-        if (q.side === s.side || dead.has(q) || q.shootable || q.kind === 'bomb' || (q.cat !== 'rapid' && q.cat !== 'bit')) continue;
+        // 撃ち落とせる弾：爆発しない弾ならだいたい当たる（機銃・ビット・散弾は1、ライフルなどは2、ビームの照射・レールガンは一撃）
+        if (q.side === s.side || dead.has(q) || q.shootable || q.blast || ['bomb', 'flame', 'mine', 'blade', 'boom'].includes(q.kind)) continue;
         if (Math.hypot(q.x - s.x, q.y - s.y) < s.r + q.r + 3) {
           if (!q.pierce) dead.add(q);
-          s.shp = (s.shp ?? (BAL.shootHp[s.kind] || 1)) - 1;
+          const pdmg = q.kind === 'ray' || q.kind === 'rail' || q.cat === 'charge' || q.cat === 'rail' ? 99 : q.cat === 'rapid' || q.cat === 'bit' || q.kind === 'pellet' ? 1 : 2;
+          s.shp = (s.shp ?? (BAL.shootHp[s.kind] || 1)) - pdmg;
           B.fx.push({ kind: 'spark', x: s.x, y: s.y, t: 0, life: 0.15, col: '#ffd27a' });
-          if (s.shp <= 0) { dead.add(s); fxBoom(B, s.x, s.y, 10); break; }
+          if (s.shp <= 0) { dead.add(s); fxBoom(B, s.x, s.y, 10); B.intercepts = (B.intercepts || 0) + 1; break; }
         }
       }
     }
@@ -13147,6 +13152,23 @@ function hurt(B, src, tgt, pow, attr, wcat) {
 }
 
 // ---------- AI ----------
+// 迎撃：向かってくる敵のミサイル・砲弾が近ければ、連射できる武器（なければライフル）をそちらへ向けて撃つ
+function pointDefense(B, e) {
+  const s = [0, 1, 2].find(i => weaponUsable(e, i) && wOf(e, i).cat === 'rapid') ?? [0, 1, 2].find(i => weaponUsable(e, i) && wOf(e, i).cat === 'rifle' && e.cd[i] <= 0);
+  if (s == null) return false;
+  let th = null, bd = 190;
+  for (const p of B.shots) {
+    if (!p.shootable || p.side === e.side) continue;
+    const dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy); if (d > bd || d < 14) continue;
+    const sp = Math.hypot(p.vx, p.vy) || 1; if ((p.vx * dx + p.vy * dy) / (sp * d) < 0.6) continue; // こちらへ向かっている弾だけ
+    bd = d; th = p;
+  }
+  if (!th) return false;
+  const lead = Math.min(0.18, bd / 900); // 少し先を狙う
+  e.aim = Math.atan2(th.y + th.vy * lead - e.y, th.x + th.vx * lead - e.x); e.face = Math.cos(e.aim) >= 0 ? 1 : -1;
+  for (let i = 0; i < 3; i++) { const c = wOf(e, i).cat; if (c === 'transform') continue; if (HOLD_CAT.has(c)) setHeld(B, e, i, i === s); else { if (i === s) { e.held[i] = false; setHeld(B, e, i, true); } setHeld(B, e, i, false); } }
+  return true;
+}
 function aiMech(B, e, dt) {
   const A = e.ai, D = BAL.diff[G.diff] || BAL.diff.normal;
   const enemySide = e.side === 1;
@@ -13225,6 +13247,7 @@ function aiMech(B, e, dt) {
   moveEnt(B, e, mx * curSpeed(e), my * curSpeed(e), dt);
   // 射撃判断：使いたい武器を選び、一度に使うのは1つだけ（溜め中の武器は撃つまで続ける）
   if (busyOf(e)) { for (let s = 0; s < 3; s++) if (e.held[s]) setHeld(B, e, s, false); return; }
+  if (pointDefense(B, e)) return;
   const want = [false, false, false];
   for (let s = 0; s < 3; s++) {
     const w = wOf(e, s);
@@ -15344,7 +15367,7 @@ async function openHelp() {
     <h4>鹵獲機の解析</h4><p>捕獲した他勢力の機体を進化かレベルアップさせると解析が終わり、その機体を自軍の工場で生産できるようになります。量産できない高性能機の場合は、その系統の元になった量産機が作れるようになります。</p>
     <h4>武器の種類</h4><p>ショットガン（近いほど強い散弾）、火炎放射器（押している間、炎を浴びせる）、レールガン（照準のあと壁も機体も貫く弾）、ビームランス・ドリル・ファング（敵へ突進して貫く）、機雷（置いておくと敵が近づいたとき爆発）、ビームブーメラン（行きと帰りで2回当たる）、薙ぎ払いレーザー（扇形に払う光線）、電磁ネット（当たった敵の足を鈍らせる）、クラスターミサイル（目標の手前で子弾をばらまく）、照射レーザー（押している間、光線を当て続ける）、プラズマ砲（ゆっくり進む光球が触れた敵を焼き、最後に破裂）、自律砲台（置くとしばらく自動で撃つ）、ハンマー（当てた敵を吹き飛ばす）、ビームシールド（押している間、正面の弾を防ぐ）など。武器は一度に1つしか使えません。</p>
     <h4>暴走巨大兵器</h4><p>統一が近づくと、まれに巨大兵器が現れます（1回のゲームで1体だけ）。地上を歩く「ギガス」、地上と宇宙を行き来して遠くから撃つ円盤「ハロー」、難易度「極」だけに現れる残骸の群体「レギオン」の3種類です。どれもどの勢力にも属さず、隣の拠点（首都をのぞく）を荒らして、持ち主のいない土地に変えていきます。とても頑丈で、戦闘のあとに1割、ターンが変わるたびに2割回復します。倒さなくてもクリアできますが、撃破すれば資金とパーツが手に入ります。ギガスとの戦いは、時間切れなら守った側の勝ちです。</p>
-    <h4>戦闘のしくみ</h4><p>足の速い機体（速度6以上）や操縦の上手いパイロットは、射撃をときどき「回避」します。爆風と近接攻撃はかわせません。<br>キャノン・バズーカ・ミサイルは敵のそばを通ると炸裂します（近接信管）。機銃やビットの弾で撃ち落とせますが、砲弾は2発当てないと落ちません。<br>位相バリアはビームのダメージを2割減らします。</p>`;
+    <h4>戦闘のしくみ</h4><p>足の速い機体（速度6以上）や操縦の上手いパイロットは、射撃をときどき「回避」します。爆風と近接攻撃はかわせません。<br>キャノン・バズーカ・ミサイルは敵のそばを通ると炸裂します（近接信管）。ミサイルは敵を追って曲がります。ミサイル・砲弾は、爆発しない弾を当てれば撃ち落とせます（機銃・ビット・散弾は3発ほど、ライフルなどは2発ほど、ビームの照射やレールガンなら1発）。機体は向かってくるミサイルを、機銃などで自分から迎え撃ちます。<br>位相バリアはビームのダメージを2割減らします。</p>`;
   await openModal({ title: '遊び方', body, cls: 'wide' });
 }
 
