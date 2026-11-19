@@ -763,7 +763,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v100</span>
+    <span class="t-ver">v101</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -826,7 +826,7 @@ const BAL = {
   shipArmor: 0.55, fortArmor: 0.7,   // 戦艦・砲台が受けるダメージの倍率
   // 即時決着（CPU同士・クイック）の補正。アクション戦闘の結果に合わせて調整した値
   // unitQs：機体ごとの補正（test/bal/fitunit.js で自動生成。機体の性能を変えたら作り直す）
-  unitQs: {rog_gigas: 0.3, ast_tycoon: 0.796, psy_nirvana: 0.605, lun_gloria: 1.180, ugf_knight_k: 1.509, col_emperor: 1.026, psy_oracle_s: 0.748, ugf_paladin: 0.907, sea_leviathan: 0.951, col_comet_r: 1.332, lun_seraph_y: 1.296, lun_seraph: 1.280, ast_rockgiant: 2.012, sea_orca_m: 1.304, col_comet: 1.439, sea_orca: 1.119, ugf_knight: 1.352, psy_oracle: 1.088, psy_specter: 1.28, ugf_fortress: 1.513, ugf_valkyr: 1.043, lun_halberd: 2.095, ugf_gunner: 1.649, sea_kraken: 0.72, lun_frame2: 0.895, col_commander: 0.622, lun_arbalest: 1.275, col_sniper: 1.425, psy_vessel: 1.312, ast_merc: 1.218, ugf_trooper2: 1.814, sea_crab: 1.335, psy_acolyte: 0.33, psy_wraith: 1.497, col_lancer2: 1.564, ast_digger: 1.643, sea_gull: 0.3, ast_guard: 1.456, lun_frame: 0.945, lun_mirage: 2.448, sea_shark: 1.309, col_raider: 1.672, ugf_scout: 1.169, ugf_trooper: 0.3, col_lancer: 1.707, ast_wasp: 0.3, ast_miner: 1.039, ugf_tank: 2.656, sea_frog: 1.365, col_drone: 1.039, lun_arbalest_k: 3.363, sea_kraken_h: 1.586, col_commander_z: 1.318, ast_rockgiant_g: 2.2, psy_specter_v: 0.603, ugf_gunner_e: 1.073, ast_merc_i: 1.116, lun_aria: 1.796, jup_bastion_a: 2.003, psy_abyss: 0.586, jup_raptor_v: 1.009, lun_celestia: 1.703, jup_sovereign: 1.384, ast_magnate: 0.932, sea_tempest: 0.845, ugf_dreadnought: 0.934, jup_colossus: 0.982, jup_bastion: 1.5, sea_marlin: 0.987, jup_raptor: 1.147, col_warlord: 1.013, jup_storm: 1.106, col_berserker: 1.843, psy_prophet: 1.184, ugf_bulwark: 1.56, jup_pike: 1.286, lun_sylph: 1.866, psy_cantor: 1.49, ast_breaker: 1.307, ugf_sapper: 1.464, jup_hopper: 1.35, ast_tug: 1.331, sea_ray: 1.004, jup_ranger: 1.02, col_hound: 1.36, ugf_bulwark_l: 1.429, col_berserker_g: 1.311, lun_aria_r: 1.395, ast_breaker_t: 1.449, sea_marlin_n: 1.184, psy_prophet_n: 1.066, orb_vanguard_o: 1.545, orb_zenith: 1.319, orb_stella_m: 1.579, orb_stella: 1.725, orb_pillar: 0.861, orb_vanguard: 1.372, orb_glider: 2.687, orb_rigger: 1.206, orb_tether: 0.712, orb_astro: 1.535, mrc_libertas: 2.7, ugf_striker: 1.304, ugf_crusader: 0.76, ast_howitzer: 1.725, jup_tremor: 1.94, sea_eel: 1.772, psy_eclipse: 1.006, orb_beacon: 1.273, lun_volt: 1.626, col_slasher: 0.987, ugf_paladin_k: 0.907, col_emperor_r: 1.026, lun_gloria_y: 1.180, ast_tycoon_i: 0.796, sea_leviathan_m: 0.951, psy_nirvana_s: 0.605, jup_sovereign_v: 1.384, orb_zenith_m: 1.319},
+  unitQs: {rog_gigas: 0.3, rog_ufo: 0.34, rog_legion: 0.42, ast_tycoon: 0.796, psy_nirvana: 0.605, lun_gloria: 1.180, ugf_knight_k: 1.509, col_emperor: 1.026, psy_oracle_s: 0.748, ugf_paladin: 0.907, sea_leviathan: 0.951, col_comet_r: 1.332, lun_seraph_y: 1.296, lun_seraph: 1.280, ast_rockgiant: 2.012, sea_orca_m: 1.304, col_comet: 1.439, sea_orca: 1.119, ugf_knight: 1.352, psy_oracle: 1.088, psy_specter: 1.28, ugf_fortress: 1.513, ugf_valkyr: 1.043, lun_halberd: 2.095, ugf_gunner: 1.649, sea_kraken: 0.72, lun_frame2: 0.895, col_commander: 0.622, lun_arbalest: 1.275, col_sniper: 1.425, psy_vessel: 1.312, ast_merc: 1.218, ugf_trooper2: 1.814, sea_crab: 1.335, psy_acolyte: 0.33, psy_wraith: 1.497, col_lancer2: 1.564, ast_digger: 1.643, sea_gull: 0.3, ast_guard: 1.456, lun_frame: 0.945, lun_mirage: 2.448, sea_shark: 1.309, col_raider: 1.672, ugf_scout: 1.169, ugf_trooper: 0.3, col_lancer: 1.707, ast_wasp: 0.3, ast_miner: 1.039, ugf_tank: 2.656, sea_frog: 1.365, col_drone: 1.039, lun_arbalest_k: 3.363, sea_kraken_h: 1.586, col_commander_z: 1.318, ast_rockgiant_g: 2.2, psy_specter_v: 0.603, ugf_gunner_e: 1.073, ast_merc_i: 1.116, lun_aria: 1.796, jup_bastion_a: 2.003, psy_abyss: 0.586, jup_raptor_v: 1.009, lun_celestia: 1.703, jup_sovereign: 1.384, ast_magnate: 0.932, sea_tempest: 0.845, ugf_dreadnought: 0.934, jup_colossus: 0.982, jup_bastion: 1.5, sea_marlin: 0.987, jup_raptor: 1.147, col_warlord: 1.013, jup_storm: 1.106, col_berserker: 1.843, psy_prophet: 1.184, ugf_bulwark: 1.56, jup_pike: 1.286, lun_sylph: 1.866, psy_cantor: 1.49, ast_breaker: 1.307, ugf_sapper: 1.464, jup_hopper: 1.35, ast_tug: 1.331, sea_ray: 1.004, jup_ranger: 1.02, col_hound: 1.36, ugf_bulwark_l: 1.429, col_berserker_g: 1.311, lun_aria_r: 1.395, ast_breaker_t: 1.449, sea_marlin_n: 1.184, psy_prophet_n: 1.066, orb_vanguard_o: 1.545, orb_zenith: 1.319, orb_stella_m: 1.579, orb_stella: 1.725, orb_pillar: 0.861, orb_vanguard: 1.372, orb_glider: 2.687, orb_rigger: 1.206, orb_tether: 0.712, orb_astro: 1.535, mrc_libertas: 2.7, ugf_striker: 1.304, ugf_crusader: 0.76, ast_howitzer: 1.725, jup_tremor: 1.94, sea_eel: 1.772, psy_eclipse: 1.006, orb_beacon: 1.273, lun_volt: 1.626, col_slasher: 0.987, ugf_paladin_k: 0.907, col_emperor_r: 1.026, lun_gloria_y: 1.180, ast_tycoon_i: 0.796, sea_leviathan_m: 0.951, psy_nirvana_s: 0.605, jup_sovereign_v: 1.384, orb_zenith_m: 1.319},
   qs: { time: 60, shipAim: 0.1, fortAim: 0.18, shipDps: 0.35, shipArm: 0.75, fortDps: 1, ev: 0.075, cat: { melee: 0.5, rapid: 1, rifle: 1.35, shell: 1, charge: 2, launcher: 0.25, missile: 1, homing: 0.75, bit: 1.75, reflect: 1.25 } },
   actDmg: 0.42,               // アクション戦闘のダメージ倍率（決着までの長さを決める）
   fuse: 0.5,                 // 近接信管が働く距離（爆風半径に対する割合）
@@ -936,6 +936,12 @@ const WEAPONS = {
   gcannon: { name: '破城砲', cat: 'charge', attr: 'beam', pow: 62, charge: 1.8, cd: 2.4, speed: 640, width: 22, pierce: true },
   gham:    { name: '巨腕', cat: 'melee', attr: 'melee', pow: 44, cd: 1.5, range: 86, arc: 160, knock: 120 },
   gmiss:   { name: '拡散ミサイル', cat: 'missile', attr: 'solid', pow: 11, cd: 1.9, speed: 270, turns: 2, blast: 24, shoot: true, spread: 6, range: 460 },
+  ubeam:   { name: '収束光線', cat: 'charge', attr: 'beam', pow: 54, charge: 1.3, cd: 1.8, speed: 860, width: 16, pierce: true },
+  usweep:  { name: '円環レーザー', cat: 'sweep', attr: 'beam', pow: 17, cd: 2.3, range: 400, arcA: 1.7, dur: 0.75 },
+  umiss:   { name: '光弾の雨', cat: 'homing', attr: 'beam', pow: 11, cd: 1.7, speed: 300, count: 5, blast: 16, shoot: true, life: 5 },
+  lgat:    { name: '多連装機関砲', cat: 'rapid', attr: 'solid', pow: 7.2, rate: 0.07, speed: 450, range: 340 },
+  lcannon: { name: '集合主砲', cat: 'shell', attr: 'solid', pow: 46, cd: 1.6, speed: 420, blast: 48, shoot: true },
+  lswarm:  { name: '群体ミサイル', cat: 'cluster', attr: 'solid', pow: 15, cd: 1.6, speed: 290, range: 380, count: 10, blast: 22, shoot: true },
   cluster: { name: 'クラスターミサイル', cat: 'cluster', attr: 'solid', pow: 16, cd: 1.7, speed: 280, range: 340, count: 6, blast: 22, shoot: true },
   laser:   { name: '照射レーザー', cat: 'laser', attr: 'beam', pow: 1.6, rate: 0.08, range: 300 },
   f_laser: { name: '迎撃レーザー', cat: 'laser', attr: 'beam', pow: 1.7, rate: 0.08, range: 460 }, // 天柱の砲台用（射程が長い）
@@ -1139,6 +1145,8 @@ mrc_ghost|ゴースト|傭兵|0|110|8|0|999|rifle,twin,bit|awaken|◎◎◎○�
 mrc_hydra|ヒドラ|傭兵|0|160|5|0|999|scatter,whip,mpod|-|○◎○○◎||fin,aqua,fins
 mrc_libertas|リベルタス|放浪者|4200|275|8|0|999|smart,katana,arc|overdrive|◎◎◎◎○||crest,slim,halo
 rog_gigas|ギガス|巨大兵器|0|2400|3|0|999|gcannon,gham,gmiss|-|×◎◎◎○||dome,heavy,cannon
+rog_ufo|ハロー|巨大兵器|0|1900|5|0|999|ubeam,usweep,umiss|-|◎◎◎◎◎||dome,heavy,cannon
+rog_legion|レギオン|巨大兵器|0|3600|2|0|999|lgat,lcannon,lswarm|-|◎○○○○||dome,heavy,cannon
 `;
 // 可変機：変形すると武器が入れ替わる（「変形」は同じ場所に置く）。spd＝変形中の速さの倍率、fly＝地形を気にしない
 const TRANSFORM = {
@@ -3373,30 +3381,53 @@ function deserialize(s) {
 }
 
 // ===================== 暴走巨大兵器 =====================
-// 天下統一が近づくと、まれに旧時代の巨大兵器が目を覚まして暴れ出す。
+// 天下統一が近づくと、まれに巨大兵器が現れて暴れ出す（1回のゲームで1体だけ・同時には出ない）。
 // どの勢力にも属さず、隣の拠点を踏み荒らして持ち主のいない土地に変えていく。倒さなくてもクリアできる。
 const ROGUE_F = 'rog';
 const ROGUE = {
-  unit: 'rog_gigas',
   from: 20,          // このターンより前には出ない
   share: 0.55,       // いちばん大きい勢力が全エリアのこの割合を持つと「統一寸前」
-  chance: 0.06,      // 統一寸前のあいだ、ターンごとに目覚める確率（1回のゲームで1度だけ）
+  chance: 0.06,      // 統一寸前のあいだ、ターンごとに現れる確率
   healBattle: 0.1,   // 戦闘のあとに回復する割合
   healTurn: 0.2,     // ターンが変わるたびに回復する割合
   stay: 0.35,        // その場にとどまる確率
-  home: 'w_ruins',   // 眠っている場所（遺跡）
-  reward: 3000,      // 倒したときの資金
-  dmgK: 0.35,        // 操作する戦闘での攻撃力の倍率
 };
+// 種類ごとの決まり。maps＝動ける地図、home＝現れる場所、r＝戦闘での大きさ、dmgK＝操作する戦闘での攻撃力の倍率
+const ROGUE_TYPES = {
+  gigas: {
+    unit: 'rog_gigas', maps: ['earth'], home: 'w_ruins', r: 34, dmgK: 0.35, reward: 3000, col: '#ff5a3c',
+    title: '巨大兵器の暴走',
+    awake: a => `${AREAS[a].name}の地下深くで、旧時代の巨大兵器「ギガス」が目を覚ました。<br>戦争の終わりが近づき、各地の兵器の通信が一斉に途絶えたことで、眠っていた制御AIが「すべての勢力が敵」と判断して動き出したらしい。<br>ギガスはどの勢力にも属さず、隣の拠点を踏み荒らしながら進む。踏み荒らされた拠点は、誰のものでもない土地になる。`,
+    down: 'ギガスの巨体が、地響きを立てて崩れ落ちた。制御AIの光が消え、戦場に静けさが戻る。',
+    desc: 'どの勢力にも属さない旧時代の兵器。地上を歩き、隣の拠点を踏み荒らして持ち主のいない土地に変えていく。',
+  },
+  ufo: {
+    unit: 'rog_ufo', maps: ['earth', 'space'], home: null, r: 40, dmgK: 0.42, reward: 3000, col: '#62e6ff',
+    title: '空から来た円盤',
+    awake: a => `${AREAS[a].name}の上空の雲が、ゆっくりと渦を巻いて裂けた。現れたのは、どの勢力の記録にもない巨大な円盤「ハロー」。<br>呼びかけにはいっさい応えず、地上にも宇宙にも現れて、遠くから光線を浴びせてくる。<br>ハローに焼かれた拠点は、誰のものでもない土地になる。`,
+    down: 'ハローの円環の光がまたたき、やがて消えた。円盤は傾きながら落ち、地平の向こうで大きな光の柱になった。',
+    desc: '正体不明の巨大な円盤。地上と宇宙を行き来し、遠くからの光線がとても強い。焼いた拠点は持ち主のいない土地になる。',
+  },
+  legion: {
+    unit: 'rog_legion', maps: ['space'], home: 'v_l5', r: 44, dmgK: 0.5, reward: 5000, col: '#a6ff5a', extreme: true,
+    title: '残骸の軍勢',
+    awake: a => `${AREAS[a].name}に漂っていた無数の残骸が、ひとつの意思に従って集まり始めた。<br>壊れた機体、母艦の砲塔、工場の重機――戦争が生んだ鉄くずが寄り集まり、巨大な群体「レギオン」になった。<br>レギオンは宇宙をゆっくり進み、触れた拠点を取り込んで持ち主のいない土地に変えていく。`,
+    down: 'レギオンを束ねていた核が砕けた。寄り集まっていた機械はばらばらにほどけ、ただの残骸に戻って宇宙を漂いはじめた。',
+    desc: '宇宙の残骸が寄り集まった機械の群体。とても頑丈で、攻撃も激しい。宇宙をゆっくり進み、拠点を持ち主のいない土地に変えていく。',
+  },
+};
+const ROGUE_BY_UNIT = Object.fromEntries(Object.values(ROGUE_TYPES).map(T => [T.unit, T]));
 const ROGUE_PILOT = { id: 'rog_core', name: '制御AI', sh: 58, me: 62, sp: 36, pil: 2, sen: 0, cmd: 0, skill: null };
-const rogueName = () => UNITS[ROGUE.unit].name;
+const rogueType = () => ROGUE_TYPES[G?.rogue?.k || 'gigas'];
+const rogueUnit = () => rogueType().unit;
+const rogueName = () => UNITS[rogueUnit()].name;
 function rogueOn() { return !!G && G.rogue?.st === 1; }
 function rogueAt(a) { return rogueOn() && G.rogue.area === a; }
-function rogueMaxHp() { return UNITS[ROGUE.unit].hp; }
+function rogueMaxHp() { return UNITS[rogueUnit()].hp; }
 // CPUが挑むかどうかの目安（部隊の戦力と同じ物差し）
-function roguePower() { if (!rogueOn()) return 0; return (120 + rogueMaxHp() * 2) * 1.5 * (G.rogue.hp / rogueMaxHp()); }
+function roguePower() { if (!rogueOn()) return 0; return (120 + rogueMaxHp() * 2) * 1.5 * (G.rogue.hp / rogueMaxHp()) * (1 + (rogueType().dmgK - 0.35) * 2); }
 function rogueSide() {
-  const T = UNITS[ROGUE.unit];
+  const T = UNITS[rogueUnit()];
   return { f: ROGUE_F, sid: null, garrison: null, fort: null, ship: null, pool: [], cs: [{ uid: 'rogue', temp: true, t: T.id, name: T.name, hp: G.rogue.hp, maxHp: rogueMaxHp(), lv: 30, part: null, pilot: { ...ROGUE_PILOT }, f: ROGUE_F }] };
 }
 // いちばん大きい勢力
@@ -3407,24 +3438,28 @@ function rogueLeader() {
 }
 function nearUnify() { return rogueLeader().share >= ROGUE.share || FACTIONS.filter(F => G.fac[F.id].alive).length <= 2; }
 
-// ターンの始め：回復と、目覚めの判定
+// ターンの始め：回復と、出現の判定
 async function rogueTurn() {
   const R = G.rogue;
   if (R?.st === 1) { R.hp = Math.min(rogueMaxHp(), R.hp + Math.round(rogueMaxHp() * ROGUE.healTurn)); return; }
   if (R || G.turn < ROGUE.from || !nearUnify() || Math.random() > ROGUE.chance) return;
   await rogueSpawn();
 }
-async function rogueSpawn(at) {
-  const ok = a => AREAS[a].map === 'earth' && kindOf(a) !== 'capital' && !squadsAt(a).length;
-  let a = at || (ok(ROGUE.home) ? ROGUE.home : null);
+// どれが現れるか：レギオンは難易度「極」のときだけ
+function rogueKinds() { return Object.keys(ROGUE_TYPES).filter(k => !ROGUE_TYPES[k].extreme || G.diff === 'extreme'); }
+async function rogueSpawn(k, at) {
+  k = k || pick(rogueKinds());
+  const T = ROGUE_TYPES[k];
+  const ok = a => T.maps.includes(AREAS[a].map) && kindOf(a) !== 'capital' && !squadsAt(a).length;
+  let a = at || (T.home && ok(T.home) ? T.home : null);
   if (!a) { const lead = rogueLeader().f, c = Object.keys(AREAS).filter(ok); a = pick(c.filter(x => G.areas[x].owner === lead)) || pick(c); }
   if (!a) return;
   const prev = G.areas[a].owner;
-  G.rogue = { st: 1, area: a, hp: rogueMaxHp(), born: G.turn };
+  G.rogue = { st: 1, k, area: a, hp: UNITS[T.unit].hp, born: G.turn };
   if (prev) rogueRuin(a, prev, true);
-  const ev = { title: '巨大兵器の暴走', thumb: ROGUE.unit, big: true,
-    body: `${AREAS[a].name}の地下深くで、旧時代の巨大兵器「${rogueName()}」が目を覚ました。<br>戦争の終わりが近づき、各地の兵器の通信が一斉に途絶えたことで、眠っていた制御AIが「すべての勢力が敵」と判断して動き出したらしい。<br>${rogueName()}はどの勢力にも属さず、隣の拠点を踏み荒らしながら進む。踏み荒らされた拠点は、誰のものでもない土地になる。<br><span class="dim">倒さなくても統一はできます。戦闘のあとに1割、ターンが変わるたびに2割回復するので、倒すなら続けて攻めましょう。撃破すれば、残骸から多くの資源が手に入ります。</span>` };
-  L(`【${ev.title}】${AREAS[a].name}で巨大兵器「${rogueName()}」が目を覚ました。`, 'big');
+  const ev = { title: T.title, thumb: T.unit, col: T.col,
+    body: `${T.awake(a)}<br><span class="dim">倒さなくても統一はできます。戦闘のあとに1割、ターンが変わるたびに2割回復するので、倒すなら続けて攻めましょう。撃破すれば、多くの資源が手に入ります。</span>` };
+  L(`【${T.title}】${AREAS[a].name}に巨大兵器「${UNITS[T.unit].name}」が現れた。`, 'big');
   await HOOKS.event(ev);
 }
 // 拠点を踏み荒らす：残っていた守備隊・部隊は隣の自領へ逃げる（逃げ場がなければつぶされる）。拠点は持ち主のない土地になる
@@ -3437,7 +3472,7 @@ function rogueRuin(a, prev, quiet) {
     if (b) sq.area = b; else { for (const uid of [...sq.units]) destroyUnitSilently(uid); freePilot(sq.ship.cap); delete G.squads[sq.sid]; }
   }
   A.owner = null; A.q = []; delete A.fh;
-  if (!quiet) L(`${rogueName()}が${AREAS[a].name}を踏み荒らした。${FAC[prev].short}の拠点だった${AREAS[a].name}は、誰のものでもなくなった。`, prev === G.player ? 'bad' : 'big');
+  if (!quiet) L(`${rogueName()}が${AREAS[a].name}を荒らした。${FAC[prev].short}の拠点だった${AREAS[a].name}は、誰のものでもなくなった。`, prev === G.player ? 'bad' : 'big');
   if (typeof gameEvent === 'function') gameEvent('ruin', { area: a, prev });
 }
 // 戦闘のあと：受けた傷を残し、1割回復する。倒れたら撃破
@@ -3448,19 +3483,19 @@ function rogueAfterBattle(res) {
   R.hp = Math.min(rogueMaxHp(), Math.max(1, r.hp) + Math.round(rogueMaxHp() * ROGUE.healBattle));
 }
 async function rogueDown(by) {
-  const R = G.rogue; R.st = 2; R.by = by; R.downT = G.turn;
+  const R = G.rogue, T = rogueType(); R.st = 2; R.by = by; R.downT = G.turn;
   const F = G.fac[by];
   if (by === G.player) {
-    F.funds += ROGUE.reward;
+    F.funds += T.reward;
     const got = [pick(Object.keys(PARTS)), pick(Object.keys(PARTS)), pick(Object.keys(PARTS))];
     for (const pk of got) F.parts[pk] = (F.parts[pk] || 0) + 1;
-    if (typeof awardMedal === 'function') awardMedal('giant');
-    const ev = { title: '巨大兵器の撃破', thumb: ROGUE.unit, body: `${rogueName()}の巨体が、地響きを立てて崩れ落ちた。制御AIの光が消え、戦場に静けさが戻る。<br>残骸から資金 <b>${fmt(ROGUE.reward)}</b> 相当の資源と、パーツ「${got.map(k => PARTS[k].name).join('」「')}」を回収した。` };
-    L(`【${ev.title}】${rogueName()}を撃破した。資金 +${ROGUE.reward}`, 'good');
+    if (typeof awardMedal === 'function') { awardMedal('giant'); if (R.k !== 'gigas') awardMedal('giant_' + R.k); }
+    const ev = { title: '巨大兵器の撃破', thumb: T.unit, col: T.col, body: `${T.down}<br>残骸から資金 <b>${typeof fmt === "function" ? fmt(T.reward) : T.reward}</b> 相当の資源と、パーツ「${got.map(k => PARTS[k].name).join('」「')}」を回収した。` };
+    L(`【${ev.title}】${rogueName()}を撃破した。資金 +${T.reward}`, 'good');
     await HOOKS.event(ev);
   } else {
-    if (F) F.funds += Math.round(ROGUE.reward / 2);
-    const ev = { title: '巨大兵器の最期', thumb: ROGUE.unit, body: `${FAC[by].name}の部隊が、暴走していた${rogueName()}を撃破した。残骸の資源は${FAC[by].short}のものになったらしい。` };
+    if (F) F.funds += Math.round(T.reward / 2);
+    const ev = { title: '巨大兵器の最期', thumb: T.unit, col: T.col, body: `${FAC[by].name}の部隊が、暴れていた${rogueName()}を撃破した。残骸の資源は${FAC[by].short}のものになったらしい。` };
     L(`【${ev.title}】${FAC[by].name}が${rogueName()}を撃破した。`, 'big');
     await HOOKS.event(ev);
   }
@@ -3470,8 +3505,8 @@ async function rogueDown(by) {
 // 全勢力のターンのあと：隣の拠点へ進む（持ち主のいる拠点、とくに最大勢力の拠点を狙う。首都には入らない）
 async function roguePhase() {
   const R = G.rogue; if (R?.st !== 1) return;
-  const here = R.area, map = AREAS[here].map;
-  const opts = AREAS[here].links.filter(b => AREAS[b].map === map && kindOf(b) !== 'capital');
+  const T = rogueType(), here = R.area;
+  const opts = AREAS[here].links.filter(b => T.maps.includes(AREAS[b].map) && kindOf(b) !== 'capital');
   if (!opts.length || Math.random() < ROGUE.stay) return;
   const lead = rogueLeader().f, w = b => { const o = G.areas[b].owner; return !o ? 0.4 : o === lead ? 3 : 2; };
   let roll = Math.random() * opts.reduce((a, b) => a + w(b), 0), to = opts[0];
@@ -5524,7 +5559,7 @@ const GUN = {
 const GUN_ART = { mg: 'mg', gat: 'gat', way3: 'way3', bmg: 'bmg', rifle: 'rifle', lrifle: 'lrifle', brifle2: 'brifle2', bazooka: 'bazooka', grenade: 'grenade', bcannon: 'cannon', mega: 'cannon', pierce: 'cannon', scatter: 'cannon', torpedo: 'torpedo', saber: 'saber', axe: 'axe', twin: 'twin', whip: 'whip', claw: 'claw',
   shotgun: 'shotgun', rail: 'rail', flame: 'flamer', snare: 'grenade', lance: 'lance', drill: 'drill', fang: 'fang', boomer: 'boomer',
   cluster: 'cluster', laser: 'laser', plasma: 'plasma', bshield: 'bshield', turret: 'turretpod', hammer: 'hammer',
-  arc: 'arcgun', grav: 'gravgun', smart: 'smartgun', katana: 'katana', mortar: 'mortar', pile: 'drill', bgat: 'gat', gcannon: 'cannon', gham: 'hammer', gmiss: 'cluster' };
+  arc: 'arcgun', grav: 'gravgun', smart: 'smartgun', katana: 'katana', mortar: 'mortar', pile: 'drill', bgat: 'gat', gcannon: 'cannon', gham: 'hammer', gmiss: 'cluster', ubeam: 'cannon', usweep: 'laser', umiss: 'cluster', lgat: 'gat', lcannon: 'cannon', lswarm: 'cluster' };
 const MELEE_W = new Set(['saber', 'axe', 'twin', 'whip', 'claw', 'lance', 'drill', 'fang', 'boomer', 'hammer', 'bshield', 'katana', 'pile', 'gham']);
 
 // ===================== 盾 =====================
@@ -8643,6 +8678,176 @@ if (DES.sea_leviathan_m) {
     return r;
   };
 }
+
+// ===================== 暴走巨大兵器の絵 =====================
+// ギガス：人型の巨体に、背の歯車の輪・排気塔・胸の炉・配管・赤く光るひび割れを重ねる
+(function () {
+  const D = DES.rog_gigas, b0 = D.body;
+  const glow = (c, pts, w = 0.9) => { ln(c, pts, 'rgba(255,90,40,.55)', w * 2.4); ln(c, pts, '#ffb070', w); };
+  D.body = (c, P, team) => {
+    // 背の歯車の輪（体の後ろ）
+    const cx = -5, cy = -22, n = 16, pts = [];
+    for (let i = 0; i < n * 2; i++) { const a = i / (n * 2) * Math.PI * 2, R = i % 2 ? 27 : 30.5; pts.push([cx + Math.cos(a) * R, cy + Math.sin(a) * R]); }
+    part(c, pPoly(pts, 0.6), P.b, { d: 1.2, panel: false });
+    part(c, pRing(cx, cy, 24, 24, 5), mixc(P.a, '#000000', 0.25), { d: 0.8, panel: false });
+    for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + 0.2; rivet(c, cx + Math.cos(a) * 21.6, cy + Math.sin(a) * 21.6, 0.9); }
+    for (const a of [-2.6, -1.9, -1.2]) eye(c, pEll(cx + Math.cos(a) * 28.6, cy + Math.sin(a) * 28.6, 1.5, 1.5), P.e, { blur: 4 });
+    // 排気塔（背の左右）。帯・格子・赤熱した口
+    for (const [x, h] of [[-25, 34], [-15, 28]]) {
+      part(c, pRect(x, -24 - h, 7, h, 1.2), P.b, { d: 1, panel: false });
+      for (let y = -24 - h + 4; y < -26; y += 6) part(c, pRect(x - 0.8, y, 8.6, 2, 0.6), P.a, { d: 0.4, panel: false });
+      part(c, pRect(x - 1.4, -24 - h - 3, 9.8, 4, 1), P.d, { d: 0.6, panel: false });
+      eye(c, pRect(x + 0.6, -24 - h - 2.2, 5.8, 1.8, 0.6), '#ff7a3a', { blur: 5 });
+      vents(c, x + 1.5, -24 - h + 8, 4, 8, 4, mixc(P.b, '#000000', 0.5));
+    }
+    // 背から腰へ回る太い配管
+    for (const [p0, p1, p2] of [[[-17, -20], [-26, -8], [-14, 4]], [[-12, -18], [-20, -2], [-9, 8]]]) {
+      c.beginPath(); c.moveTo(...p0); c.quadraticCurveTo(...p1, ...p2); c.lineCap = 'round';
+      c.strokeStyle = OL; c.lineWidth = 3.6 * ART.lwm; c.stroke(); c.strokeStyle = P.w; c.lineWidth = 2.2 * ART.lwm; c.stroke();
+      c.strokeStyle = 'rgba(255,255,255,.25)'; c.lineWidth = 0.7 * ART.lwm; c.stroke();
+    }
+    b0(c, P, team);
+    // 胸の炉：二重の輪と、赤熱した芯
+    part(c, pEll(1, -9, 5.4, 5.4), P.d, { d: 0.8, panel: false });
+    part(c, pRing(1, -9, 4.4, 4.4, 1.2), P.c, { d: 0.5, panel: false });
+    eye(c, pEll(1, -9, 2.6, 2.6), '#ff8a3a', { blur: 7 });
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; ln(c, [[1 + Math.cos(a) * 2.8, -9 + Math.sin(a) * 2.8], [1 + Math.cos(a) * 4.2, -9 + Math.sin(a) * 4.2]], P.d, 0.6); }
+    // 赤く光るひび割れ（頭・胴・脚）
+    glow(c, [[-8.5, -45], [-6.2, -42], [-7.4, -39.6], [-5, -37]], 0.8);
+    glow(c, [[7, -18], [9.4, -15.4], [8, -12.6]], 0.8);
+    glow(c, [[-13.6, 13], [-11, 16.6], [-12.8, 19.6], [-10.6, 23]], 0.9);
+    glow(c, [[12.4, 19], [14.8, 22.6], [12.8, 26]], 0.9);
+    // 腰の装甲板と警告の縞
+    const plate = pRect(-7, 1, 14, 5.4, 1);
+    part(c, plate, P.a, { d: 0.6, panel: false }); clipBand(c, plate, [[-9, 6.4], [-5, 1], [-2.6, 1], [-6.6, 6.4]], '#e8b84a'); clipBand(c, plate, [[-1, 6.4], [3, 1], [5.4, 1], [1.4, 6.4]], '#e8b84a');
+    for (const x of [-5.6, 5.6]) rivet(c, x, 3.7, 0.7);
+    // 肩の警告灯
+    for (const [x, y] of [[-23, -27], [24.6, -25.4]]) eye(c, pEll(x, y, 1.3, 1.3), '#ff3b24', { blur: 4 });
+  };
+})();
+
+// ハロー：巨大な円盤。上にガラスの丸屋根と光る核、縁に灯りの列、下に光の噴射口と砲塔
+DES.rog_ufo = {
+  f: 'mrc', kind: 'mech', float: true, scale: 1, pivot: [0, 9], armScale: 1.25,
+  jets: [[-28, 10, 6, Math.PI / 2, '#62e6ff'], [0, 14, 8, Math.PI / 2, '#62e6ff'], [28, 10, 6, Math.PI / 2, '#62e6ff']],
+  orbit: { n: 3, rx: 52, ry: 9, cy: -2, speed: 0.8, col: '#7ff0ff', body: '#263046', size: 1.5, shape: 'blade', spin: true },
+  P: { a: '#c4c9d6', b: '#46506a', c: '#62e6ff', d: '#151a28', e: '#9ff7ff', w: '#7c8498' },
+  body(c, P) {
+    const dk = mixc(P.b, '#000000', 0.35), glowc = P.c;
+    // 下の船体：暗い皿と、円く並んだ光の口
+    part(c, pEll(0, 7, 40, 9), dk, { d: 1.2, panel: false });
+    for (let i = -3; i <= 3; i++) { const x = i * 10.5, y = 9 + (1 - Math.abs(i) / 3.6) * 2.6; part(c, pEll(x, y, 3.2, 1.6), P.d, { d: 0.4, panel: false }); eye(c, pEll(x, y, 1.8, 0.9), glowc, { blur: 5 }); }
+    part(c, pEll(0, 12.6, 9, 3), P.d, { d: 0.6, panel: false }); eye(c, pRing(0, 12.6, 7, 2.2, 1.1), glowc, { blur: 6 });
+    // 主円盤：放射状の継ぎ目、縁の帯と灯り
+    const disc = pEll(0, 0, 46, 10.5);
+    part(c, disc, P.a, { d: 1.6, panel: false });
+    c.save(); c.clip(disc);
+    for (let i = -6; i <= 6; i++) { const x = i * 7.4; ln(c, [[x * 0.25, -10], [x, 10]], mixc(P.a, '#000000', 0.32), 0.6); }
+    c.fillStyle = P.b; c.fillRect(-48, 2.4, 96, 3.6);
+    c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(-48, -4.4, 96, 1.1);
+    c.restore();
+    for (let i = 0; i < 15; i++) { const x = -40 + i * 80 / 14, y = 4.2 + Math.sin(i / 14 * Math.PI) * 1.6; eye(c, pEll(x, y, 1.1, 1), i % 3 ? glowc : '#ffffff', { blur: 3 }); }
+    // 縁の羽根（左右）
+    for (const m of [-1, 1]) part(c, pPoly(mir(m, [[40, -2], [52, -6], [54, -3], [46, 3]]), 0.5), P.b, { d: 0.6, panel: false });
+    // 上の船体：段になった円盤と装甲の継ぎ目
+    part(c, pEll(0, -6, 30, 7), mixc(P.a, '#ffffff', 0.12), { d: 1.1, panel: false });
+    for (const m of [-1, 1]) for (let i = 0; i < 3; i++) part(c, pRect(m * (9 + i * 6.4) - 2, -8.6, 4, 3.4, 0.8), P.b, { d: 0.4, panel: false });
+    part(c, pEll(0, -10, 19, 4.4), P.b, { d: 0.8, panel: false });
+    // 丸屋根：ガラスの中に浮かぶ光る核と、肋材
+    const dome = pPoly([[-15, -11], [-14, -18], [-9, -24], [0, -26.4], [9, -24], [14, -18], [15, -11]], 4);
+    glassPart(c, dome, '#2c4f6e', [[-7, -21], [-2, -24]]);
+    for (const [x, h, w] of [[-4.6, 7, 2.2], [0, 10, 2.8], [4.6, 7.6, 2.2], [-1.8, 5, 1.6], [2.6, 5.4, 1.6]]) eye(c, pPoly([[x, -12 - h], [x + w, -12 - h * 0.45], [x, -11.4], [x - w, -12 - h * 0.45]]), '#c9fbff', { blur: 8 }); // 光る結晶の束
+    for (const x of [-8, 0, 8]) ln(c, [[x * 1.1, -11], [x * 0.6, -18], [0, -26]], 'rgba(160,190,220,.7)', 0.6);
+    c.lineWidth = 1 * ART.lwm; c.strokeStyle = OL; c.stroke(dome);
+    // 頂の受信機
+    part(c, pRect(-1.2, -32, 2.4, 6, 0.6), P.w, { d: 0.4, panel: false }); eye(c, pEll(0, -33, 1.6, 1.6), '#ff5a6a', { blur: 4 });
+  },
+  // 下の砲塔：球形の台座から二連の光線砲
+  armDraw(c, P) {
+    part(c, pEll(0, 0, 6.4, 6.4), P.b, { d: 1, panel: false });
+    for (const y of [-2.4, 2.4]) { part(c, pRect(3, y - 1.4, 17, 2.8, 1), P.a, { d: 0.6, panel: false }); part(c, pRect(18, y - 1.9, 3, 3.8, 0.8), P.d, { d: 0.4, panel: false }); }
+    eye(c, pEll(0, 0, 2.6, 2.6), P.c, { blur: 5 });
+    eye(c, pEll(21.4, 0, 1.6, 1.6), P.c, { blur: 5 });
+    return [23, 0];
+  },
+};
+
+// レギオン：寄り集まった機械の群体。履帯の土台、装甲の胴、輪の灯りを持つ核、ミサイルの箱、塔とアンテナ、つながる配管。まわりを小型機が回る
+DES.rog_legion = {
+  f: 'mrc', kind: 'mech', scale: 1, pivot: [0, -40], armScale: 1.3, float: true, // 宇宙を漂う：下に噴射口
+  jets: [[-30, 44, 7, Math.PI / 2, '#a6ff5a'], [-12, 44, 6, Math.PI / 2, '#a6ff5a'], [12, 44, 6, Math.PI / 2, '#a6ff5a'], [30, 44, 7, Math.PI / 2, '#a6ff5a']],
+  orbit: { n: 5, rx: 46, ry: 11, cy: -16, speed: 1.1, col: '#a6ff5a', body: '#2b3125', size: 1.45 },
+  P: { a: '#7a7462', b: '#433f35', c: '#a6ff5a', d: '#181913', e: '#c8ff7a', w: '#8c8a7c' },
+  body(c, P) {
+    const rust = '#8a5a34', dk = mixc(P.b, '#000000', 0.35);
+    const glow = (pts, w = 0.9) => { ln(c, pts, 'rgba(150,255,90,.45)', w * 2.4); ln(c, pts, '#dfff9a', w); };
+    // 奥：塔とアンテナ（核の後ろ）
+    part(c, pRect(-30, -58, 7, 40, 1), P.b, { d: 1, panel: false });
+    for (let y = -54; y < -22; y += 7) part(c, pRect(-31, y, 9, 2.2, 0.6), P.a, { d: 0.4, panel: false });
+    eye(c, pEll(-26.5, -60, 2, 2), '#ff5a3c', { blur: 5 });
+    ln(c, [[22, -30], [30, -60]], OL, 2.6); ln(c, [[22, -30], [30, -60]], P.w, 1.4);
+    part(c, pPoly([[24, -64], [38, -58], [34, -52], [22, -56]], 0.8), P.a, { d: 0.6, panel: false }); // 受信皿
+    eye(c, pEll(31, -60, 1.4, 1.4), P.c, { blur: 4 });
+    // 奥：取り込まれた母艦の艦首（斜めに突き出す）
+    part(c, pPoly([[-6, -30], [26, -48], [46, -46], [40, -38], [6, -22]], 1.2), '#c9cfdc', { d: 1, panel: false });
+    clipBand(c, pPoly([[-6, -30], [26, -48], [46, -46], [40, -38], [6, -22]], 1.2), [[20, -46], [46, -47], [44, -43], [18, -42]], '#4a72c8');
+    for (const x of [14, 22, 30]) eye(c, pEll(x, -38 - (x - 14) * 0.25, 1, 1), '#ffd27a', { blur: 3 });
+    // 土台：二本の履帯と転輪
+    for (const [x0, w] of [[-46, 40], [6, 40]]) {
+      const tr = pRect(x0, 26, w, 16, 7);
+      part(c, tr, P.d, { d: 1.2, panel: false });
+      c.save(); c.clip(tr); for (let x = x0; x < x0 + w; x += 3.4) ln(c, [[x, 26], [x + 1.4, 42]], mixc(P.d, '#ffffff', 0.18), 0.7); c.restore();
+      for (let i = 0; i < 4; i++) { const wx = x0 + 6 + i * (w - 12) / 3; part(c, pEll(wx, 34, 4.4, 4.4), P.w, { d: 0.5, panel: false }); rivet(c, wx, 34, 1.2); }
+    }
+    // 車台：二つの履帯をつなぐ箱
+    part(c, pPoly([[-40, 26], [-34, 8], [34, 8], [40, 26]], 2), P.b, { d: 1.2, panel: false });
+    vents(c, -24, 13, 16, 9, 4, dk); vents(c, 8, 13, 16, 9, 4, dk);
+    for (const x of [-36, -30, 30, 36]) rivet(c, x, 22, 0.9);
+    // 左：ミサイルの箱
+    const box = pRect(-48, -26, 20, 30, 2);
+    part(c, box, '#5a7bb8', { d: 1, panel: false }); // 統合軍の機体から外したミサイルの箱
+    for (let r = 0; r < 3; r++) for (let q = 0; q < 2; q++) { const x = -44.5 + q * 8.6, y = -22 + r * 8.6; part(c, pEll(x + 2.2, y + 2.2, 3, 3), P.d, { d: 0.4, panel: false }); eye(c, pEll(x + 2.2, y + 2.2, 1.2, 1.2), '#ff9a4a', { blur: 3 }); }
+    clipBand(c, box, [[-50, -28], [-26, -28], [-26, -25], [-50, -25]], '#e8b84a');
+    // 右：つぎはぎの重機の腕（関節つき）
+    part(c, pRect(28, -14, 16, 22, 2), '#d08a3a', { d: 1, panel: false }); // 公社の重機の腕
+    for (const [x, y] of [[31, -10], [41, -10], [31, 4], [41, 4]]) rivet(c, x, y, 0.9);
+    part(c, pPoly([[40, -6], [50, -20], [55, -16], [45, -2]], 1), P.w, { d: 0.6, panel: false });
+    part(c, pEll(52, -18, 3.4, 3.4), P.d, { d: 0.5, panel: false });
+    part(c, pPoly([[52, -18], [58, -6], [54, -4], [50, -14]], 0.6), P.a, { d: 0.5, panel: false });
+    part(c, pPoly([[58, -6], [60, 2], [55, 0], [54, -4]], 0.4), P.d, { d: 0.4, panel: false }); // 爪
+    // 胴：段になった装甲と、取り込まれた母艦の砲塔の破片
+    part(c, pPoly([[-28, 8], [-30, -16], [-20, -30], [20, -30], [30, -16], [28, 8]], 3), P.a, { d: 1.4 });
+    part(c, pPoly([[-22, -2], [-24, -14], [-16, -22], [-8, -22], [-12, -2]], 1), mixc(P.a, '#ffffff', 0.15), { d: 0.6, panel: false });
+    part(c, pRect(10, -6, 14, 9, 1.5), rust, { d: 0.6, panel: false }); part(c, pRect(22, -3.4, 10, 3, 1), P.d, { d: 0.4, panel: false });
+    // 継ぎ目の留め金：別々の機械を無理やりつないでいる
+    for (const [x, y, a] of [[-29, -6, 0.3], [27, -4, -0.3], [-18, 9, 0], [18, 9, 0], [-24, -24, 0.8]]) { c.save(); c.translate(x, y); c.rotate(a); part(c, pRect(-3, -1.6, 6, 3.2, 0.8), '#b7b3a2', { d: 0.4, panel: false }); rivet(c, -1.6, 0, 0.6); rivet(c, 1.6, 0, 0.6); c.restore(); }
+    part(c, pPoly([[-12, -4], [-4, -8], [2, -3], [-6, 2]], 1), '#e6e9f0', { d: 0.5, panel: false }); // 月面機の白い装甲の破片
+    part(c, pPoly([[4, -30], [12, -34], [16, -28], [8, -25]], 0.8), '#3fae7e', { d: 0.4, panel: false }); // 移民連合の緑の装甲の破片
+    // 核：装甲の球。目ではなく、六つの灯りと格子の炉
+    part(c, pEll(0, -20, 15, 15), P.b, { d: 1.4, panel: false });
+    part(c, pRing(0, -20, 12, 12, 2.4), P.d, { d: 0.6, panel: false });
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 - Math.PI / 2; eye(c, pEll(Math.cos(a) * 10.8, -20 + Math.sin(a) * 10.8, 1.6, 1.6), P.c, { blur: 5 }); }
+    const hx = pPoly([...Array(6)].map((_, i) => [Math.cos(i / 6 * Math.PI * 2) * 6.4, -20 + Math.sin(i / 6 * Math.PI * 2) * 6.4]), 0.6);
+    eye(c, hx, mixc(P.c, '#ffffff', 0.15), { blur: 7 });
+    c.save(); c.clip(hx); for (let x = -7; x <= 7; x += 2.4) ln(c, [[x, -27], [x, -13]], P.d, 0.9); c.restore(); // 炉の格子
+    // つなぐ配管と、緑に光る継ぎ目
+    for (const [p0, p1, p2] of [[[-28, -10], [-36, 4], [-26, 12]], [[26, -18], [34, -10], [30, -2]], [[-10, -32], [-18, -44], [-26, -40]]]) {
+      c.beginPath(); c.moveTo(...p0); c.quadraticCurveTo(...p1, ...p2); c.lineCap = 'round';
+      c.strokeStyle = OL; c.lineWidth = 3.2 * ART.lwm; c.stroke(); c.strokeStyle = P.w; c.lineWidth = 1.9 * ART.lwm; c.stroke();
+    }
+    glow([[-18, 6], [-14, 2], [-16, -2]]); glow([[14, -26], [18, -22], [16, -18]]); glow([[-36, 18], [-31, 15], [-27, 18]]);
+    for (const [x, y] of [[-26, -12], [26, -12], [-14, 4], [14, 4], [-20, -26], [20, -26]]) rivet(c, x, y, 0.9);
+  },
+  // 核の上の主砲：回転する多連装の砲身
+  armDraw(c, P) {
+    part(c, pEll(0, 0, 7, 7), P.b, { d: 1, panel: false });
+    part(c, pRect(2, -5.4, 10, 10.8, 2), P.a, { d: 0.8, panel: false });
+    for (const y of [-3.6, 0, 3.6]) part(c, pRect(11, y - 1.3, 16, 2.6, 0.8), P.w, { d: 0.5, panel: false });
+    part(c, pRect(25, -5.6, 4, 11.2, 1), P.d, { d: 0.5, panel: false });
+    eye(c, pEll(0, 0, 2.4, 2.4), P.c, { blur: 5 });
+    return [30, 0];
+  },
+};
 
 'use strict';
 // ===================== 戦艦・砲台の描画 =====================
@@ -12226,7 +12431,7 @@ function setupEntities(B) {
       const px = (40 + spd * 16) * BAL.pilotRankSpeed[p.pil || 0] * apt * (S.f === 'col' && B.terrain === 'space' ? 1.1 : 1);
       const x = BW / 2 + (i - (n - 1) / 2) * 110;
       const y = s === 0 ? BH - 190 : 190;
-      B.ents.push({ id: B.nid++, kind: 'mech', side: s, c, T, name: T.name, x, y, r: T.rogue ? 34 : T.big ? 17 : 14, hp: c.hp, maxHp: c.maxHp, spd: px, apt, pilot: p, lv: c.lv, mod: c.mod || 0, f: S.f, part: c.part, col,
+      B.ents.push({ id: B.nid++, kind: 'mech', side: s, c, T, name: T.name, x, y, r: T.rogue ? (ROGUE_BY_UNIT[T.id]?.r || 34) : T.big ? 17 : 14, hp: c.hp, maxHp: c.maxHp, spd: px, apt, pilot: p, lv: c.lv, mod: c.mod || 0, f: S.f, part: c.part, col,
         w: T.w.slice(), cd: [0.3, 0.3, 0.8], chg: [0, 0, 0], held: [false, false, false], wind: [0, 0, 0], rt: [0, 0, 0], ammo: T.w.map(ammoOf), wT: TRANSFORM[T.id]?.w.slice(), ammoT: TRANSFORM[T.id]?.w.map(ammoOf), tfCd: 0, tfT: 0, ord: s === 0 && G && G.units?.[c.uid]?.ord && ORDERS[G.units[c.uid].ord] ? G.units[c.uid].ord : null,
         aim: s === 0 ? -Math.PI / 2 : Math.PI / 2, face: 1, awakened: false, transformed: false, flash: 0, alive: true, dmg: 0, kills: 0, bitsOut: 0,
         ai: { tgt: null, ret: 0, strafe: Math.random() < 0.5 ? -1 : 1, strafeT: rand(0.8, 2), dodgeT: 0, dodge: [0, 0], scan: 0, fireJit: 0, chgGoal: 0 } });
@@ -12846,7 +13051,7 @@ function hurt(B, src, tgt, pow, attr, wcat) {
   if (!tgt.alive) return;
   let d = pow * BAL.actDmg * (1 + (src.lv || 1) * BAL.lvDmg) * (1 + (src.mod || 0) * BAL.modDmg) * rand(0.9, 1.1);
   if (wcat === 'self') d = pow * BAL.actDmg;
-  if (src.T?.rogue) d *= ROGUE.dmgK; // 巨大兵器の一撃は、手を付けられないほどにはしない
+  if (src.T?.rogue) d *= ROGUE_BY_UNIT[src.T.id]?.dmgK ?? 0.4; // 巨大兵器の一撃は、手を付けられないほどにはしない
   // 機動回避：足の速い機体は射撃をかわすことがある（爆風と近接はかわせない）
   const farShot = tgt.kind === 'mech' && tgt.T.ab === 'stealth' && src && Math.hypot(src.x - tgt.x, src.y - tgt.y) > 180 && Math.random() < 0.2;
   if (tgt.kind === 'mech' && !['self', 'launcher', 'melee', 'dash', 'flame', 'mine'].includes(wcat) && (farShot || Math.random() * 100 < evadeOf(tgt))) {
@@ -13907,7 +14112,7 @@ function drawRogueToken(c, x, y, r, t) {
   c.strokeStyle = `rgba(255,80,50,${0.55 + 0.4 * pu})`; c.lineWidth = 2.6; c.beginPath(); c.arc(x, y, r + 7 + pu * 2, 0, 7); c.stroke();
   c.strokeStyle = 'rgba(255,80,50,.35)'; c.lineWidth = 6; c.beginPath(); c.arc(x, y, r + 12 + pu * 3, 0, 7); c.stroke();
   c.restore();
-  try { drawUnit(c, x + 2, y - r - 14, 9, ROGUE.unit, { face: -1, aim: Math.PI, time: t, team: '#ff5a3c' }); } catch (e) {}
+  try { drawUnit(c, x + 2, y - r - 14, rogueUnit() === 'rog_gigas' ? 9 : 7, rogueUnit(), { face: -1, aim: Math.PI, time: t, team: '#ff5a3c' }); } catch (e) {}
   c.fillStyle = '#05070f'; c.fillRect(x - 15, y + r + 5, 30, 4.5); c.fillStyle = k > 0.5 ? '#ff7a4a' : '#ff3b30'; c.fillRect(x - 14.4, y + r + 5.6, 28.8 * k, 3.3);
 }
 function drawMapDynamic(c, w, h, t, tab, now) {
@@ -14178,7 +14383,7 @@ function renderSheet() {
   if (o && !mine && areaHasForces(id, o)) h += `<div class="pow">敵戦力<b>${fmt(areaDefense(id, o))}</b></div>`;
   h += `</div>`;
   if (AREA_DESC[id]) h += `<p class="dim pad area-desc">${AREA_DESC[id]}</p>`;
-  if (rogueAt(id)) h += `<div class="rog-block"><span class="uthumb" data-thumb="${ROGUE.unit}" data-size="64" data-col="#ff5a3c"></span><div><b>暴走巨大兵器 ${rogueName()}</b>${hpBar(G.rogue.hp, rogueMaxHp())}<small>どの勢力にも属さない旧時代の兵器。隣の拠点を踏み荒らし、持ち主のいない土地に変えていく（首都には入らない）。戦闘のあとに1割、ターンが変わるたびに2割回復する。倒さなくても統一はできる。</small></div></div>`;
+  if (rogueAt(id)) h += `<div class="rog-block"><span class="uthumb" data-thumb="${rogueUnit()}" data-size="64" data-col="${rogueType().col}"></span><div><b>暴走巨大兵器 ${rogueName()}</b>${hpBar(G.rogue.hp, rogueMaxHp())}<small>${rogueType().desc}首都には入らない。戦闘のあとに1割、ターンが変わるたびに2割回復する。倒さなくても統一はできる。</small></div></div>`;
   const cross = A.links.filter(b => AREAS[b].map !== A.map);
   if (cross.length) h += `<p class="dim pad">${cross.map(b => `${AREAS[b].map === 'space' ? '真上の宇宙' : '真下の地上'}の<b>${AREAS[b].name}</b>（${G.areas[b]?.owner ? FAC[G.areas[b].owner].name : '中立'}）とつながっています（地上・宇宙両用の艦${G.player === 'orb' ? 'と、天柱同盟の艦' : ''}だけが通れます）。上の札を押すと、そちらの地図へ移ります。`).join('')}</p>`;
   if (mine && canProduceAt(id)) h += prodBlock(id);
@@ -14801,7 +15006,7 @@ HOOKS.duel = async ctx => {
   UI.noMapBgm = true; show('map'); UI.noMapBgm = false;
   return res;
 };
-HOOKS.event = async ev => { const p = openModal({ title: ev.title, body: `${ev.thumb ? `<div class="ev-face">${heroHtml(ev.thumb, FAC[UNITS[ev.thumb].f]?.color || '#c9b98a', 190)}</div>` : ''}${ev.face ? `<div class="ev-face">${faceHtml(ev.face, 96, 'b')}</div>` : ''}<p>${ev.body}</p>`, buttons: [{ label: '確認', value: 'ok', cls: 'primary' }], cls: 'small' }); fillThumbs(modalStack[modalStack.length - 1].el); await p; };
+HOOKS.event = async ev => { const p = openModal({ title: ev.title, body: `${ev.thumb ? `<div class="ev-face">${heroHtml(ev.thumb, ev.col || FAC[UNITS[ev.thumb].f]?.color || '#c9b98a', 190)}</div>` : ''}${ev.face ? `<div class="ev-face">${faceHtml(ev.face, 96, 'b')}</div>` : ''}<p>${ev.body}</p>`, buttons: [{ label: '確認', value: 'ok', cls: 'primary' }], cls: 'small' }); fillThumbs(modalStack[modalStack.length - 1].el); await p; };
 
 // ===================== ターン終了 =====================
 async function onEndTurn() {
@@ -15106,7 +15311,7 @@ async function openHelp() {
     <h4>パイロットの成長</h4><p>戦闘のたびに経験を積み、レベルが上がると能力が伸びます。よく使った系統（射撃・格闘・特殊）ほど伸びやすく、Lv6・12・18で操縦ランク、感応者はLv8・16で感応ランクが上がります。特技のないパイロットはLv10で特技を覚えます。艦長はLv6・12で指揮ランクが上がり、搭載数が増えます。<br>撃破されても、勝った戦闘なら必ず救助されます。負けた戦闘では戻らないこともありますが、レベルが高いほど生き延びやすくなります。</p>
     <h4>鹵獲機の解析</h4><p>捕獲した他勢力の機体を進化かレベルアップさせると解析が終わり、その機体を自軍の工場で生産できるようになります。量産できない高性能機の場合は、その系統の元になった量産機が作れるようになります。</p>
     <h4>武器の種類</h4><p>ショットガン（近いほど強い散弾）、火炎放射器（押している間、炎を浴びせる）、レールガン（照準のあと壁も機体も貫く弾）、ビームランス・ドリル・ファング（敵へ突進して貫く）、機雷（置いておくと敵が近づいたとき爆発）、ビームブーメラン（行きと帰りで2回当たる）、薙ぎ払いレーザー（扇形に払う光線）、電磁ネット（当たった敵の足を鈍らせる）、クラスターミサイル（目標の手前で子弾をばらまく）、照射レーザー（押している間、光線を当て続ける）、プラズマ砲（ゆっくり進む光球が触れた敵を焼き、最後に破裂）、自律砲台（置くとしばらく自動で撃つ）、ハンマー（当てた敵を吹き飛ばす）、ビームシールド（押している間、正面の弾を防ぐ）など。武器は一度に1つしか使えません。</p>
-    <h4>暴走巨大兵器</h4><p>統一が近づくと、まれに旧時代の巨大兵器「ギガス」が目を覚まします。どの勢力にも属さず、隣の拠点（首都をのぞく）を踏み荒らして、持ち主のいない土地に変えていきます。とても頑丈で、戦闘のあとに1割、ターンが変わるたびに2割回復します。倒さなくてもクリアできますが、撃破すれば資金とパーツが手に入ります。ギガスとの戦いは、時間切れなら守った側の勝ちです。</p>
+    <h4>暴走巨大兵器</h4><p>統一が近づくと、まれに巨大兵器が現れます（1回のゲームで1体だけ）。地上を歩く「ギガス」、地上と宇宙を行き来して遠くから撃つ円盤「ハロー」、難易度「極」だけに現れる残骸の群体「レギオン」の3種類です。どれもどの勢力にも属さず、隣の拠点（首都をのぞく）を荒らして、持ち主のいない土地に変えていきます。とても頑丈で、戦闘のあとに1割、ターンが変わるたびに2割回復します。倒さなくてもクリアできますが、撃破すれば資金とパーツが手に入ります。ギガスとの戦いは、時間切れなら守った側の勝ちです。</p>
     <h4>戦闘のしくみ</h4><p>足の速い機体（速度6以上）や操縦の上手いパイロットは、射撃をときどき「回避」します。爆風と近接攻撃はかわせません。<br>キャノン・バズーカ・ミサイルは敵のそばを通ると炸裂します（近接信管）。機銃やビットの弾で撃ち落とせますが、砲弾は2発当てないと落ちません。<br>位相バリアはビームのダメージを2割減らします。</p>`;
   await openModal({ title: '遊び方', body, cls: 'wide' });
 }
@@ -15185,6 +15390,8 @@ const MEDALS = [
   { id: 'mod_max', name: '匠の技', desc: '機体を改造+5まで強化する', icon: 'gear' },
   { id: 'territory20', name: '大版図', desc: '20以上のエリアを同時に支配する', icon: 'flag' },
   { id: 'giant', name: '巨人殺し', desc: '暴走した巨大兵器を倒す', icon: 'star' },
+  { id: 'giant_ufo', name: '星を落とす者', desc: '空から来た円盤ハローを倒す', icon: 'wing' },
+  { id: 'giant_legion', name: '鉄屑の葬送', desc: '難易度「極」で現れる残骸の軍勢レギオンを倒す', icon: 'crown' },
   { id: 'wanderer', name: '放浪者の腕', desc: '放浪者ゼファーとの決闘に勝ち、仲間にする', icon: 'star' },
   { id: 'mission10', name: '作戦のプロ', desc: '1回のゲームで作戦を10回成功させる', icon: 'flag' },
   { id: 'comeback', name: '不屈の旗', desc: '首都を落とされてから勝利する', icon: 'flag' },
