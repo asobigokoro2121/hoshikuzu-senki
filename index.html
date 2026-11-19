@@ -763,7 +763,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v101</span>
+    <span class="t-ver">v102</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -3409,7 +3409,7 @@ const ROGUE_TYPES = {
     desc: '正体不明の巨大な円盤。地上と宇宙を行き来し、遠くからの光線がとても強い。焼いた拠点は持ち主のいない土地になる。',
   },
   legion: {
-    unit: 'rog_legion', maps: ['space'], home: 'v_l5', r: 44, dmgK: 0.5, reward: 5000, col: '#a6ff5a', extreme: true,
+    unit: 'rog_legion', maps: ['space'], home: 'v_l5', r: 49, dmgK: 0.5, reward: 5000, col: '#a6ff5a', extreme: true,
     title: '残骸の軍勢',
     awake: a => `${AREAS[a].name}に漂っていた無数の残骸が、ひとつの意思に従って集まり始めた。<br>壊れた機体、母艦の砲塔、工場の重機――戦争が生んだ鉄くずが寄り集まり、巨大な群体「レギオン」になった。<br>レギオンは宇宙をゆっくり進み、触れた拠点を取り込んで持ち主のいない土地に変えていく。`,
     down: 'レギオンを束ねていた核が砕けた。寄り集まっていた機械はばらばらにほどけ、ただの残骸に戻って宇宙を漂いはじめた。',
@@ -8728,7 +8728,7 @@ if (DES.sea_leviathan_m) {
 
 // ハロー：巨大な円盤。上にガラスの丸屋根と光る核、縁に灯りの列、下に光の噴射口と砲塔
 DES.rog_ufo = {
-  f: 'mrc', kind: 'mech', float: true, scale: 1, pivot: [0, 9], armScale: 1.25,
+  f: 'mrc', kind: 'mech', float: true, flameCol: '#62e6ff', scale: 1, pivot: [0, 9], armScale: 1.25,
   jets: [[-28, 10, 6, Math.PI / 2, '#62e6ff'], [0, 14, 8, Math.PI / 2, '#62e6ff'], [28, 10, 6, Math.PI / 2, '#62e6ff']],
   orbit: { n: 3, rx: 52, ry: 9, cy: -2, speed: 0.8, col: '#7ff0ff', body: '#263046', size: 1.5, shape: 'blade', spin: true },
   P: { a: '#c4c9d6', b: '#46506a', c: '#62e6ff', d: '#151a28', e: '#9ff7ff', w: '#7c8498' },
@@ -8772,80 +8772,112 @@ DES.rog_ufo = {
   },
 };
 
-// レギオン：寄り集まった機械の群体。履帯の土台、装甲の胴、輪の灯りを持つ核、ミサイルの箱、塔とアンテナ、つながる配管。まわりを小型機が回る
+// レギオン：戦場の残骸が寄り集まった機械の群体（人型ではない）。
+// 奥から：欠けた骨組みの光輪 → 母艦の装甲を重ねた翼 → 節のある触手腕 → 機関を積み重ねた竜骨 → 甲殻の胴と格子の炉 → 冠の突起と主砲
 DES.rog_legion = {
-  f: 'mrc', kind: 'mech', scale: 1, pivot: [0, -40], armScale: 1.3, float: true, // 宇宙を漂う：下に噴射口
-  jets: [[-30, 44, 7, Math.PI / 2, '#a6ff5a'], [-12, 44, 6, Math.PI / 2, '#a6ff5a'], [12, 44, 6, Math.PI / 2, '#a6ff5a'], [30, 44, 7, Math.PI / 2, '#a6ff5a']],
-  orbit: { n: 5, rx: 46, ry: 11, cy: -16, speed: 1.1, col: '#a6ff5a', body: '#2b3125', size: 1.45 },
-  P: { a: '#7a7462', b: '#433f35', c: '#a6ff5a', d: '#181913', e: '#c8ff7a', w: '#8c8a7c' },
+  f: 'mrc', kind: 'mech', scale: 0.9, pivot: [0, -36], armScale: 1.35, float: true, flameCol: '#a6ff5a',
+  jets: [[-9, 47, 7, Math.PI / 2, '#a6ff5a'], [0, 50, 9, Math.PI / 2, '#a6ff5a'], [9, 47, 7, Math.PI / 2, '#a6ff5a'], [-36, 20, 5, Math.PI * 0.62, '#a6ff5a'], [36, 20, 5, Math.PI * 0.38, '#a6ff5a']],
+  orbit: { n: 6, rx: 50, ry: 12, cy: -12, speed: 1, col: '#a6ff5a', body: '#262b20', size: 1.35, shape: 'blade', spin: true },
+  P: { a: '#6f6c5e', b: '#3b3a31', c: '#a6ff5a', d: '#15160f', e: '#c8ff7a', w: '#8e8b7a' },
   body(c, P) {
-    const rust = '#8a5a34', dk = mixc(P.b, '#000000', 0.35);
-    const glow = (pts, w = 0.9) => { ln(c, pts, 'rgba(150,255,90,.45)', w * 2.4); ln(c, pts, '#dfff9a', w); };
-    // 奥：塔とアンテナ（核の後ろ）
-    part(c, pRect(-30, -58, 7, 40, 1), P.b, { d: 1, panel: false });
-    for (let y = -54; y < -22; y += 7) part(c, pRect(-31, y, 9, 2.2, 0.6), P.a, { d: 0.4, panel: false });
-    eye(c, pEll(-26.5, -60, 2, 2), '#ff5a3c', { blur: 5 });
-    ln(c, [[22, -30], [30, -60]], OL, 2.6); ln(c, [[22, -30], [30, -60]], P.w, 1.4);
-    part(c, pPoly([[24, -64], [38, -58], [34, -52], [22, -56]], 0.8), P.a, { d: 0.6, panel: false }); // 受信皿
-    eye(c, pEll(31, -60, 1.4, 1.4), P.c, { blur: 4 });
-    // 奥：取り込まれた母艦の艦首（斜めに突き出す）
-    part(c, pPoly([[-6, -30], [26, -48], [46, -46], [40, -38], [6, -22]], 1.2), '#c9cfdc', { d: 1, panel: false });
-    clipBand(c, pPoly([[-6, -30], [26, -48], [46, -46], [40, -38], [6, -22]], 1.2), [[20, -46], [46, -47], [44, -43], [18, -42]], '#4a72c8');
-    for (const x of [14, 22, 30]) eye(c, pEll(x, -38 - (x - 14) * 0.25, 1, 1), '#ffd27a', { blur: 3 });
-    // 土台：二本の履帯と転輪
-    for (const [x0, w] of [[-46, 40], [6, 40]]) {
-      const tr = pRect(x0, 26, w, 16, 7);
-      part(c, tr, P.d, { d: 1.2, panel: false });
-      c.save(); c.clip(tr); for (let x = x0; x < x0 + w; x += 3.4) ln(c, [[x, 26], [x + 1.4, 42]], mixc(P.d, '#ffffff', 0.18), 0.7); c.restore();
-      for (let i = 0; i < 4; i++) { const wx = x0 + 6 + i * (w - 12) / 3; part(c, pEll(wx, 34, 4.4, 4.4), P.w, { d: 0.5, panel: false }); rivet(c, wx, 34, 1.2); }
+    const G1 = P.c, dk = mixc(P.b, '#000000', 0.4), rust = '#8a5a34', hi = mixc(P.a, '#ffffff', 0.18);
+    const glow = (pts, w = 0.9) => { ln(c, pts, hexA(G1, 0.45), w * 2.6); ln(c, pts, '#e4ffb0', w); };
+    const stroke = (fn, w, col) => { c.beginPath(); fn(); c.lineCap = 'round'; c.strokeStyle = OL; c.lineWidth = (w + 1.4) * ART.lwm; c.stroke(); c.strokeStyle = col; c.lineWidth = w * ART.lwm; c.stroke(); };
+    const qp = (a, b, k, t) => [(1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * k[0] + t * t * b[0], (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * k[1] + t * t * b[1]];
+    const cx = 0, cy = -12;
+    // 1. 欠けた骨組みの光輪：二重の弧を斜めの桁でつなぐ。ところどころ途切れている
+    for (const [a0, a1] of [[-2.75, -1.75], [-1.45, -0.35], [-0.1, 0.75], [2.4, 3.1]]) {
+      for (const R of [41, 47]) stroke(() => c.arc(cx, cy, R, a0, a1), 1.6, P.w);
+      for (let a = a0 + 0.06; a < a1 - 0.04; a += 0.13) { const b = a + 0.065; ln(c, [[cx + Math.cos(a) * 41, cy + Math.sin(a) * 41], [cx + Math.cos(b) * 47, cy + Math.sin(b) * 47]], P.b, 0.8); }
+      eye(c, pEll(cx + Math.cos(a1) * 44, cy + Math.sin(a1) * 44, 1.4, 1.4), G1, { blur: 4 });
     }
-    // 車台：二つの履帯をつなぐ箱
-    part(c, pPoly([[-40, 26], [-34, 8], [34, 8], [40, 26]], 2), P.b, { d: 1.2, panel: false });
-    vents(c, -24, 13, 16, 9, 4, dk); vents(c, 8, 13, 16, 9, 4, dk);
-    for (const x of [-36, -30, 30, 36]) rivet(c, x, 22, 0.9);
-    // 左：ミサイルの箱
-    const box = pRect(-48, -26, 20, 30, 2);
-    part(c, box, '#5a7bb8', { d: 1, panel: false }); // 統合軍の機体から外したミサイルの箱
-    for (let r = 0; r < 3; r++) for (let q = 0; q < 2; q++) { const x = -44.5 + q * 8.6, y = -22 + r * 8.6; part(c, pEll(x + 2.2, y + 2.2, 3, 3), P.d, { d: 0.4, panel: false }); eye(c, pEll(x + 2.2, y + 2.2, 1.2, 1.2), '#ff9a4a', { blur: 3 }); }
-    clipBand(c, box, [[-50, -28], [-26, -28], [-26, -25], [-50, -25]], '#e8b84a');
-    // 右：つぎはぎの重機の腕（関節つき）
-    part(c, pRect(28, -14, 16, 22, 2), '#d08a3a', { d: 1, panel: false }); // 公社の重機の腕
-    for (const [x, y] of [[31, -10], [41, -10], [31, 4], [41, 4]]) rivet(c, x, y, 0.9);
-    part(c, pPoly([[40, -6], [50, -20], [55, -16], [45, -2]], 1), P.w, { d: 0.6, panel: false });
-    part(c, pEll(52, -18, 3.4, 3.4), P.d, { d: 0.5, panel: false });
-    part(c, pPoly([[52, -18], [58, -6], [54, -4], [50, -14]], 0.6), P.a, { d: 0.5, panel: false });
-    part(c, pPoly([[58, -6], [60, 2], [55, 0], [54, -4]], 0.4), P.d, { d: 0.4, panel: false }); // 爪
-    // 胴：段になった装甲と、取り込まれた母艦の砲塔の破片
-    part(c, pPoly([[-28, 8], [-30, -16], [-20, -30], [20, -30], [30, -16], [28, 8]], 3), P.a, { d: 1.4 });
-    part(c, pPoly([[-22, -2], [-24, -14], [-16, -22], [-8, -22], [-12, -2]], 1), mixc(P.a, '#ffffff', 0.15), { d: 0.6, panel: false });
-    part(c, pRect(10, -6, 14, 9, 1.5), rust, { d: 0.6, panel: false }); part(c, pRect(22, -3.4, 10, 3, 1), P.d, { d: 0.4, panel: false });
-    // 継ぎ目の留め金：別々の機械を無理やりつないでいる
-    for (const [x, y, a] of [[-29, -6, 0.3], [27, -4, -0.3], [-18, 9, 0], [18, 9, 0], [-24, -24, 0.8]]) { c.save(); c.translate(x, y); c.rotate(a); part(c, pRect(-3, -1.6, 6, 3.2, 0.8), '#b7b3a2', { d: 0.4, panel: false }); rivet(c, -1.6, 0, 0.6); rivet(c, 1.6, 0, 0.6); c.restore(); }
-    part(c, pPoly([[-12, -4], [-4, -8], [2, -3], [-6, 2]], 1), '#e6e9f0', { d: 0.5, panel: false }); // 月面機の白い装甲の破片
-    part(c, pPoly([[4, -30], [12, -34], [16, -28], [8, -25]], 0.8), '#3fae7e', { d: 0.4, panel: false }); // 移民連合の緑の装甲の破片
-    // 核：装甲の球。目ではなく、六つの灯りと格子の炉
-    part(c, pEll(0, -20, 15, 15), P.b, { d: 1.4, panel: false });
-    part(c, pRing(0, -20, 12, 12, 2.4), P.d, { d: 0.6, panel: false });
-    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 - Math.PI / 2; eye(c, pEll(Math.cos(a) * 10.8, -20 + Math.sin(a) * 10.8, 1.6, 1.6), P.c, { blur: 5 }); }
-    const hx = pPoly([...Array(6)].map((_, i) => [Math.cos(i / 6 * Math.PI * 2) * 6.4, -20 + Math.sin(i / 6 * Math.PI * 2) * 6.4]), 0.6);
-    eye(c, hx, mixc(P.c, '#ffffff', 0.15), { blur: 7 });
-    c.save(); c.clip(hx); for (let x = -7; x <= 7; x += 2.4) ln(c, [[x, -27], [x, -13]], P.d, 0.9); c.restore(); // 炉の格子
-    // つなぐ配管と、緑に光る継ぎ目
-    for (const [p0, p1, p2] of [[[-28, -10], [-36, 4], [-26, 12]], [[26, -18], [34, -10], [30, -2]], [[-10, -32], [-18, -44], [-26, -40]]]) {
-      c.beginPath(); c.moveTo(...p0); c.quadraticCurveTo(...p1, ...p2); c.lineCap = 'round';
-      c.strokeStyle = OL; c.lineWidth = 3.2 * ART.lwm; c.stroke(); c.strokeStyle = P.w; c.lineWidth = 1.9 * ART.lwm; c.stroke();
+    // 2. 母艦の装甲を重ねた翼（左右で少し違う）。継ぎはぎの色、窓の灯り、割れた縁
+    for (const m of [-1, 1]) {
+      const plates = [
+        [[12, -20], [40, -44], [54, -46], [50, -36], [22, -12]],
+        [[14, -12], [44, -30], [56, -26], [50, -18], [20, -4]],
+        [[14, -4], [42, -14], [52, -8], [44, -2], [18, 4]],
+      ];
+      plates.forEach((pp, i) => {
+        const pl = pPoly(mir(m, pp), 1);
+        part(c, pl, [m < 0 ? '#c9cfdc' : '#7d7a69', P.a, m < 0 ? rust : '#5f7fb6'][i], { d: 1, panel: false });
+        clipBand(c, pl, mir(m, [[pp[1][0] - 2, pp[1][1] + 2], [pp[2][0], pp[2][1]], [pp[2][0] - 2, pp[2][1] + 4], [pp[1][0] - 4, pp[1][1] + 6]]), i === 0 ? '#e8b84a' : dk);
+        for (let k = 1; k < 4; k++) { const t = k / 4, x = pp[0][0] + (pp[2][0] - pp[0][0]) * t, y = pp[0][1] + (pp[2][1] - pp[0][1]) * t + 3; eye(c, pEll(m * x, y, 0.9, 0.9), i === 1 ? G1 : '#ffd27a', { blur: 3 }); }
+        ln(c, mir(m, [[pp[0][0] + 4, pp[0][1] + 1], [pp[2][0] - 6, pp[2][1] + 3]]), 'rgba(255,255,255,.35)', 0.5);
+      });
+      glow(mir(m, [[30, -24], [34, -20], [32, -16]]), 0.8);
     }
-    glow([[-18, 6], [-14, 2], [-16, -2]]); glow([[14, -26], [18, -22], [16, -18]]); glow([[-36, 18], [-31, 15], [-27, 18]]);
-    for (const [x, y] of [[-26, -12], [26, -12], [-14, 4], [14, 4], [-20, -26], [20, -26]]) rivet(c, x, y, 0.9);
+    // 3. 節のある触手腕：小さな装甲の節を連ね、先は鉤爪か砲口
+    const limb = (a, k, b, w0, w1, tip) => {
+      const N = 10, pts = [...Array(N + 1)].map((_, i) => qp(a, b, k, i / N));
+      for (let i = 0; i < N; i++) {
+        const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], ang = Math.atan2(y1 - y0, x1 - x0), L = Math.hypot(x1 - x0, y1 - y0), w = w0 + (w1 - w0) * i / N;
+        c.save(); c.translate(x0, y0); c.rotate(ang);
+        part(c, pPoly([[-0.6, -w / 2], [L * 0.8, -w / 2 * 0.86], [L + 0.8, 0], [L * 0.8, w / 2 * 0.86], [-0.6, w / 2]], 0.6), i % 2 ? P.a : P.w, { d: 0.4, panel: false });
+        ln(c, [[L * 0.25, -w / 2 + 0.6], [L * 0.25, w / 2 - 0.6]], dk, 0.5);
+        c.restore();
+        if (i % 3 === 1) eye(c, pEll(x0, y0, 0.8, 0.8), G1, { blur: 3 });
+      }
+      const [ex, ey] = pts[N], [px, py] = pts[N - 1], ang = Math.atan2(ey - py, ex - px);
+      c.save(); c.translate(ex, ey); c.rotate(ang);
+      if (tip === 'claw') {
+        part(c, pEll(0, 0, 2.8, 2.8), P.b, { d: 0.4, panel: false });
+        for (const q of [-0.7, 0, 0.7]) { c.save(); c.rotate(q); part(c, pPoly([[1, -1.4], [7, -1.8], [10, 0.6], [6, 0.4], [1, 1.4]], 0.4), '#d8dbe2', { d: 0.4, panel: false }); c.restore(); }
+      } else {
+        part(c, pRect(-1, -2.4, 9, 4.8, 1), P.b, { d: 0.5, panel: false }); part(c, pRect(7, -1.6, 3, 3.2, 0.6), P.d, { d: 0.3, panel: false });
+        eye(c, pEll(9.6, 0, 1.2, 1.2), G1, { blur: 4 });
+      }
+      c.restore();
+    };
+    limb([-22, 6], [-48, 4], [-56, 30], 5, 2.6, 'claw');
+    limb([22, 6], [50, 2], [58, 28], 5, 2.6, 'gun');
+    limb([-18, -26], [-40, -58], [-24, -66], 4.2, 2.2, 'gun');
+    limb([18, -26], [44, -54], [30, -68], 4.2, 2.2, 'claw');
+    // 4. 竜骨：機関を積み重ねて下へ細くなる塔。輪・配管・噴射口
+    const keel = [[-14, 12], [14, 12], [10, 42], [-10, 42]];
+    part(c, pPoly(keel, 2), P.b, { d: 1.2, panel: false });
+    for (let k = 0; k < 4; k++) { const y = 15 + k * 7, hw = 13.4 - k * 0.9; part(c, pRect(-hw, y, hw * 2, 3.4, 1), k % 2 ? P.a : rust, { d: 0.5, panel: false }); }
+    vents(c, -6, 30, 12, 10, 4, dk);
+    for (const x of [-9, 0, 9]) part(c, pPoly([[x - 3.4, 42], [x + 3.4, 42], [x + 2.4, 47], [x - 2.4, 47]], 0.6), P.d, { d: 0.4, panel: false });
+    for (const m of [-1, 1]) stroke(() => { c.moveTo(m * 14, 14); c.quadraticCurveTo(m * 24, 26, m * 11, 38); }, 1.6, P.w);
+    // 取り込まれた機体の頭（灯りの消えた覗き窓）
+    c.save(); c.translate(-25, 10); c.rotate(-0.5);
+    part(c, pPoly([[-6, 4], [-7, -3], [-3, -8], [3, -8], [7, -3], [6, 4], [0, 6]], 1.4), '#d6dbe6', { d: 0.6, panel: false });
+    part(c, pRect(-5, -3.4, 10, 2.6, 0.8), '#20232c', { d: 0.3, panel: false });
+    c.restore();
+    // 5. 甲殻の胴：重ねた六角の殻、留め金、緑に光る継ぎ目
+    const hex = (r, y = cy) => [...Array(6)].map((_, i) => [cx + Math.cos(i / 6 * Math.PI * 2 + Math.PI / 6) * r, y + Math.sin(i / 6 * Math.PI * 2 + Math.PI / 6) * r * 0.92]);
+    part(c, pPoly(hex(27), 3), P.b, { d: 1.6, panel: false });
+    for (let i = 0; i < 6; i++) { // 殻の板（一枚ずつ色と傷が違う）
+      const a0 = i / 6 * Math.PI * 2 + Math.PI / 6, a1 = a0 + Math.PI / 3, r0 = 15, r1 = 25.5;
+      const pl = pPoly([[cx + Math.cos(a0 + 0.06) * r0, cy + Math.sin(a0 + 0.06) * r0], [cx + Math.cos(a0 + 0.06) * r1, cy + Math.sin(a0 + 0.06) * r1 * 0.92], [cx + Math.cos(a1 - 0.06) * r1, cy + Math.sin(a1 - 0.06) * r1 * 0.92], [cx + Math.cos(a1 - 0.06) * r0, cy + Math.sin(a1 - 0.06) * r0]], 0.8);
+      part(c, pl, [P.a, hi, rust, P.a, '#5f7fb6', hi][i], { d: 0.7, panel: false });
+      const am = (a0 + a1) / 2; rivet(c, cx + Math.cos(am) * 23, cy + Math.sin(am) * 21, 0.8);
+      ln(c, [[cx + Math.cos(am - 0.2) * 17.6, cy + Math.sin(am - 0.2) * 17.6], [cx + Math.cos(am + 0.15) * 22, cy + Math.sin(am + 0.15) * 20]], dk, 0.6);
+    }
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 + Math.PI / 6; glow([[cx + Math.cos(a) * 15.5, cy + Math.sin(a) * 15.5], [cx + Math.cos(a) * 25, cy + Math.sin(a) * 23]], 0.7); }
+    // 炉：六角の格子と、まわりの六つの灯り（目には見せない）
+    part(c, pPoly(hex(14.6), 1.6), P.d, { d: 0.8, panel: false });
+    const core = pPoly(hex(10), 1);
+    eye(c, core, mixc(G1, '#ffffff', 0.1), { blur: 9 });
+    c.save(); c.clip(core); for (let x = -12; x <= 12; x += 2.6) ln(c, [[x, cy - 12], [x + 3, cy + 12]], P.d, 0.9); for (let y = -10; y <= 10; y += 4) ln(c, [[cx - 12, cy + y], [cx + 12, cy + y]], hexA(P.d, 0.6), 0.6); c.restore();
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; eye(c, pEll(cx + Math.cos(a) * 12.3, cy + Math.sin(a) * 11.4, 1.1, 1.1), '#e4ffb0', { blur: 4 }); }
+    // 6. 冠：殻の上に並ぶ突起とアンテナ、警告灯
+    [[-15, -4, 10], [-8, -2, 14], [8, 2, 14], [15, 4, 10]].forEach(([x, lean, h]) => part(c, pPoly([[x - 2.6, -34], [x + lean * 0.4, -34 - h], [x + 2.6, -34]], 0.4), P.w, { d: 0.5, panel: false }));
+    for (const x of [-15, 15]) eye(c, pEll(x + (x < 0 ? -1.6 : 1.6), -44, 1.2, 1.2), '#ff5a3c', { blur: 4 });
+    part(c, pRect(-7, -38, 14, 6, 1.6), P.a, { d: 0.8, panel: false }); // 主砲の台座
+    for (const x of [-4, 0, 4]) rivet(c, x, -35, 0.6);
   },
-  // 核の上の主砲：回転する多連装の砲身
+  // 冠の上の主砲：三連の砲身と、冷却の輪
   armDraw(c, P) {
-    part(c, pEll(0, 0, 7, 7), P.b, { d: 1, panel: false });
-    part(c, pRect(2, -5.4, 10, 10.8, 2), P.a, { d: 0.8, panel: false });
-    for (const y of [-3.6, 0, 3.6]) part(c, pRect(11, y - 1.3, 16, 2.6, 0.8), P.w, { d: 0.5, panel: false });
-    part(c, pRect(25, -5.6, 4, 11.2, 1), P.d, { d: 0.5, panel: false });
-    eye(c, pEll(0, 0, 2.4, 2.4), P.c, { blur: 5 });
-    return [30, 0];
+    part(c, pEll(0, 0, 7.4, 7.4), P.b, { d: 1, panel: false });
+    part(c, pRect(2, -6, 12, 12, 2.4), P.a, { d: 0.8, panel: false });
+    for (const y of [-3.8, 0, 3.8]) part(c, pRect(12, y - 1.4, 18, 2.8, 0.8), P.w, { d: 0.5, panel: false });
+    for (const x of [17, 23]) part(c, pRect(x, -6.2, 2.4, 12.4, 0.8), P.d, { d: 0.4, panel: false });
+    part(c, pRect(29, -6, 4, 12, 1), P.d, { d: 0.5, panel: false });
+    eye(c, pEll(0, 0, 2.6, 2.6), P.c, { blur: 5 });
+    for (const y of [-3.8, 0, 3.8]) eye(c, pEll(33.4, y, 0.9, 0.9), P.c, { blur: 3 });
+    return [34, 0];
   },
 };
 
