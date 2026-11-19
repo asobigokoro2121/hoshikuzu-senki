@@ -763,7 +763,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v103</span>
+    <span class="t-ver">v104</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -826,7 +826,7 @@ const BAL = {
   shipArmor: 0.55, fortArmor: 0.7,   // 戦艦・砲台が受けるダメージの倍率
   // 即時決着（CPU同士・クイック）の補正。アクション戦闘の結果に合わせて調整した値
   // unitQs：機体ごとの補正（test/bal/fitunit.js で自動生成。機体の性能を変えたら作り直す）
-  unitQs: {rog_gigas: 0.3, rog_ufo: 0.34, rog_legion: 0.42, ast_tycoon: 0.796, psy_nirvana: 0.605, lun_gloria: 1.180, ugf_knight_k: 1.509, col_emperor: 1.026, psy_oracle_s: 0.748, ugf_paladin: 0.907, sea_leviathan: 0.951, col_comet_r: 1.332, lun_seraph_y: 1.296, lun_seraph: 1.280, ast_rockgiant: 2.012, sea_orca_m: 1.304, col_comet: 1.439, sea_orca: 1.119, ugf_knight: 1.352, psy_oracle: 1.088, psy_specter: 1.28, ugf_fortress: 1.513, ugf_valkyr: 1.043, lun_halberd: 2.095, ugf_gunner: 1.649, sea_kraken: 0.72, lun_frame2: 0.895, col_commander: 0.622, lun_arbalest: 1.275, col_sniper: 1.425, psy_vessel: 1.312, ast_merc: 1.218, ugf_trooper2: 1.814, sea_crab: 1.335, psy_acolyte: 0.33, psy_wraith: 1.497, col_lancer2: 1.564, ast_digger: 1.643, sea_gull: 0.3, ast_guard: 1.456, lun_frame: 0.945, lun_mirage: 2.448, sea_shark: 1.309, col_raider: 1.672, ugf_scout: 1.169, ugf_trooper: 0.3, col_lancer: 1.707, ast_wasp: 0.3, ast_miner: 1.039, ugf_tank: 2.656, sea_frog: 1.365, col_drone: 1.039, lun_arbalest_k: 3.363, sea_kraken_h: 1.586, col_commander_z: 1.318, ast_rockgiant_g: 2.2, psy_specter_v: 0.603, ugf_gunner_e: 1.073, ast_merc_i: 1.116, lun_aria: 1.796, jup_bastion_a: 2.003, psy_abyss: 0.586, jup_raptor_v: 1.009, lun_celestia: 1.703, jup_sovereign: 1.384, ast_magnate: 0.932, sea_tempest: 0.845, ugf_dreadnought: 0.934, jup_colossus: 0.982, jup_bastion: 1.5, sea_marlin: 0.987, jup_raptor: 1.147, col_warlord: 1.013, jup_storm: 1.106, col_berserker: 1.843, psy_prophet: 1.184, ugf_bulwark: 1.56, jup_pike: 1.286, lun_sylph: 1.866, psy_cantor: 1.49, ast_breaker: 1.307, ugf_sapper: 1.464, jup_hopper: 1.35, ast_tug: 1.331, sea_ray: 1.004, jup_ranger: 1.02, col_hound: 1.36, ugf_bulwark_l: 1.429, col_berserker_g: 1.311, lun_aria_r: 1.395, ast_breaker_t: 1.449, sea_marlin_n: 1.184, psy_prophet_n: 1.066, orb_vanguard_o: 1.545, orb_zenith: 1.319, orb_stella_m: 1.579, orb_stella: 1.725, orb_pillar: 0.861, orb_vanguard: 1.372, orb_glider: 2.687, orb_rigger: 1.206, orb_tether: 0.712, orb_astro: 1.535, mrc_libertas: 2.7, ugf_striker: 1.304, ugf_crusader: 0.76, ast_howitzer: 1.725, jup_tremor: 1.94, sea_eel: 1.772, psy_eclipse: 1.006, orb_beacon: 1.273, lun_volt: 1.626, col_slasher: 0.987, ugf_paladin_k: 0.907, col_emperor_r: 1.026, lun_gloria_y: 1.180, ast_tycoon_i: 0.796, sea_leviathan_m: 0.951, psy_nirvana_s: 0.605, jup_sovereign_v: 1.384, orb_zenith_m: 1.319},
+  unitQs: {rog_gigas: 0.36, rog_ufo: 0.4, rog_legion: 0.5, ast_tycoon: 0.796, psy_nirvana: 0.605, lun_gloria: 1.180, ugf_knight_k: 1.509, col_emperor: 1.026, psy_oracle_s: 0.748, ugf_paladin: 0.907, sea_leviathan: 0.951, col_comet_r: 1.332, lun_seraph_y: 1.296, lun_seraph: 1.280, ast_rockgiant: 2.012, sea_orca_m: 1.304, col_comet: 1.439, sea_orca: 1.119, ugf_knight: 1.352, psy_oracle: 1.088, psy_specter: 1.28, ugf_fortress: 1.513, ugf_valkyr: 1.043, lun_halberd: 2.095, ugf_gunner: 1.649, sea_kraken: 0.72, lun_frame2: 0.895, col_commander: 0.622, lun_arbalest: 1.275, col_sniper: 1.425, psy_vessel: 1.312, ast_merc: 1.218, ugf_trooper2: 1.814, sea_crab: 1.335, psy_acolyte: 0.33, psy_wraith: 1.497, col_lancer2: 1.564, ast_digger: 1.643, sea_gull: 0.3, ast_guard: 1.456, lun_frame: 0.945, lun_mirage: 2.448, sea_shark: 1.309, col_raider: 1.672, ugf_scout: 1.169, ugf_trooper: 0.3, col_lancer: 1.707, ast_wasp: 0.3, ast_miner: 1.039, ugf_tank: 2.656, sea_frog: 1.365, col_drone: 1.039, lun_arbalest_k: 3.363, sea_kraken_h: 1.586, col_commander_z: 1.318, ast_rockgiant_g: 2.2, psy_specter_v: 0.603, ugf_gunner_e: 1.073, ast_merc_i: 1.116, lun_aria: 1.796, jup_bastion_a: 2.003, psy_abyss: 0.586, jup_raptor_v: 1.009, lun_celestia: 1.703, jup_sovereign: 1.384, ast_magnate: 0.932, sea_tempest: 0.845, ugf_dreadnought: 0.934, jup_colossus: 0.982, jup_bastion: 1.5, sea_marlin: 0.987, jup_raptor: 1.147, col_warlord: 1.013, jup_storm: 1.106, col_berserker: 1.843, psy_prophet: 1.184, ugf_bulwark: 1.56, jup_pike: 1.286, lun_sylph: 1.866, psy_cantor: 1.49, ast_breaker: 1.307, ugf_sapper: 1.464, jup_hopper: 1.35, ast_tug: 1.331, sea_ray: 1.004, jup_ranger: 1.02, col_hound: 1.36, ugf_bulwark_l: 1.429, col_berserker_g: 1.311, lun_aria_r: 1.395, ast_breaker_t: 1.449, sea_marlin_n: 1.184, psy_prophet_n: 1.066, orb_vanguard_o: 1.545, orb_zenith: 1.319, orb_stella_m: 1.579, orb_stella: 1.725, orb_pillar: 0.861, orb_vanguard: 1.372, orb_glider: 2.687, orb_rigger: 1.206, orb_tether: 0.712, orb_astro: 1.535, mrc_libertas: 2.7, ugf_striker: 1.304, ugf_crusader: 0.76, ast_howitzer: 1.725, jup_tremor: 1.94, sea_eel: 1.772, psy_eclipse: 1.006, orb_beacon: 1.273, lun_volt: 1.626, col_slasher: 0.987, ugf_paladin_k: 0.907, col_emperor_r: 1.026, lun_gloria_y: 1.180, ast_tycoon_i: 0.796, sea_leviathan_m: 0.951, psy_nirvana_s: 0.605, jup_sovereign_v: 1.384, orb_zenith_m: 1.319},
   qs: { time: 60, shipAim: 0.1, fortAim: 0.18, shipDps: 0.35, shipArm: 0.75, fortDps: 1, ev: 0.075, cat: { melee: 0.5, rapid: 1, rifle: 1.35, shell: 1, charge: 2, launcher: 0.25, missile: 1, homing: 0.75, bit: 1.75, reflect: 1.25 } },
   actDmg: 0.42,               // アクション戦闘のダメージ倍率（決着までの長さを決める）
   fuse: 0.5,                 // 近接信管が働く距離（爆風半径に対する割合）
@@ -1144,9 +1144,9 @@ mrc_titan|タイタン|傭兵|0|230|3|0|999|mega,claw,mpod|barrier|◎◎◎○�
 mrc_ghost|ゴースト|傭兵|0|110|8|0|999|rifle,twin,bit|awaken|◎◎◎○○||crest,slim,halo
 mrc_hydra|ヒドラ|傭兵|0|160|5|0|999|scatter,whip,mpod|-|○◎○○◎||fin,aqua,fins
 mrc_libertas|リベルタス|放浪者|4200|275|8|0|999|smart,katana,arc|overdrive|◎◎◎◎○||crest,slim,halo
-rog_gigas|ギガス|巨大兵器|0|2400|3|0|999|gcannon,gham,gmiss|-|×◎◎◎○||dome,heavy,cannon
-rog_ufo|ハロー|巨大兵器|0|1900|5|0|999|ubeam,usweep,umiss|-|◎◎◎◎◎||dome,heavy,cannon
-rog_legion|レギオン|巨大兵器|0|3600|2|0|999|lgat,lcannon,lswarm|-|◎○○○○||dome,heavy,cannon
+rog_gigas|ギガス|巨大兵器|0|4200|3|0|999|gcannon,gham,gmiss|-|×◎◎◎○||dome,heavy,cannon
+rog_ufo|ハロー|巨大兵器|0|3300|5|0|999|ubeam,usweep,umiss|-|◎◎◎◎◎||dome,heavy,cannon
+rog_legion|レギオン|巨大兵器|0|6500|2|0|999|lgat,lcannon,lswarm|-|◎○○○○||dome,heavy,cannon
 `;
 // 可変機：変形すると武器が入れ替わる（「変形」は同じ場所に置く）。spd＝変形中の速さの倍率、fly＝地形を気にしない
 const TRANSFORM = {
@@ -3395,14 +3395,14 @@ const ROGUE = {
 // 種類ごとの決まり。maps＝動ける地図、home＝現れる場所、r＝戦闘での大きさ、dmgK＝操作する戦闘での攻撃力の倍率
 const ROGUE_TYPES = {
   gigas: {
-    unit: 'rog_gigas', maps: ['earth'], home: 'w_ruins', r: 34, dmgK: 0.35, reward: 3000, col: '#ff5a3c',
+    unit: 'rog_gigas', maps: ['earth'], home: 'w_ruins', r: 34, dmgK: 0.42, reward: 3000, col: '#ff5a3c',
     title: '巨大兵器の暴走',
     awake: a => `${AREAS[a].name}の地下深くで、旧時代の巨大兵器「ギガス」が目を覚ました。<br>戦争の終わりが近づき、各地の兵器の通信が一斉に途絶えたことで、眠っていた制御AIが「すべての勢力が敵」と判断して動き出したらしい。<br>ギガスはどの勢力にも属さず、隣の拠点を踏み荒らしながら進む。踏み荒らされた拠点は、誰のものでもない土地になる。`,
     down: 'ギガスの巨体が、地響きを立てて崩れ落ちた。制御AIの光が消え、戦場に静けさが戻る。',
     desc: 'どの勢力にも属さない旧時代の兵器。地上を歩き、隣の拠点を踏み荒らして持ち主のいない土地に変えていく。',
   },
   ufo: {
-    unit: 'rog_ufo', maps: ['earth', 'space'], home: null, r: 40, dmgK: 0.42, reward: 3000, col: '#62e6ff',
+    unit: 'rog_ufo', maps: ['earth', 'space'], home: null, r: 40, dmgK: 0.5, reward: 3000, col: '#62e6ff',
     title: '空から来た円盤',
     awake: a => `${AREAS[a].name}の上空の雲が、ゆっくりと渦を巻いて裂けた。現れたのは、どの勢力の記録にもない巨大な円盤「ハロー」。<br>呼びかけにはいっさい応えず、地上にも宇宙にも現れて、遠くから光線を浴びせてくる。<br>ハローに焼かれた拠点は、誰のものでもない土地になる。`,
     down: 'ハローの円環の光がまたたき、やがて消えた。円盤は傾きながら落ち、地平の向こうで大きな光の柱になった。',
