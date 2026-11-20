@@ -93,7 +93,7 @@ h1, h2, h3, h4 { font-family: var(--f-disp); font-weight: 400; margin: 0; text-w
 .t-embs { display: flex; justify-content: center; gap: 12px; margin-top: 12px; }
 .t-embs span { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid color-mix(in srgb, var(--fc) 45%, transparent); background: color-mix(in srgb, var(--fc) 10%, rgba(5,7,15,.6)); transform: rotate(45deg); }
 .t-embs svg { transform: rotate(-45deg); filter: drop-shadow(0 0 4px color-mix(in srgb, var(--fc) 60%, transparent)); }
-.t-logo h1 { font-size: clamp(48px, 15vw, 76px); line-height: 1.05; color: var(--gold); margin: 6px 0 10px; text-shadow: 0 0 24px rgba(242,193,78,.35), 3px 3px 0 #3a2a08; letter-spacing: .08em; }
+.t-logo h1 { font-size: clamp(48px, 15vw, 76px); line-height: 1.05; color: var(--gold); margin: 6px 0 10px; text-shadow: 0 0 24px rgba(242,193,78,.35), 3px 3px 0 #3a2a08; letter-spacing: .08em; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .t-logo p { margin: 0 auto; max-width: 26em; color: #cfd6f5; font-size: 13px; }
 .t-menu { position: relative; display: grid; gap: 10px; width: min(320px, 100%); margin: 0 auto; }
 .t-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -763,7 +763,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v109</span>
+    <span class="t-ver">v110</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15499,6 +15499,14 @@ function boot(data) {
   $('#btn-help').addEventListener('click', () => { SFX.init(); openHelp(); });
   $('#btn-zukan').addEventListener('click', () => { SFX.init(); openEncyclopedia(); });
   $('#btn-arena').addEventListener('click', () => { SFX.init(); openArena(); });
+  { let taps = []; $('#scr-title .t-logo h1').addEventListener('click', () => { // 隠し要素：タイトル連打
+    const now = performance.now(); taps = taps.filter(t => now - t < 2500); taps.push(now);
+    if (taps.length < 7) return; taps = [];
+    if (!zephyrKnown()) return;
+    SFX.init(); const R = records();
+    if (R.zephyr) { SFX.play('select'); toast('リベルタスは模擬戦で使えます'); return; }
+    R.zephyr = 1; saveRecords(); SFX.play('capture'); toast('隠し要素：模擬戦で放浪者ゼファーのリベルタスが使えるようになった', 'good');
+  }); }
   $('#chal-tg').addEventListener('click', async () => { SFX.play('select'); await openChalPick(); renderFaction(); });
   $('#bonus-tg').addEventListener('click', async () => { SFX.play('select'); await openBonusPick(); renderFaction(); });
   $('#btn-set').addEventListener('click', () => { SFX.init(); openSettings(true); });
@@ -15798,10 +15806,12 @@ async function openMedals() {
 // ===================== 模擬戦（連戦モード） =====================
 // 好きな3機で、だんだん強くなる敵と戦い続ける。最高記録は残り、勲章にもつながる。
 const ARENA_AREAS = ['e_central', 'c_arca', 'n_canyon', 'e_sandria', 'o_capital', 'a_belta', 'p_capital', 'l_polis'];
-function arenaPool() { const Z = zukan(), RM = records().mercs || {}; return Object.values(UNITS).filter(T => T.f ? (T.bt > 0 || Z.u[T.id] === 2) : !!RM[T.id]); }
+function arenaPool() { const Z = zukan(), RM = records().mercs || {}; return Object.values(UNITS).filter(T => T.f ? (T.bt > 0 || Z.u[T.id] === 2) : T.id === WANDERER.unit ? !!records().zephyr : !!RM[T.id]); }
+// 隠し要素：図鑑にゼファーが載っていれば、タイトルの「星屑戦記」を素早く7回たたくと、模擬戦でリベルタス（ゼファー搭乗）が使える
+const zephyrKnown = () => { const Z = zukan(); return !!(Z.u[WANDERER.unit] || Z.p[WANDERER.pilot]); };
 const MERC_COL = '#c9b98a';
 const unitCol = t => UNITS[t].f ? FAC[UNITS[t].f].color : MERC_COL;
-const arenaMerc = t => MERCS.find(m => m.unit === t);
+const arenaMerc = t => MERCS.find(m => m.unit === t) || (t === WANDERER.unit ? { unit: t, pilot: WANDERER.pilot } : null);
 async function openArena(pre = []) {
   const pool = arenaPool(); let sel = pre.slice();
   const best = records().arena || 0;
@@ -15809,7 +15819,8 @@ async function openArena(pre = []) {
     <p>最高記録：<b class="gold">${best}連勝</b></p>
     <div class="ar-sel">${[0, 1, 2].map(i => sel[i] ? `<button class="enc got" data-act="rm" data-i="${i}"><span class="uthumb" data-thumb="${sel[i]}" data-col="${unitCol(sel[i])}" data-size="58"></span><span>${UNITS[sel[i]].name}</span></button>` : `<div class="enc unknown"><span class="q">${i + 1}</span><span>未選択</span></div>`).join('')}</div>
     ${FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
-    ${(() => { const us = pool.filter(T => !T.f); return `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵の機体</h4>${us.length ? `<div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${MERC_COL}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''}<p class="dim small">傭兵の機体は、その傭兵を正式に仲間にしてクリアすると選べるようになります（乗るのはその傭兵本人です）。${us.length < MERCS.length ? `あと${MERCS.length - us.length}機。` : ''}</p>`; })()}`;
+    ${pool.some(T => T.id === WANDERER.unit) ? `<h4><span class="fb" style="--fc:${MERC_COL}">隠し</span> 放浪者</h4><div class="enc-grid"><button class="enc ${sel.includes(WANDERER.unit) ? 'got' : ''}" data-act="pick" data-t="${WANDERER.unit}"><span class="uthumb" data-thumb="${WANDERER.unit}" data-col="${MERC_COL}" data-size="52"></span><span>${UNITS[WANDERER.unit].name}</span></button></div><p class="dim small">乗るのは放浪者ゼファー本人です。</p>` : ''}
+    ${(() => { const us = pool.filter(T => !T.f && T.id !== WANDERER.unit); return `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵の機体</h4>${us.length ? `<div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${MERC_COL}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''}<p class="dim small">傭兵の機体は、その傭兵を正式に仲間にしてクリアすると選べるようになります（乗るのはその傭兵本人です）。${us.length < MERCS.length ? `あと${MERCS.length - us.length}機。` : ''}</p>`; })()}`;
   const p = openModal({ title: '模擬戦（連戦）', body: render(), cls: 'wide', buttons: [{ label: 'やめる', value: 'no' }, { label: '出撃', value: 'go', cls: 'primary' }], onAct: (act, t, M) => {
     if (act === 'pick') { const id = t.dataset.t; if (sel.includes(id)) sel = sel.filter(x => x !== id); else if (sel.length < 3) sel.push(id); else { toast('3機まで選べます', 'bad'); return; } SFX.play('select'); M.refresh(render()); }
     if (act === 'rm') { sel.splice(+t.dataset.i, 1); SFX.play('select'); M.refresh(render()); }
