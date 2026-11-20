@@ -737,6 +737,8 @@ body:has(#layer .modal) #toasts { top: 58px; }
 .lr-f > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .lr-f b { font-size: 13px; } .lr-f small { color: var(--dim, #9aa3c0); font-size: 11px; line-height: 1.4; }
 .lr-no { font-size: 11px; color: var(--dim, #9aa3c0); }
+.help-list { margin: 4px 0 8px; padding-left: 1.3em; }
+.help-list li { margin: 3px 0; }
 .lr-end { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 .lr-end div { padding: 6px 8px; border-radius: 6px; border: 1px dashed rgba(255,255,255,.15); display: flex; flex-direction: column; color: var(--dim, #9aa3c0); }
 .lr-end div.got { border-style: solid; border-color: #f2c14e; color: #fff; background: rgba(242,193,78,.08); }
@@ -793,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v115</span>
+    <span class="t-ver">v116</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -4438,19 +4440,22 @@ function interludeCheck() {
 }
 
 // ---------- 6) 結末：どう勝ったかで変わる ----------
+// 結末の条件：上から順に見て、最初に当てはまったもの
+const ENDING_RULE = { unity: 5, swift: 30, cost: 3 };
 const ENDING_KIND = {
-  unity: { name: '共闘の結末', desc: '敵だった者たちと肩を並べて勝った' },
-  swift: { name: '電撃の結末', desc: '戦火が広がる前に、短期間で決着をつけた' },
-  cost: { name: '犠牲の結末', desc: '多くの仲間を失いながら、勝利をつかんだ' },
-  conquest: { name: '覇道の結末', desc: '力によって、地球圏をひとつにまとめた' },
+  unity: { name: '共闘の結末', desc: '敵だった者たちと肩を並べて勝った', cond: `ほかの勢力から仲間にした名有りパイロットが${ENDING_RULE.unity}人以上、機体か母艦に乗って生きている` },
+  swift: { name: '電撃の結末', desc: '戦火が広がる前に、短期間で決着をつけた', cond: `${ENDING_RULE.swift}ターン以内に統一する` },
+  cost: { name: '犠牲の結末', desc: '多くの仲間を失いながら、勝利をつかんだ', cond: `自軍の名有りパイロットが${ENDING_RULE.cost}人以上戦死している` },
+  conquest: { name: '覇道の結末', desc: '力によって、地球圏をひとつにまとめた', cond: `上のどれにも当てはまらない（乗っている元敵の仲間が${ENDING_RULE.unity - 1}人以下、${ENDING_RULE.swift + 1}ターン以降に統一、戦死者${ENDING_RULE.cost - 1}人以下）` },
 };
 function endingKind() {
   const f = G.player, P = Object.values(G.pilots);
-  const recruits = P.filter(p => p.f === f && p.named && p.alive !== false && p.origin && p.origin !== f && p.origin !== 'mrc').length;
+  const riding = new Set([...unitsOf(f).map(u => u.pil), ...squadsOf(f).map(s => s.ship.cap?.id || s.ship.cap)]);
+  const recruits = P.filter(p => p.f === f && p.named && p.alive !== false && p.origin && p.origin !== f && p.origin !== 'mrc' && riding.has(p.id)).length;
   const fallen = P.filter(p => p.f === f && p.named && p.alive === false).length;
-  if (recruits >= 3) return 'unity';
-  if (G.turn <= 30) return 'swift';
-  if (fallen >= 3) return 'cost';
+  if (recruits >= ENDING_RULE.unity) return 'unity';
+  if (G.turn <= ENDING_RULE.swift) return 'swift';
+  if (fallen >= ENDING_RULE.cost) return 'cost';
   return 'conquest';
 }
 const ENDING_LINES = {
@@ -15802,6 +15807,7 @@ async function openHelp() {
     <h4>天柱同盟</h4><p>地上の西の端と宇宙の南西に領土を持つ、地上と宇宙をまたぐ勢力です。母艦はどれでも地上と宇宙の両方に入れます。防衛砲台は、近づくミサイルや砲弾を撃ち落とします。</p>
     <h4>木星開拓同盟</h4><p>宇宙の東の端、木星圏を治める新しい勢力です。戦闘のあと、生き残った機体のHPが1割ほど回復します（自己修復装甲）。防衛砲台の重力場は、まわりの敵の足を鈍らせます。</p>
     <h4>ストーリーと仲間</h4><p>ゲームが進むと章ごとの場面が入り、勢力の指導者やエースが語ります。途中のターンで新しいパイロットが合流することもあります。ランダムな出来事には、資金を払うかどうかを選ぶものもあります。</p>
+    <h4>結末</h4><p>統一すると、戦い方によって4つの結末のどれかになります。上から順に見て、最初に当てはまったものになります。</p><ul class="help-list">${Object.values(ENDING_KIND).map(E => `<li><b>${E.name}</b>：${E.cond}</li>`).join('')}</ul><p>見た結末は「戦績」に記録され、4つすべて見ると勲章がもらえます。</p>
     <h4>図鑑・勲章・模擬戦</h4><p>図鑑には戦った機体・母艦・パイロット・武器が記録され、ゲームをまたいで残ります。勲章は条件を満たすとその場で獲得できます。クリアすると評価がつき、難易度「極」とクリア特典が使えるようになります。クリア特典は、クリアした勢力ごとに違う特典（追加の機体・経験値・収入・改造など）が解放され、勢力選択の画面で2つまで選べます。タイトルの「模擬戦」では、好きな3機でだんだん強くなる敵と戦い続け、連勝記録に挑めます。一度倒した巨大兵器にも、模擬戦でもう一度挑めます。模擬戦の記録は、使った3機と一緒に上位5件まで残ります。<br>勲章を集めると司令官の称号が上がります。<br>勢力選択の画面の「縛り」では、傭兵なし・進化なし・改造なし・資金不足の4つの縛りを好きに組み合わせて遊べます。縛りをつけるほどクリアの評価が上がり、勢力ごとにどの縛りでクリアしたかが記録に残ります。</p>
     <h4>傭兵</h4><p>戦闘前の画面で、1戦闘だけ傭兵を雇えます。同じ傭兵を何度か（3回以上）雇っていると、ターンの始めにまとまった契約金で正式に仲間になると申し出てくることがあります。仲間になった傭兵は、雇い賃なしでいつでも出撃でき、経験も積めます。</p>
     <h4>弾数</h4><p>実弾・ミサイル・ビームライフルなど多くの武器には弾数があり、ボタンに「残り」が出ます。弾が切れた機体は格闘に切り替えて戦います。格闘武器は無制限です。</p>
@@ -16297,7 +16303,7 @@ function careerHtml() {
     <div class="lr-fac">${FACTIONS.map(F => { const C = R.clears[F.id], ch = (RC[F.id] || []).map(id => CHALLENGES.find(c => c.id === id)?.name).filter(Boolean);
       return `<div class="lr-f ${C ? 'got' : ''}" style="--fc:${F.color}">${emblemSvg(F.id, 22, F.color)}<div><b>${F.name}</b><small>${P[F.id] ? `${P[F.id]}回遊んだ` : 'まだ遊んでいない'}${C ? `　最短 ${C.turn}ターン　${BAL.diff[C.diff]?.label || ''}` : ''}${ch.length ? `<br>縛り：${ch.join('・')}` : ''}</small></div>${C ? `<span class="rk r${C.rank}">${C.rank}</span>` : '<span class="lr-no">未クリア</span>'}</div>`; }).join('')}</div>
     <h4>見た結末</h4>
-    <div class="lr-end">${Object.entries(ENDING_KIND).map(([k, E]) => `<div class="${RE[k] ? 'got' : ''}"><b>${RE[k] ? E.name : '？？？'}</b><small>${RE[k] ? E.desc : 'まだ見ていない結末'}</small></div>`).join('')}</div>
+    <div class="lr-end">${Object.entries(ENDING_KIND).map(([k, E]) => `<div class="${RE[k] ? 'got' : ''}"><b>${E.name}${RE[k] ? '' : '<span class="dim">（未達成）</span>'}</b><small>${RE[k] ? E.desc + '<br>' : ''}条件：${E.cond}</small></div>`).join('')}</div><p class="dim small">結末は上から順に見て、最初に当てはまったものになります。</p>
     <p class="dim small">通算の戦歴は、この画面ができてからの戦いを数えています。</p>`;
   return body;
 }
