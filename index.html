@@ -763,7 +763,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v110</span>
+    <span class="t-ver">v111</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1835,6 +1835,8 @@ const FACTION_LORE = {
   orb: { motto: '橋は、渡る者のためにある', text: '軌道エレベーター「天の柱」を守る技術者たちの同盟。長く中立を守ってきたが、柱を奪おうとする勢力が現れ、ついに武器を取った。地上と宇宙の両方に足場を持つ、ただひとつの勢力。', rel: 'どの勢力とも等しく距離を置く。ただし柱を狙う者には容赦しない。' },
   jup: { motto: '嵐を越えた者だけが生き残る', text: '木星圏の開拓者たちの同盟。地球圏から見捨てられた過去を持ち、強い重力と嵐に鍛えられた頑丈な機体を作る。総司令マグナスは、地球圏そのものを作り直すつもりでいる。', rel: '小惑星資源公社と外縁の資源を争う。地球圏のすべての勢力を「古い世界」とみなしている。' },
 };
+// 傭兵・放浪者の解説（図鑑「世界」の勢力の後ろに出す）
+const MERC_LORE = { motto: '腕ひとつで、戦場を渡る', text: 'どの旗にも属さず、報酬と気まぐれで戦場を渡り歩く者たち。機体は寄せ集めの部品や出どころ不明の骨組みで組まれ、どこの整備場でも直せるように作られている。戦況を読んで高く売れる軍の前に現れ、契約金を払えば自軍に加わる。契約した軍でクリアすると、その傭兵の機体が模擬戦でも使えるようになる。', rel: 'どの勢力とも敵でも味方でもない。昨日の雇い主に今日は銃を向けることもあるが、契約の期間だけは決して裏切らないのが彼らの決まりごと。', wander: 'さらにその外側に、放浪者ゼファーがいる。金では雇えず、強い軍にだけ決闘を挑み、勝った相手に腕を預ける。' };
 const WORLD_TERMS = [
   ['星暦', '統合政府の誕生から数える暦。物語の舞台は星暦99年。'],
   ['天の柱', '赤道の上にそびえる軌道エレベーター。地上の天柱基部と、宇宙の天柱軌道港を結ぶ。'],
@@ -15324,6 +15326,7 @@ async function openEncyclopedia(tab = 'unit') {
         const us = units.filter(T => T.f === F.id);
         h += `<h4>${facBadge(F.id)} ${F.name}</h4><div class="zk-tree">${[0, 1, 2].map(t => `<div class="zk-col"><small>${['量産機', '発展機', '最上位・専用機'][t]}</small>${zkSort(us.filter(T => tierOf(T) === t)).map(uCell).join('')}</div>`).join('')}</div>`;
       }
+      h += `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵・放浪者</h4><p class="dim small">傭兵の機体は1機ずつの一点ものなので、進化しません。</p><div class="enc-grid">${zkSort(units.filter(T => !T.f)).map(uCell).join('')}</div>`;
     } else if (tab === 'ship') {
       for (const F of facs) h += `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${ships.filter(t => SHIPS[t].f === F.id).map(t => seenS(t) ? `<button class="enc ${seenS(t) === 2 ? 'got' : ''}" data-act="ship" data-t="${t}"><span class="sthumb" data-sthumb="${t}" data-size="58"></span><span>${SHIPS[t].name}</span></button>` : `<div class="enc unknown"><span class="q">？</span><span>？？？</span></div>`).join('')}</div>`;
     } else if (tab === 'pilot') {
@@ -15334,6 +15337,7 @@ async function openEncyclopedia(tab = 'unit') {
     } else if (tab === 'world') {
       h += `<div class="zk-world"><p class="u-desc">${WORLD_INTRO}</p><h4>年表</h4><div class="zk-time">${WORLD_TIMELINE.map(([y, t]) => `<div><b>${y}</b><span>${t}</span></div>`).join('')}</div>
         <h4>勢力</h4>${FACTIONS.map(F => { const W = FACTION_LORE[F.id], lead = STORY_CAST?.[F.id]?.lead; return `<div class="zk-fac" style="--fc:${F.color}"><div class="zk-fh">${emblemSvg(F.id, 22, F.color)}<b>${F.name}</b><i>「${W.motto}」</i></div>${lead ? `<div class="zk-lead">${faceHtml(lead, 40, 'head')}<span>指導者：${PILOT_BASE[lead].name}<br><small>首都：${AREAS[F.capital].name}</small></span></div>` : ''}<p>${W.text}</p><p class="dim small">${W.rel}</p></div>`; }).join('')}
+        <div class="zk-fac" style="--fc:${MERC_COL}"><div class="zk-fh"><b>傭兵・放浪者</b><i>「${MERC_LORE.motto}」</i></div><p>${MERC_LORE.text}</p><p class="dim small">${MERC_LORE.rel}${seenP(WANDERER.pilot) || seenU(WANDERER.unit) ? MERC_LORE.wander : ''}</p>${(() => { const ps = pilots.filter(id => PILOT_BASE[id].f === 'mrc' && seenP(id)); return ps.length ? `<div class="enc-grid">${ps.map(id => `<button class="enc pe ${seenP(id) === 2 ? 'got' : ''}" data-act="pilot" data-t="${id}">${faceHtml(id, 58, 'head', '', true)}<span>${PILOT_BASE[id].name}</span></button>`).join('')}</div>` : ''; })()}</div>
         <h4>用語</h4><dl class="zk-terms">${WORLD_TERMS.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
     } else {
       const cats = [['近接', w => WEAPONS[w].attr === 'melee' && WEAPONS[w].cat !== 'reflect'], ['射撃', w => ['rapid', 'rifle', 'shotgun', 'rail', 'flame', 'laser'].includes(WEAPONS[w].cat)], ['砲撃・溜め', w => ['shell', 'charge', 'plasma', 'sweep'].includes(WEAPONS[w].cat)], ['ミサイル・爆発物', w => ['launcher', 'missile', 'homing', 'cluster', 'bomb', 'mine'].includes(WEAPONS[w].cat)], ['特殊', w => true]];
