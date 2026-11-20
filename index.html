@@ -763,7 +763,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v105</span>
+    <span class="t-ver">v106</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -3490,6 +3490,7 @@ async function rogueDown(by) {
     const got = [pick(Object.keys(PARTS)), pick(Object.keys(PARTS)), pick(Object.keys(PARTS))];
     for (const pk of got) F.parts[pk] = (F.parts[pk] || 0) + 1;
     if (typeof awardMedal === 'function') { awardMedal('giant'); if (R.k !== 'gigas') awardMedal('giant_' + R.k); }
+    if (typeof records === 'function') { const RR = records(); RR.giants = RR.giants || {}; RR.giants[R.k] = (RR.giants[R.k] || 0) + 1; saveRecords(); } // 図鑑に載せる
     const ev = { title: '巨大兵器の撃破', thumb: T.unit, col: T.col, body: `${T.down}<br>残骸から資金 <b>${typeof fmt === "function" ? fmt(T.reward) : T.reward}</b> 相当の資源と、パーツ「${got.map(k => PARTS[k].name).join('」「')}」を回収した。` };
     L(`【${ev.title}】${rogueName()}を撃破した。資金 +${T.reward}`, 'good');
     await HOOKS.event(ev);
@@ -15201,6 +15202,21 @@ function zukanSync() {
 const tierOf = T => T.bt > 0 ? 0 : (T.cls === '最上位' || T.cls === '専用機') ? 2 : 1;
 // 図鑑の並び：量産機→発展機→最上位→専用機、同じ段は安い順
 const zkSort = list => list.map((T, i) => [T, i]).sort(([a, i], [b, j]) => tierOf(a) - tierOf(b) || (a.cls === '専用機') - (b.cls === '専用機') || a.cost - b.cost || i - j).map(([T]) => T);
+const GIANT_LORE = {
+  gigas: '旧時代の戦争で造られ、遺跡アルケの地下で眠っていた巨大兵器。戦争の終わりが近づき、各地の兵器の通信が途絶えたとき、制御AIが「すべての勢力が敵」と判断して目を覚ました。',
+  ufo: 'どの勢力の記録にもない巨大な円盤。呼びかけにはいっさい応えず、地上にも宇宙にも現れて遠くから光線を浴びせる。どこから来たのかは、今もわかっていない。',
+  legion: 'L5暗礁宙域に漂っていた戦争の残骸――壊れた機体、母艦の砲塔、工場の重機――が、ひとつの意思に従って寄り集まった群体。核を砕かれると、ただの鉄くずに戻る。',
+};
+// 倒した巨大兵器（以前の勲章からも分かる分は数える）
+function giantsBeaten() {
+  const g = { ...(records().giants || {}) };
+  if (typeof hasMedal === 'function') {
+    if (hasMedal('giant_ufo')) g.ufo = g.ufo || 1;
+    if (hasMedal('giant_legion')) g.legion = g.legion || 1;
+    if (hasMedal('giant') && !g.gigas && !g.ufo && !g.legion) g.gigas = 1; // ギガスしかいなかった頃の撃破
+  }
+  return g;
+}
 async function openEncyclopedia(tab = 'unit') {
   const Z = zukanSync();
   const units = Object.values(UNITS).filter(T => !T.rogue), ships = Object.keys(SHIPS), pilots = Object.keys(PILOT_BASE); // 暴走兵器は図鑑に載せない
@@ -15224,6 +15240,8 @@ async function openEncyclopedia(tab = 'unit') {
       h += `<h4>固有特技・連携攻撃</h4><p>名有りパイロットには、1人ずつ違う「固有特技」があります（覚醒・回避・指揮など。パイロットの詳細で確認できます）。決まった二人が同じ戦場で近くにいると「連携攻撃」のボタン（キーボードはX）が光り、2機で強力な攻撃を放てます（使うと22秒待ち）。敵や自動で戦う味方も使ってきます。</p>
     <h4>因縁とライバル</h4><p>因縁のある二人が敵味方に分かれて出会うと、戦闘の前に会話が入ります。各勢力の看板エースは、敵として出てくると名乗りを上げ、少し手強くなります。捕虜にすると、仲間に迎える場面があります。</p>
     <h4>傭兵</h4><div class="enc-grid">${zkSort(units.filter(T => !T.f)).map(uCell).join('')}</div>`;
+      const GB = giantsBeaten();
+      h += `<h4>巨大兵器</h4><p class="dim small">統一が近づくと現れる暴走兵器。倒すと載ります。</p><div class="enc-grid">${Object.entries(ROGUE_TYPES).map(([k, R]) => GB[k] ? `<button class="enc got" data-act="giant" data-t="${k}"><span class="uthumb" data-thumb="${R.unit}" data-col="${R.col}" data-size="58"></span><span>${UNITS[R.unit].name}</span></button>` : `<div class="enc unknown"><span class="q">？</span><span>？？？</span></div>`).join('')}</div>`;
     } else if (tab === 'tree') {
       h += '<p class="dim small">左から量産機・発展機・最上位機。機体をタップすると進化先がわかります。</p>';
       for (const F of facs) {
@@ -15263,6 +15281,15 @@ async function openEncyclopedia(tab = 'unit') {
         <p class="dim">コスト${fmt(T.cost)}・HP${hpn(T.hp)}・速度${T.spd}${baseEvade(T) ? `（回避${baseEvade(T)}%）` : ''}${T.bt ? `・生産${T.bt}ターン` : '・生産不可'}</p>
         <p>武装：${T.w.map(w => WEAPONS[w].name).join('／')}</p>${T.ab ? `<p>特殊能力：${ABILITIES[T.ab].name}（${ABILITIES[T.ab].desc}）</p>` : ''}<p class="apt">${aptLine(T)}</p>
         <p class="dim">進化元：${from.join('、') || 'なし'}<br>進化先：${evo || 'なし'}${ex.length ? `<br>専用機：${ex.join('・')}が乗ると進化できる` : ''}</p></div></div>`;
+      const q = openModal({ title: T.name, body: b, cls: 'small' }); fillThumbs(modalStack[modalStack.length - 1].el); await q;
+    }
+    if (act === 'giant') {
+      const k = t.dataset.t, R = ROGUE_TYPES[k], T = UNITS[R.unit], n = giantsBeaten()[k] || 0;
+      const b = `${heroHtml(T.id, R.col, 300)}<div class="enc-detail nohero"><div><p><b>${T.name}</b>（巨大兵器）<span class="tag gold">撃破 ${n}回</span></p>
+        <p class="u-desc">${R.desc}</p><p class="u-desc">${GIANT_LORE[k]}</p>
+        <p class="dim">HP${hpn(T.hp)}・速度${T.spd}・現れる場所：${R.maps.map(m => m === 'earth' ? '地上' : '宇宙').join('と')}${R.extreme ? '・難易度「極」だけ' : ''}</p>
+        <p>武装：${T.w.map(w => WEAPONS[w].name).join('／')}</p>
+        <p class="dim">首都には入らない。戦闘のあとに1割、ターンが変わるたびに2割回復する。撃破すると資金${fmt(R.reward)}とパーツ3つ。</p></div></div>`;
       const q = openModal({ title: T.name, body: b, cls: 'small' }); fillThumbs(modalStack[modalStack.length - 1].el); await q;
     }
     if (act === 'ship') {
