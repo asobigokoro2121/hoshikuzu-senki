@@ -402,8 +402,8 @@ h1, h2, h3, h4 { font-family: var(--f-disp); font-weight: 400; margin: 0; text-w
 /* ---------- 作戦 ---------- */
 .mchip { position: relative; flex: none; max-width: 62%; display: flex; align-items: center; gap: 5px; padding: 2px 8px 2px 3px; background: rgba(8,10,22,.9); border: 1px solid rgba(255,106,90,.75); box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.4); color: var(--text); font-size: 12px; text-align: left; z-index: 2; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%); }
 .mchip.season { border-color: rgba(120,200,255,.75); max-width: 44%; }
-.mchip.relic { border-color: rgba(125,255,224,.75); max-width: 40%; }
-.mchip.relic .mk { background: #7dffe0; }
+.mchip.relic { border-color: rgba(255,178,87,.75); max-width: 40%; }
+.mchip.relic .mk { background: #ffb257; }
 .mchip.season .mk { background: #6ac8ff; }
 .mchip .mk { flex: none; background: #ff6a5a; color: #12060a; font-family: var(--f-disp); font-size: 11px; padding: 2px 6px; letter-spacing: .06em; }
 .mchip .mt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -772,9 +772,9 @@ body:has(#layer .modal) #toasts { top: 58px; }
 /* 暴走巨大兵器 */
 .fb.rogue { background: #ff5a3c; color: #1a0703; }
 .rog-block { display: flex; gap: 10px; align-items: center; margin: 6px 10px; padding: 8px 10px; border: 1px solid rgba(255,90,60,.6); border-radius: 8px; background: linear-gradient(90deg, rgba(120,20,10,.35), rgba(30,8,8,.2)); }
-.rog-block.relic { border-color: rgba(125,255,224,.6); background: linear-gradient(90deg, rgba(10,80,70,.35), rgba(6,20,20,.2)); }
-.rog-block.relic b { color: #9fffe6; }
-.rog-block.relic small { color: #c6e8e0; }
+.rog-block.relic { border-color: rgba(255,178,87,.6); background: linear-gradient(90deg, rgba(90,60,20,.35), rgba(24,16,8,.2)); }
+.rog-block.relic b { color: #ffcf8f; }
+.rog-block.relic small { color: #e8d6bf; }
 .rog-block b { color: #ffb09a; display: block; margin-bottom: 3px; }
 .rog-block small { display: block; color: #e6c3b9; margin-top: 4px; line-height: 1.45; }
 </style>
@@ -793,7 +793,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v114</span>
+    <span class="t-ver">v115</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1671,7 +1671,7 @@ const UNIT_DESC = {
   psy_abyss: '深淵の名を持つ解放戦線のもう1つの最上位機。プラズマ砲とファングで闇から襲う。',
   // ---- 追加の機体 ----
   mrc_libertas: '放浪者ゼファーの愛機。どこの工房の機体かは誰も知らない。夜空色の装甲に金の縁、背には欠けた月の輪、肩には星を散らした外套。スマートガン・斬艦刀・電撃をひとりで使いこなす、地球圏で最強の一機。',
-  mrc_arca: '古戦場の残骸から組み上げた、旧時代の試作機。象牙色の装甲はひび割れているが、背の二枚の石板にはいまも青緑の光が流れる。貫通ビームとパイルバンカーで正面から押し通り、傷ついた装甲は少しずつひとりでに元へ戻る。',
+  mrc_arca: '古戦場の残骸から組み上げた、旧時代の試作機。風化した石のような装甲に鈍い古金の縁、背には石柱を削り出したような二枚の刃。擦り切れた前垂れを下げ、琥珀色の目で静かに敵を見据える。貫通ビームとパイルバンカーで正面から押し通り、傷ついた装甲は少しずつひとりでに元へ戻る。',
   ugf_striker: '統合政府の新しい切り込み役。照準器つきのスマートガンで撃ちながら近づき、巨大な斬艦刀で叩き斬る。傷つくほど動きが鋭くなる。',
   ugf_crusader: '統合政府の象徴として作られた白い最上位機。指揮官機として周りの部隊の力を引き出す。',
   col_slasher: '移民連合の強襲機。なびく布の飾りは、コロニーの古い剣士にならったもの。電磁ネットで止めてから斬る。',
@@ -2048,7 +2048,7 @@ mrc_titan|解体待ちの重機を、ボロスが退職金で買い取って組�
 mrc_ghost|製造番号はすべて削り取られている。撃墜されたはずの戦場で、何度も同じ機体が目撃されている。
 mrc_hydra|首に見える砲塔は、倒した相手の機体から一つずつ奪った物。七つめを付けた日から、ヒュドラはその名を名乗りはじめた。
 mrc_libertas|骨組みは八つの勢力のどれとも合わず、部品には製造印がない。ゼファーは「拾った」としか言わない。背の月輪は推進器と放熱器を兼ね、外套は熱と電波を散らす織物。夜明け前の空のような色から、見た者は「星渡り」と呼んだ。
-mrc_arca|ギガスと同じ時代の工房で造られたらしいが、どの記録にも名前がない。石板に刻まれた文字は誰にも読めず、ただ一語だけ「方舟」と訳せる部分があったことから、アルカと呼ばれるようになった。
+mrc_arca|ギガスと同じ時代の工房で造られたらしいが、どの記録にも名前がない。背の刃に刻まれた文字は誰にも読めず、ただ一語だけ「方舟」と訳せる部分があったことから、アルカと呼ばれるようになった。
 `.trim().split('\n').forEach(l => { const i = l.indexOf('|'); UNIT_STORY[l.slice(0, i)] = l.slice(i + 1); });
 
 // 型式・開発元・大きさ（機体のデータから決まる。数字は設定上のもの）
@@ -3189,14 +3189,14 @@ async function relicTurn() {
       if (!hit) {
         R.miss++; const got = FX.parts(me, 1);
         L(`【古戦場の残骸】${A.name}の残骸を調べた。試作機の部品は見つからなかった（${got}）。`, 'event');
-        await HOOKS.event({ title: '残骸の調査', thumb: RELIC.unit, col: '#7dffe0', body: `${A.name}の残骸を調べたが、試作機の部品は見つからなかった。<br>代わりに${got}した。<span class="dim">（集めた部品 ${R.parts}/${RELIC.need}）</span>` });
+        await HOOKS.event({ title: '残骸の調査', thumb: RELIC.unit, col: '#ffb257', body: `${A.name}の残骸を調べたが、試作機の部品は見つからなかった。<br>代わりに${got}した。<span class="dim">（集めた部品 ${R.parts}/${RELIC.need}）</span>` });
         return;
       }
       R.miss = 0; R.parts++;
       const nm = RELIC_PARTS[R.parts - 1] || '部品';
       if (R.parts < RELIC.need) {
         L(`【古戦場の残骸】${A.name}で試作機の${nm}を見つけた（${R.parts}/${RELIC.need}）。`, 'good');
-        await HOOKS.event({ title: '試作機の部品', thumb: RELIC.unit, col: '#7dffe0', body: `${A.name}の残骸の奥から、旧時代の試作機の<b>${nm}</b>が見つかった！<br>どの勢力の記録にもない型だ。部品をすべて集めれば、組み上げられるかもしれない。<span class="dim">（集めた部品 ${R.parts}/${RELIC.need}）</span>` });
+        await HOOKS.event({ title: '試作機の部品', thumb: RELIC.unit, col: '#ffb257', body: `${A.name}の残骸の奥から、旧時代の試作機の<b>${nm}</b>が見つかった！<br>どの勢力の記録にもない型だ。部品をすべて集めれば、組み上げられるかもしれない。<span class="dim">（集めた部品 ${R.parts}/${RELIC.need}）</span>` });
         return;
       }
       R.done = true;
@@ -3204,7 +3204,7 @@ async function relicTurn() {
       G.units[uid].lv = RELIC.lv; G.enc.units[RELIC.unit] = 1;
       const RR = records(); if (!RR.relic) { RR.relic = 1; saveRecords(); }
       L(`【古戦場の残骸】試作機の部品がそろい、旧時代の機体${UNITS[RELIC.unit].name}が組み上がった。`, 'good');
-      await HOOKS.event({ title: '旧時代の試作機', thumb: RELIC.unit, col: '#7dffe0', body: `${A.name}で最後の部品、<b>${nm}</b>が見つかった。<br>整備班が三つの部品をつなぐと、背の石板に青緑の光が走り、機体がゆっくりと目を開けた。<br>旧時代の試作機<b>${UNITS[RELIC.unit].name}</b>が${AREAS[unitArea(G.units[uid])].name}に加わった。<span class="dim">（模擬戦でも使えるようになった）</span>` });
+      await HOOKS.event({ title: '旧時代の試作機', thumb: RELIC.unit, col: '#ffb257', body: `${A.name}で最後の部品、<b>${nm}</b>が見つかった。<br>整備班が三つの部品をつなぐと、背の刃に琥珀色の光が走り、機体がゆっくりと目を開けた。<br>旧時代の試作機<b>${UNITS[RELIC.unit].name}</b>が${AREAS[unitArea(G.units[uid])].name}に加わった。<span class="dim">（模擬戦でも使えるようになった）</span>` });
       if (typeof gameEvent === 'function') gameEvent('relic', {});
       return;
     }
@@ -3220,16 +3220,16 @@ async function relicTurn() {
   R.site = site; R.until = G.turn + RELIC.life - 1; G.evT = G.turn;
   const A = AREAS[site], o = G.areas[site].owner;
   L(`【古戦場の残骸】${A.name}で旧時代の機体の残骸が見つかった（${RELIC.life}ターン）。`, 'event');
-  await HOOKS.event({ title: '古戦場の残骸', thumb: RELIC.unit, col: '#7dffe0', body: `${A.name}（${o ? FAC[o].short : '中立'}）で、古い戦いのあとに埋もれていた機体の残骸が見つかった。<br><b>自軍の部隊（母艦）をこのエリアに入れておくと、ターンの始めに調べます。</b>まれに、どの記録にもない試作機の部品が見つかるという。<span class="dim">（${RELIC.life}ターンたつと、ほかの勢力に持ち去られます。集めた部品 ${R.parts}/${RELIC.need}）</span>` });
+  await HOOKS.event({ title: '古戦場の残骸', thumb: RELIC.unit, col: '#ffb257', body: `${A.name}（${o ? FAC[o].short : '中立'}）で、古い戦いのあとに埋もれていた機体の残骸が見つかった。<br><b>自軍の部隊（母艦）をこのエリアに入れておくと、ターンの始めに調べます。</b>まれに、どの記録にもない試作機の部品が見つかるという。<span class="dim">（${RELIC.life}ターンたつと、ほかの勢力に持ち去られます。集めた部品 ${R.parts}/${RELIC.need}）</span>` });
 }
 function drawRelicToken(c, x, y, r, t) {
   const pu = 0.5 + 0.5 * Math.sin(t * 3.4);
   c.save();
-  c.strokeStyle = `rgba(125,255,224,${0.45 + 0.45 * pu})`; c.lineWidth = 2; c.setLineDash([4, 3]); c.beginPath(); c.arc(x, y, r + 6 + pu * 1.5, 0, 7); c.stroke(); c.setLineDash([]);
+  c.strokeStyle = `rgba(255,178,87,${0.45 + 0.45 * pu})`; c.lineWidth = 2; c.setLineDash([4, 3]); c.beginPath(); c.arc(x, y, r + 6 + pu * 1.5, 0, 7); c.stroke(); c.setLineDash([]);
   const dx = x + r * 0.9, dy = y - r * 0.9, s = 6.5;
-  c.fillStyle = '#0c1a1a'; c.strokeStyle = '#7dffe0'; c.lineWidth = 1.6; c.shadowColor = '#7dffe0'; c.shadowBlur = 6 + pu * 6;
+  c.fillStyle = '#1a140c'; c.strokeStyle = '#ffb257'; c.lineWidth = 1.6; c.shadowColor = '#ffb257'; c.shadowBlur = 6 + pu * 6;
   c.beginPath(); c.moveTo(dx, dy - s); c.lineTo(dx + s, dy); c.lineTo(dx, dy + s); c.lineTo(dx - s, dy); c.closePath(); c.fill(); c.stroke();
-  c.shadowBlur = 0; c.fillStyle = '#7dffe0'; c.font = `bold 8px ${FONT_DISP}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('？', dx, dy + 0.5);
+  c.shadowBlur = 0; c.fillStyle = '#ffb257'; c.font = `bold 8px ${FONT_DISP}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('？', dx, dy + 0.5);
   c.restore();
 }
 
@@ -8222,18 +8222,24 @@ Object.assign(HEADS, {
     part(c, pPoly([[-3.4, -39.4], [-2.4, -44.6], [2.4, -44.6], [3.4, -39.4]], 0.8), P.c, { d: 0.7 });
     part(c, pPoly([[0, -43.6], [2.6, -40.2], [0, -36.2], [-2.6, -40.2]], 0.3), P.d, { d: 0.6 }); eye(c, pPoly([[0, -42.4], [1.5, -40.2], [0, -37.6], [-1.5, -40.2]]), P.e, { blur: 3, line: false });
   },
-  // 旧時代の試作機アルカ（横一文字の目庇、耳の円盤、額の小さな石板）
+  // 旧時代の試作機アルカ（後ろへ流れる一本角、深く彫り込んだ細い目、後ろへ伸びる頬当て）
   arca(c, P) {
-    for (const m of [-1, 1]) { part(c, pEll(m * 10.4, -31.6, 3.2, 4.8), P.b, { d: 0.9 }); eye(c, pRing(m * 10.4, -31.6, 1.5, 2.6, 0.6), P.e, { blur: 2.4 }); }
+    for (const m of [-1, 1]) {
+      part(c, pPoly(mir(m, [[7.6, -36.6], [17.4, -41.4], [19.2, -39.8], [10.4, -30.4]]), 0.4), P.b, { d: 0.8 });
+      part(c, pPoly(mir(m, [[8.4, -35], [15.8, -38.6], [16.6, -37.8], [9.6, -32.4]]), 0.2), P.c, { d: 0.5 });
+    }
     neckH(c, P);
-    const hm = pPoly([[-9, -25], [-10, -33], [-7.6, -40], [-3, -43], [3, -43], [7.6, -40], [10, -33], [9, -25], [0, -21.6]], 2.4); part(c, hm, P.a, { d: 1.6 });
-    clipBand(c, hm, [[-12, -36.4], [12, -36.4], [12, -46], [-12, -46]], P.b);
-    chin(c, P, pPoly([[-6.4, -27], [6.4, -27], [4.4, -22.8], [0, -21.2], [-4.4, -22.8]], 1));
-    part(c, pPoly([[-8.8, -34], [8.8, -34], [8, -29.6], [-8, -29.6]], 1), P.d, { d: 0.6 });
-    for (const m of [-1, 1]) eye(c, pPoly(mir(m, [[1.2, -33], [7.2, -33], [6.8, -30.6], [1.4, -30.6]])), P.e, { blur: 3.4 });
-    ln(c, [[-7.4, -39.4], [-5, -37.6], [-5.8, -35.2]], P.d, 0.5); ln(c, [[6.2, -26.4], [4.6, -24.6]], P.d, 0.45);
-    part(c, pPoly([[-2.6, -41.4], [-2.1, -49], [0, -51.6], [2.1, -49], [2.6, -41.4]], 0.6), P.c, { d: 0.8 });
-    eye(c, pPoly([[-0.6, -42.6], [0, -49.4], [0.6, -42.6]]), P.e, { blur: 2.4, line: false });
+    const hm = pPoly([[-8.4, -24.6], [-9.6, -31.6], [-8.2, -38.4], [-3.6, -42.2], [3.6, -42.2], [8.2, -38.4], [9.6, -31.6], [8.4, -24.6], [0, -21]], 1.2); part(c, hm, P.a, { d: 1.6 });
+    clipBand(c, hm, [[-12, -38], [-4, -36], [0, -37.4], [4, -36], [12, -38], [12, -46], [-12, -46]], P.b);
+    for (const m of [-1, 1]) part(c, pPoly(mir(m, [[4.6, -27.6], [9.2, -30.6], [9, -25], [5.4, -22.8]]), 0.6), P.b, { d: 0.8 });
+    chin(c, P, pPoly([[-5.4, -27.4], [5.4, -27.4], [3.6, -23], [0, -21.2], [-3.6, -23]], 0.8));
+    part(c, pPoly([[-8.4, -34.6], [-2, -33.2], [0, -34], [2, -33.2], [8.4, -34.6], [7.8, -30.2], [0, -29.2], [-7.8, -30.2]], 0.8), P.d, { d: 0.6 });
+    for (const m of [-1, 1]) eye(c, pPoly(mir(m, [[1.6, -32.2], [7, -33.2], [6.6, -31.6], [2, -30.8]])), P.e, { blur: 2.8 });
+    ln(c, [[-6.6, -40], [-4.4, -37.2], [-5.2, -35.4]], P.d, 0.45); ln(c, [[3.8, -41], [5.6, -38.8]], P.d, 0.4);
+    part(c, pPoly([[-2.4, -40.4], [-1.6, -45], [6.4, -55.6], [10.6, -56.4], [3.4, -44], [2.8, -40.4]], 0.4), P.c, { d: 0.9 });
+    ln(c, [[0.4, -42.6], [7.8, -52.2]], P.d, 0.35);
+    part(c, pPoly([[-2.2, -39.4], [0, -41.2], [2.2, -39.4], [0, -37.6]], 0.2), P.d, { d: 0.5 });
+    eye(c, pPoly([[-0.9, -39.4], [0, -40.3], [0.9, -39.4], [0, -38.5]]), P.e, { blur: 2.2, line: false });
   },
   // 木星：トレマー（頭の両側の地震計の皿と、太い顎）
   tremor(c, P) {
@@ -8859,29 +8865,39 @@ const LIBERTAS_PRE = (c, P) => {
   // 輪から伸びる光の刃（右上へ三枚）
   for (const [a, L] of [[-1.25, 15], [-0.8, 19], [-0.35, 15]]) { const x = 3 + Math.cos(a) * 30, y = -27 + Math.sin(a) * 30; part(c, pRot([[0, -2.2], [L * 0.5, -3], [L, 0], [L * 0.5, 3], [0, 2.2]], x, y, a), P.b, { d: 0.8 }); eye(c, pRot([[2, -0.7], [L - 3, 0], [2, 0.7]], x, y, a), P.e, { blur: 2.4, line: false }); }
 };
-// 旧時代の試作機アルカ：背に二枚の石板、頭の上に欠けた環のかけら。ひびの入った象牙色の装甲に、青緑の光の筋
+// 旧時代の試作機アルカ：背に二本の古い石柱の刃、頭の後ろに欠けた古い環、擦り切れた外套。色は風化した石と鈍い古金、光は琥珀色
 const ARCA_PRE = (c, P) => {
-  for (const m of [-1, 1]) {
-    const sl = pPoly(mir(m, [[6, -26], [17, -55], [29, -59], [36, -16], [29, 9], [14, -4]]), 1.4);
-    part(c, sl, P.a, { d: 1.4 });
-    clipBand(c, sl, mir(m, [[4, -28], [16, -60], [31, -62], [31.6, -48], [10, -22]]), P.b);
-    clipBand(c, sl, mir(m, [[12, 0], [37, -8], [37, 12], [12, 12]]), P.b);
-    eye(c, pPoly(mir(m, [[25.4, -47], [27.2, -47.4], [30.6, -12], [28.8, -11.6]])), P.e, { blur: 2.6, line: false });
-    for (const [y, L] of [[-38, 5], [-29, 6.4], [-20, 5.6], [-12, 4.4]]) { const x = 26.4 + (y + 47) * 0.1; eye(c, pPoly(mir(m, [[x - L, y - 0.5], [x, y - 0.9], [x + 0.2, y + 0.6], [x - L, y + 0.9]])), P.e, { blur: 2, line: false }); }
-    ln(c, mir(m, [[33, -36], [30.4, -30], [33.6, -24], [31.6, -19]]), P.d, 0.6); ln(c, mir(m, [[19.6, -48], [22.4, -44]]), P.d, 0.5);
-    part(c, pEll(m * 21.4, 1.4, 2.2, 2.2), P.c, { d: 0.6 });
-  }
-  const cx = 0, cy = -40, R = 19, W = 2.8;
-  [[-2.6, -2.1], [-1.9, -1.35], [-1.15, -0.62], [-0.45, 0.1]].forEach(([a0, a1], i) => {
-    const pts = []; const N = 8;
+  const cx = 0, cy = -38, R = 21.5, W = 1.7;
+  [[-2.75, -2.05], [-1.88, -1.12], [-0.92, -0.42]].forEach(([a0, a1], i) => {
+    const pts = []; const N = 10;
     for (let k = 0; k <= N; k++) { const a = a0 + (a1 - a0) * k / N; pts.push([cx + Math.cos(a) * R, cy + Math.sin(a) * R]); }
     for (let k = N; k >= 0; k--) { const a = a0 + (a1 - a0) * k / N; pts.push([cx + Math.cos(a) * (R - W), cy + Math.sin(a) * (R - W)]); }
-    part(c, pPoly(pts, 0.3), i % 2 ? P.b : P.a, { d: 0.9 });
-    const am = (a0 + a1) / 2; eye(c, pEll(cx + Math.cos(am) * (R - W / 2), cy + Math.sin(am) * (R - W / 2), 0.8, 0.8), P.e, { blur: 2.4, line: false });
+    part(c, pPoly(pts, 0.2), P.c, { d: 0.8 });
   });
+  for (const m of [-1, 1]) {
+    const bl = pPoly(mir(m, [[9, -20], [19, -44], [33, -63], [31.6, -42], [26, -8], [17, 1]]), 0.6);
+    part(c, bl, P.a, { d: 1.4 });
+    clipBand(c, bl, mir(m, [[18, -40], [36, -52], [36, -70], [18, -70]]), P.b);
+    clipBand(c, bl, mir(m, [[10, -4], [30, -12], [30, 6], [10, 6]]), P.b);
+    ln(c, mir(m, [[22, -38], [21.6, -10]]), P.d, 0.7);
+    for (const y of [-33, -26, -19, -12]) eye(c, pPoly(mir(m, [[23, y - 0.5], [25, y - 0.9], [25, y + 0.5], [23.1, y + 0.8]])), P.e, { blur: 1.6, line: false });
+    ln(c, mir(m, [[29, -40], [27.4, -34], [29.2, -29]]), P.d, 0.5);
+    part(c, pPoly(mir(m, [[16.6, -6.6], [20.6, -8.4], [21, -4.6], [17.2, -3.2]]), 0.3), P.c, { d: 0.6 });
+  }
 };
-DES.mrc_arca = mech('mrc', { head: 'arca', pad: { big: true }, legs: { w: 1.04, lx: 7.8, knee: '#9a7440' }, torso: { w: 14.8, plate: '#b9ad90' }, hand: 'mega', scale: 1.08, pivot: [18, -11],
-  pre: ARCA_PRE, style: { line: true }, flameCol: '#bffff0', P: { a: '#d8cfb4', b: '#8f6c3c', c: '#3fb7a5', d: '#1c1e22', w: '#5a5852', e: '#7dffe0', beam: '#c9fff2' } });
+// 腰から垂れる擦り切れた前垂れ
+const ARCA_MID = (c, P) => {
+  const cl = pPoly([[-5.6, -3], [5.6, -3], [6.8, 8], [6, 23], [3.8, 19.4], [2.4, 25.6], [0.2, 20.6], [-1.8, 24.8], [-3.4, 19], [-5.4, 22.6], [-6.8, 8]], 0.5);
+  part(c, cl, '#4a3c2c', { d: 1.2 });
+  clipBand(c, cl, [[-8, -3], [8, -3], [8, -0.2], [-8, -0.2]], P.c);
+  clipBand(c, cl, [[-8, 15], [8, 13.4], [8, 15.2], [-8, 16.8]], '#5e4c36');
+  ln(c, [[-3, 2], [-3.8, 16]], '#2a2118', 0.5); ln(c, [[2.6, 2.4], [3.4, 15]], '#2a2118', 0.5);
+  part(c, pPoly([[-2.2, 2.6], [0, 0.6], [2.2, 2.6], [0, 7.4]], 0.3), P.c, { d: 0.6 });
+  eye(c, pPoly([[-0.8, 2.8], [0, 1.8], [0.8, 2.8], [0, 5.2]]), P.e, { blur: 1.6, line: false });
+};
+DES.mrc_arca = mech('mrc', { head: 'arca', mid: ARCA_MID, pad: { kind: 'pauldron' }, legs: { w: 0.96, lx: 7.4, flare: 1.18, knee: '#a07a3e' }, torso: { w: 14, plate: '#5c5d56' }, hand: 'lrifle', scale: 1.1, pivot: [18, -11],
+  pre: ARCA_PRE, style: { line: true, kneeSpike: true, calfFin: true }, flameCol: '#ffd9a0',
+  P: { a: '#727368', b: '#2e302d', c: '#9c7a42', d: '#141513', w: '#40423e', e: '#ffb257', beam: '#ffe2b8' } });
 DES.mrc_libertas = mech('mrc', { head: 'libertas', pad: { kind: 'pauldron' }, legs: { w: 0.98, lx: 7.4, flare: 1.25, knee: '#e6b84a' }, torso: { w: 14.4, plate: '#3a4488' }, hand: 'smart', scale: 1.1, pivot: [18, -11],
   pre: LIBERTAS_PRE, ace: { front: ['chest', 'belt', 'collar'], mark: 'moon', arm: ['fin', 'elbow'] }, style: { line: true, kneeSpike: true, calfFin: true },
   flameCol: '#ffe9a0', P: { a: '#262d5c', b: '#eef0f8', c: '#e6b84a', d: '#13141f', w: '#3d4468', e: '#8ff4ff', beam: '#c8fbff' } });
@@ -14819,7 +14835,7 @@ function renderSheet() {
   if (o && !mine && areaHasForces(id, o)) h += `<div class="pow">敵戦力<b>${fmt(areaDefense(id, o))}</b></div>`;
   h += `</div>`;
   if (AREA_DESC[id]) h += `<p class="dim pad area-desc">${AREA_DESC[id]}</p>`;
-  if (relicAt(id)) h += `<div class="rog-block relic"><span class="uthumb" data-thumb="${RELIC.unit}" data-size="64" data-col="#7dffe0" style="filter:brightness(.35) saturate(0)"></span><div><b>古戦場の残骸</b><small>旧時代の機体の残骸が埋もれている。自軍の部隊（母艦）をこのエリアに入れておくと、ターンの始めに調べる。あと${G.relic.until - G.turn + 1}ターンでほかの勢力に持ち去られる。（集めた部品 ${G.relic.parts}/${RELIC.need}）</small></div></div>`;
+  if (relicAt(id)) h += `<div class="rog-block relic"><span class="uthumb" data-thumb="${RELIC.unit}" data-size="64" data-col="#ffb257" style="filter:brightness(.35) saturate(0)"></span><div><b>古戦場の残骸</b><small>旧時代の機体の残骸が埋もれている。自軍の部隊（母艦）をこのエリアに入れておくと、ターンの始めに調べる。あと${G.relic.until - G.turn + 1}ターンでほかの勢力に持ち去られる。（集めた部品 ${G.relic.parts}/${RELIC.need}）</small></div></div>`;
   if (rogueAt(id)) h += `<div class="rog-block"><span class="uthumb" data-thumb="${rogueUnit()}" data-size="64" data-col="${rogueType().col}"></span><div><b>暴走巨大兵器 ${rogueName()}</b>${hpBar(G.rogue.hp, rogueMaxHp())}<small>${rogueType().desc}首都には入らない。戦闘のあとに1割、ターンが変わるたびに2割回復する。倒さなくても統一はできる。</small></div></div>`;
   const cross = A.links.filter(b => AREAS[b].map !== A.map);
   if (cross.length) h += `<p class="dim pad">${cross.map(b => `${AREAS[b].map === 'space' ? '真上の宇宙' : '真下の地上'}の<b>${AREAS[b].name}</b>（${G.areas[b]?.owner ? FAC[G.areas[b].owner].name : '中立'}）とつながっています（地上・宇宙両用の艦${G.player === 'orb' ? 'と、天柱同盟の艦' : ''}だけが通れます）。上の札を押すと、そちらの地図へ移ります。`).join('')}</p>`;
