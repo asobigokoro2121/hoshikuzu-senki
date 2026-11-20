@@ -763,7 +763,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v107</span>
+    <span class="t-ver">v108</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -8701,6 +8701,23 @@ if (DES.sea_leviathan_m) {
       eye(c, pRect(x + 0.6, -24 - h - 2.2, 5.8, 1.8, 0.6), '#ff7a3a', { blur: 5 });
       vents(c, x + 1.5, -24 - h + 8, 4, 8, 4, mixc(P.b, '#000000', 0.5));
     }
+    // 頭の後ろの二本の受信棒（先に灯り）
+    for (const [x0, y0, x1, y1] of [[-11, -38, -22, -56], [-7, -40, -14, -60]]) { ln(c, [[x0, y0], [x1, y1]], OL, 2.4); ln(c, [[x0, y0], [x1, y1]], P.w, 1.2); part(c, pRect(x1 - 1.6, y1 - 1.6, 3.2, 3.2, 0.8), P.d, { d: 0.3, panel: false }); eye(c, pEll(x1, y1, 1, 1), '#ff5a3c', { blur: 4 }); }
+    // 背負った大砲：後ろの肩から斜め上へ突き出す長い砲身。冷却の輪と砲口の赤い光
+    c.save(); c.translate(-20, -30); c.rotate(-1.05);
+    part(c, pRect(-6, -6, 14, 12, 2), P.b, { d: 1.2, panel: false }); // 砲架
+    part(c, pRect(6, -3.6, 34, 7.2, 1.6), P.a, { d: 1, panel: false }); // 砲身
+    for (const x of [12, 19, 26]) part(c, pRect(x, -4.6, 3, 9.2, 0.8), P.d, { d: 0.4, panel: false }); // 冷却の輪
+    part(c, pRect(38, -5, 7, 10, 1.4), P.b, { d: 0.6, panel: false }); // 砲口
+    eye(c, pEll(45, 0, 1.6, 3), '#ff5a2a', { blur: 6 });
+    clipBand(c, pRect(6, -3.6, 34, 7.2, 1.6), [[28, -4], [33, -4], [30, 4], [25, 4]], '#e8b84a');
+    for (const x of [-2, 4]) rivet(c, x, -3, 0.8);
+    c.restore();
+    // 腰の後ろから垂れる、すり切れた赤い布
+    const cape = pPoly([[-16, -6], [-6, -3], [-10, 12], [-16, 30], [-20, 25], [-25, 33], [-28, 24], [-33, 28], [-31, 12], [-24, 2]], 1.2);
+    part(c, cape, '#5e1f1a', { d: 1, panel: false });
+    for (const [a, b] of [[[-12, 0], [-18, 26]], [[-18, 0], [-25, 28]], [[-24, 6], [-30, 22]]]) ln(c, [a, b], 'rgba(0,0,0,.35)', 0.8);
+    ln(c, [[-16, -5], [-6, -2]], '#c9a14a', 1.1);
     // 背から腰へ回る太い配管
     for (const [p0, p1, p2] of [[[-17, -20], [-26, -8], [-14, 4]], [[-12, -18], [-20, -2], [-9, 8]]]) {
       c.beginPath(); c.moveTo(...p0); c.quadraticCurveTo(...p1, ...p2); c.lineCap = 'round';
@@ -8722,6 +8739,26 @@ if (DES.sea_leviathan_m) {
     const plate = pRect(-7, 1, 14, 5.4, 1);
     part(c, plate, P.a, { d: 0.6, panel: false }); clipBand(c, plate, [[-9, 6.4], [-5, 1], [-2.6, 1], [-6.6, 6.4]], '#e8b84a'); clipBand(c, plate, [[-1, 6.4], [3, 1], [5.4, 1], [1.4, 6.4]], '#e8b84a');
     for (const x of [-5.6, 5.6]) rivet(c, x, 3.7, 0.7);
+    // 膝の装甲と棘、すねの赤熱した排熱口
+    for (const [x, m] of [[13.4, 1], [-12.6, -1]]) {
+      part(c, pPoly([[x - 4.4, 15], [x + 4.4, 15], [x + 3.6, 21], [x + m * 6, 19.4], [x, 23.6], [x - 3.6, 21]], 0.6), P.a, { d: 0.8, panel: false });
+      rivet(c, x, 17.4, 0.7);
+      part(c, pRect(x - 2.4, 25, 4.8, 6, 0.8), P.d, { d: 0.4, panel: false });
+      for (let k = 0; k < 3; k++) eye(c, pRect(x - 1.7, 25.8 + k * 1.8, 3.4, 0.9, 0.3), '#ff7a3a', { blur: 3 });
+    }
+    // 足のつま先の鉤爪と、かかとの支え
+    for (const [x, y] of [[33.4, 38.6], [-7.6, 38.6]]) for (let k = 0; k < 3; k++) part(c, pPoly([[x - 1, y - 2.6 + k * 2.2], [x + 4.4, y - 1.4 + k * 2.2], [x - 0.6, y + 0.4 + k * 2.2]], 0.2), '#d8dbe2', { d: 0.3, panel: false }); // つま先の鉤爪
+    // 太ももの外の油圧の柱
+    for (const x of [16.6, -16.4]) { part(c, pRect(x - 1.4, 6, 2.8, 10, 0.8), P.w, { d: 0.4, panel: false }); part(c, pRect(x - 0.8, 8, 1.6, 6, 0.4), '#d8dbe2', { d: 0.2, panel: false }); }
+    // 腰の前に垂れる鎖
+    { const pts = []; for (let k = 0; k <= 6; k++) pts.push([-6 + k * 2.2, 7 + Math.sin(k / 6 * Math.PI) * 4]); for (const [x, y] of pts) { c.beginPath(); c.ellipse(x, y, 1.2, 0.8, 0.4, 0, 7); c.strokeStyle = OL; c.lineWidth = 1.2 * ART.lwm; c.stroke(); c.strokeStyle = '#a9adb8'; c.lineWidth = 0.6 * ART.lwm; c.stroke(); } }
+    // 胸の左の装甲に黄色の山形の印、肩の警告の山形
+    for (let k = 0; k < 2; k++) ln(c, [[-10.6, -17 + k * 2.6], [-8, -19 + k * 2.6], [-5.4, -17 + k * 2.6]], '#e8b84a', 1.1);
+    // 錆の垂れ跡
+    for (const [x, y, L] of [[-9.4, -37.6, 5], [9.4, -37.6, 4], [-5.6, 3.7, 6], [5.6, 3.7, 5], [-12.6, 17.4, 5]]) ln(c, [[x, y + 1], [x + 0.3, y + 1 + L]], 'rgba(150,70,30,.45)', 0.9);
+    // 追加のひび割れ
+    glow(c, [[-3, -20], [-1, -17.6], [-2.4, -15]], 0.7);
+    glow(c, [[17, -30], [19.4, -27.4], [18, -24.6]], 0.7);
     // 肩の警告灯
     for (const [x, y] of [[-23, -27], [24.6, -25.4]]) eye(c, pEll(x, y, 1.3, 1.3), '#ff3b24', { blur: 4 });
   };
@@ -8748,20 +8785,42 @@ DES.rog_ufo = {
     c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(-48, -4.4, 96, 1.1);
     c.restore();
     for (let i = 0; i < 15; i++) { const x = -40 + i * 80 / 14, y = 4.2 + Math.sin(i / 14 * Math.PI) * 1.6; eye(c, pEll(x, y, 1.1, 1), i % 3 ? glowc : '#ffffff', { blur: 3 }); }
+    // 円盤の上の模様：見慣れない記号のような溝と、暗い装甲板の差し込み
+    c.save(); c.clip(disc);
+    for (const m of [-1, 1]) {
+      for (let i = 0; i < 3; i++) { const x = m * (16 + i * 9); part(c, pRect(x - 2.6, -3.4, 5.2, 2.6, 0.8), mixc(P.b, '#000000', 0.2), { d: 0.3, panel: false }); }
+      ln(c, [[m * 12, -1.6], [m * 18, -2.8], [m * 22, -1], [m * 28, -2.6]], hexA(glowc, 0.8), 0.6);
+      ln(c, [[m * 33, -0.4], [m * 36, -2.4], [m * 39, -0.6]], hexA(glowc, 0.8), 0.6);
+    }
+    c.restore();
+    // 外周の輪：途切れた装甲の環と、その灯り
+    for (let i = 0; i < 10; i++) { const a0 = i / 10 * Math.PI * 2 + 0.12, a1 = a0 + 0.42; c.beginPath(); c.ellipse(0, 1, 52, 12.4, 0, a0, a1); c.lineCap = 'round'; c.strokeStyle = OL; c.lineWidth = 3 * ART.lwm; c.stroke(); c.strokeStyle = P.w; c.lineWidth = 1.7 * ART.lwm; c.stroke(); const am = (a0 + a1) / 2; eye(c, pEll(Math.cos(am) * 52, 1 + Math.sin(am) * 12.4, 0.9, 0.9), glowc, { blur: 3 }); }
+    // 下に垂れる感知の針
+    for (const [x, L] of [[-20, 9], [-8, 6], [8, 6], [20, 9]]) { ln(c, [[x, 12], [x * 1.05, 12 + L]], OL, 1.8); ln(c, [[x, 12], [x * 1.05, 12 + L]], P.w, 0.8); eye(c, pEll(x * 1.05, 12.6 + L, 0.9, 0.9), glowc, { blur: 3 }); }
     // 縁の羽根（左右）
     for (const m of [-1, 1]) part(c, pPoly(mir(m, [[40, -2], [52, -6], [54, -3], [46, 3]]), 0.5), P.b, { d: 0.6, panel: false });
     // 上の船体：段になった円盤と装甲の継ぎ目
     part(c, pEll(0, -6, 30, 7), mixc(P.a, '#ffffff', 0.12), { d: 1.1, panel: false });
     for (const m of [-1, 1]) for (let i = 0; i < 3; i++) part(c, pRect(m * (9 + i * 6.4) - 2, -8.6, 4, 3.4, 0.8), P.b, { d: 0.4, panel: false });
     part(c, pEll(0, -10, 19, 4.4), P.b, { d: 0.8, panel: false });
+    // 上の左右の機関：吸気口が光る筒
+    for (const m of [-1, 1]) {
+      part(c, pPoly(mir(m, [[17, -8], [19, -13], [31, -12.4], [33, -7.4]]), 1.2), P.b, { d: 0.8, panel: false });
+      part(c, pEll(m * 31.6, -10, 2.2, 2.6), P.d, { d: 0.3, panel: false }); eye(c, pEll(m * 31.6, -10, 1.3, 1.7), glowc, { blur: 5 });
+      for (let k = 0; k < 3; k++) ln(c, [[m * (21 + k * 3), -12.6], [m * (21.4 + k * 3), -8.6]], dk, 0.6);
+    }
     // 丸屋根：ガラスの中に浮かぶ光る核と、肋材
     const dome = pPoly([[-15, -11], [-14, -18], [-9, -24], [0, -26.4], [9, -24], [14, -18], [15, -11]], 4);
     glassPart(c, dome, '#2c4f6e', [[-7, -21], [-2, -24]]);
     for (const [x, h, w] of [[-4.6, 7, 2.2], [0, 10, 2.8], [4.6, 7.6, 2.2], [-1.8, 5, 1.6], [2.6, 5.4, 1.6]]) eye(c, pPoly([[x, -12 - h], [x + w, -12 - h * 0.45], [x, -11.4], [x - w, -12 - h * 0.45]]), '#c9fbff', { blur: 8 }); // 光る結晶の束
     for (const x of [-8, 0, 8]) ln(c, [[x * 1.1, -11], [x * 0.6, -18], [0, -26]], 'rgba(160,190,220,.7)', 0.6);
     c.lineWidth = 1 * ART.lwm; c.strokeStyle = OL; c.stroke(dome);
-    // 頂の受信機
-    part(c, pRect(-1.2, -32, 2.4, 6, 0.6), P.w, { d: 0.4, panel: false }); eye(c, pEll(0, -33, 1.6, 1.6), '#ff5a6a', { blur: 4 });
+    // 結晶を支える台座と、丸屋根の輪の枠
+    part(c, pPoly([[-6, -11.4], [6, -11.4], [4, -13.6], [-4, -13.6]], 0.6), P.w, { d: 0.4, panel: false });
+    c.beginPath(); c.ellipse(0, -18, 14.6, 3.2, 0, Math.PI, Math.PI * 2); c.strokeStyle = 'rgba(160,190,220,.65)'; c.lineWidth = 0.7 * ART.lwm; c.stroke();
+    // 頂の受信機：三本の尖塔
+    for (const [x, h] of [[-4, 4.4], [0, 7], [4, 4.4]]) { part(c, pPoly([[x - 1.1, -26], [x, -26 - h], [x + 1.1, -26]], 0.2), P.w, { d: 0.3, panel: false }); }
+    eye(c, pEll(0, -33.4, 1.5, 1.5), '#ff5a6a', { blur: 4 });
   },
   // 下の砲塔：球形の台座から二連の光線砲
   armDraw(c, P) {
@@ -8868,6 +8927,22 @@ DES.rog_legion = {
     for (const x of [-15, 15]) eye(c, pEll(x + (x < 0 ? -1.6 : 1.6), -44, 1.2, 1.2), '#ff5a3c', { blur: 4 });
     part(c, pRect(-7, -38, 14, 6, 1.6), P.a, { d: 0.8, panel: false }); // 主砲の台座
     for (const x of [-4, 0, 4]) rivet(c, x, -35, 0.6);
+    // 7. 翼に取り付けた小さな二連砲塔（左右）
+    for (const [x, y] of [[-46, -30], [46, -28]]) { part(c, pEll(x, y, 3.6, 3.6), P.b, { d: 0.6, panel: false }); for (const dy of [-1.2, 1.2]) part(c, pRect(x + (x < 0 ? -9 : 1), y + dy - 0.7, 8, 1.4, 0.4), P.w, { d: 0.3, panel: false }); eye(c, pEll(x, y, 1.2, 1.2), G1, { blur: 3 }); }
+    // 8. 漂う鉄くず：本体にからまったまま浮いている破片
+    for (const [x, y, r, a] of [[-52, 2, 3.4, 0.4], [54, -8, 2.8, 1.2], [-40, 40, 2.6, 2.1], [42, 38, 3, 0.8], [-6, -62, 2.4, 1.7], [20, -66, 2, 0.2]]) { c.save(); c.translate(x, y); c.rotate(a); part(c, pPoly([[-r, -r * 0.6], [r * 0.4, -r], [r, r * 0.2], [-r * 0.2, r]], 0.3), [P.w, rust, '#5f7fb6', P.a][Math.round(x * 7 + y) & 3], { d: 0.3, panel: false }); c.restore(); }
+    // 9. 胴から垂れる切れた配線と火花の灯り
+    for (const [x0, y0, x1, y1, col] of [[-20, 10, -26, 22, '#e86a3a'], [-16, 12, -18, 24, '#5ad1ff'], [20, 10, 24, 20, '#e8d34a']]) { c.beginPath(); c.moveTo(x0, y0); c.quadraticCurveTo((x0 + x1) / 2 + 3, (y0 + y1) / 2, x1, y1); c.lineCap = 'round'; c.strokeStyle = OL; c.lineWidth = 1.6 * ART.lwm; c.stroke(); c.strokeStyle = col; c.lineWidth = 0.8 * ART.lwm; c.stroke(); eye(c, pEll(x1, y1, 0.9, 0.9), '#fff3c0', { blur: 4 }); }
+    // 10. 取り込まれた機体の腕：翼の下から指を開いてぶら下がる
+    c.save(); c.translate(30, 6); c.rotate(0.9);
+    part(c, pRect(0, -2.6, 12, 5.2, 1.4), '#d6dbe6', { d: 0.5, panel: false }); part(c, pEll(12.6, 0, 2.6, 2.6), P.b, { d: 0.3, panel: false });
+    part(c, pRect(13, -2.2, 9, 4.4, 1.2), '#c9cfdc', { d: 0.5, panel: false });
+    for (const q of [-0.5, 0, 0.5]) { c.save(); c.translate(22, 0); c.rotate(q); part(c, pRect(0, -0.8, 4.4, 1.6, 0.6), P.b, { d: 0.2, panel: false }); c.restore(); }
+    c.restore();
+    // 11. 甲殻の外縁の識別番号の帯と、母艦の窓の列
+    part(c, pRect(-12, 13, 24, 3.2, 0.8), '#e8b84a', { d: 0.3, panel: false });
+    for (let x = -10; x < 11; x += 4) part(c, pRect(x, 13.6, 2, 2, 0.3), P.d, { d: 0, panel: false });
+    for (let k = 0; k < 5; k++) eye(c, pRect(-30 + k * 3.2, -38 + k * 1.4, 1.6, 1, 0.3), '#ffd27a', { blur: 2 });
   },
   // 冠の上の主砲：三連の砲身と、冷却の輪
   armDraw(c, P) {
