@@ -763,7 +763,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v111</span>
+    <span class="t-ver">v112</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -14026,7 +14026,7 @@ const fmt = n => Math.round(n).toLocaleString('ja-JP');
 // HPとダメージは画面上では10倍の数で見せる（内部の値はそのまま）
 const hpn = v => fmt(Math.max(0, Math.ceil(v)) * HPX);
 const stars = n => '★'.repeat(n) + '☆'.repeat(3 - n);
-const facBadge = f => f === ROGUE_F ? `<span class="fb rogue" style="--fc:#ff5a3c">暴走</span>` : f ? `<span class="fb" style="--fc:${FAC[f].color}">${emblemSvg(f, 12, '#070a16')}${FAC[f].short}</span>` : `<span class="fb neutral">${emblemSvg('neutral', 11, '#cfd6f5')}中立</span>`;
+const facBadge = f => f === ROGUE_F ? `<span class="fb rogue" style="--fc:#ff5a3c">暴走</span>` : f === 'mrc' || (f && !FAC[f]) ? `<span class="fb" style="--fc:#c9b98a">傭兵</span>` : f ? `<span class="fb" style="--fc:${FAC[f].color}">${emblemSvg(f, 12, '#070a16')}${FAC[f].short}</span>` : `<span class="fb neutral">${emblemSvg('neutral', 11, '#cfd6f5')}中立</span>`;
 const hpBar = (v, m, cls = '') => `<span class="hp ${cls}"><i style="width:${Math.max(0, Math.min(100, v / m * 100))}%"></i></span>`;
 
 // ===================== 画面切り替え =====================
