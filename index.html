@@ -94,6 +94,12 @@ h1, h2, h3, h4 { font-family: var(--f-disp); font-weight: 400; margin: 0; text-w
 .t-embs span { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid color-mix(in srgb, var(--fc) 45%, transparent); background: color-mix(in srgb, var(--fc) 10%, rgba(5,7,15,.6)); transform: rotate(45deg); }
 .t-embs svg { transform: rotate(-45deg); filter: drop-shadow(0 0 4px color-mix(in srgb, var(--fc) 60%, transparent)); }
 .t-logo h1 { font-size: clamp(48px, 15vw, 76px); line-height: 1.05; color: var(--gold); margin: 6px 0 10px; text-shadow: 0 0 24px rgba(242,193,78,.35), 3px 3px 0 #3a2a08; letter-spacing: .08em; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.ar-foe { margin-bottom: 10px; flex-wrap: wrap; }
+.ar-giant { display: flex; gap: 12px; align-items: center; margin: 6px 0 10px; }
+.ar-giant > div { flex: 1; min-width: 0; }
+.ar-giant p { margin: 4px 0; }
+.ar-ghp { height: 8px; border-radius: 4px; background: rgba(255,255,255,.12); overflow: hidden; }
+.ar-ghp i { display: block; height: 100%; }
 .t-logo p { margin: 0 auto; max-width: 26em; color: #cfd6f5; font-size: 13px; }
 .t-menu { position: relative; display: grid; gap: 10px; width: min(320px, 100%); margin: 0 auto; }
 .t-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -763,7 +769,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v112</span>
+    <span class="t-ver">v113</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15463,7 +15469,7 @@ async function openHelp() {
     <h4>天柱同盟</h4><p>地上の西の端と宇宙の南西に領土を持つ、地上と宇宙をまたぐ勢力です。母艦はどれでも地上と宇宙の両方に入れます。防衛砲台は、近づくミサイルや砲弾を撃ち落とします。</p>
     <h4>木星開拓同盟</h4><p>宇宙の東の端、木星圏を治める新しい勢力です。戦闘のあと、生き残った機体のHPが1割ほど回復します（自己修復装甲）。防衛砲台の重力場は、まわりの敵の足を鈍らせます。</p>
     <h4>ストーリーと仲間</h4><p>ゲームが進むと章ごとの場面が入り、勢力の指導者やエースが語ります。途中のターンで新しいパイロットが合流することもあります。ランダムな出来事には、資金を払うかどうかを選ぶものもあります。</p>
-    <h4>図鑑・勲章・模擬戦</h4><p>図鑑には戦った機体・母艦・パイロット・武器が記録され、ゲームをまたいで残ります。勲章は条件を満たすとその場で獲得できます。クリアすると評価がつき、難易度「極」とクリア特典が使えるようになります。クリア特典は、クリアした勢力ごとに違う特典（追加の機体・経験値・収入・改造など）が解放され、勢力選択の画面で2つまで選べます。タイトルの「模擬戦」では、好きな3機でだんだん強くなる敵と戦い続け、連勝記録に挑めます。<br>勲章を集めると司令官の称号が上がります。<br>勢力選択の画面の「縛り」では、傭兵なし・進化なし・改造なし・資金不足の4つの縛りを好きに組み合わせて遊べます。縛りをつけるほどクリアの評価が上がり、勢力ごとにどの縛りでクリアしたかが記録に残ります。</p>
+    <h4>図鑑・勲章・模擬戦</h4><p>図鑑には戦った機体・母艦・パイロット・武器が記録され、ゲームをまたいで残ります。勲章は条件を満たすとその場で獲得できます。クリアすると評価がつき、難易度「極」とクリア特典が使えるようになります。クリア特典は、クリアした勢力ごとに違う特典（追加の機体・経験値・収入・改造など）が解放され、勢力選択の画面で2つまで選べます。タイトルの「模擬戦」では、好きな3機でだんだん強くなる敵と戦い続け、連勝記録に挑めます。一度倒した巨大兵器にも、模擬戦でもう一度挑めます。<br>勲章を集めると司令官の称号が上がります。<br>勢力選択の画面の「縛り」では、傭兵なし・進化なし・改造なし・資金不足の4つの縛りを好きに組み合わせて遊べます。縛りをつけるほどクリアの評価が上がり、勢力ごとにどの縛りでクリアしたかが記録に残ります。</p>
     <h4>傭兵</h4><p>戦闘前の画面で、1戦闘だけ傭兵を雇えます。同じ傭兵を何度か（3回以上）雇っていると、ターンの始めにまとまった契約金で正式に仲間になると申し出てくることがあります。仲間になった傭兵は、雇い賃なしでいつでも出撃でき、経験も積めます。</p>
     <h4>弾数</h4><p>実弾・ミサイル・ビームライフルなど多くの武器には弾数があり、ボタンに「残り」が出ます。弾が切れた機体は格闘に切り替えて戦います。格闘武器は無制限です。</p>
     <h4>戦闘中の指示</h4><p>左上の「指示」で、味方機の動き方を選べます（おまかせ・接近戦・射撃戦・回避優先・艦を狙え）。上の段で「全員」を選ぶと全機に、機体の名前を選ぶとその機体だけに指示します。機体ごとの指示はその機体に記録され、次の戦闘でも続きます。戦闘前の出撃画面でも、機体の「指示」を押して決められます。</p>
@@ -15816,23 +15822,61 @@ const zephyrKnown = () => { const Z = zukan(); return !!(Z.u[WANDERER.unit] || Z
 const MERC_COL = '#c9b98a';
 const unitCol = t => UNITS[t].f ? FAC[UNITS[t].f].color : MERC_COL;
 const arenaMerc = t => MERCS.find(m => m.unit === t) || (t === WANDERER.unit ? { unit: t, pilot: WANDERER.pilot } : null);
-async function openArena(pre = []) {
-  const pool = arenaPool(); let sel = pre.slice();
-  const best = records().arena || 0;
-  const render = () => `<p class="dim">好きな3機で、次々に現れる敵と戦い続けます。選べるのは量産機と、図鑑で「入手」した機体です。勝つたびに機体のレベルが上がり、少し修理されます。</p>
-    <p>最高記録：<b class="gold">${best}連勝</b></p>
+async function openArena(pre = [], foe0 = null) {
+  const pool = arenaPool(); let sel = pre.slice(), foe = foe0;
+  const best = records().arena || 0, GB = giantsBeaten(), GA = records().arenaGiant || {};
+  const giants = Object.keys(ROGUE_TYPES).filter(k => GB[k]);
+  const render = () => `${giants.length ? `<div class="seg ftabs ar-foe"><button data-act="foe" data-k="" class="${foe ? '' : 'on'}">連戦</button>${giants.map(k => `<button data-act="foe" data-k="${k}" class="${foe === k ? 'on' : ''}">${UNITS[ROGUE_TYPES[k].unit].name}</button>`).join('')}</div>` : ''}
+    ${foe ? `<div class="ar-giant"><span class="uthumb" data-thumb="${ROGUE_TYPES[foe].unit}" data-col="${ROGUE_TYPES[foe].col}" data-size="88"></span><div><p><b>${UNITS[ROGUE_TYPES[foe].unit].name}</b>に挑みます。</p><p class="dim">自軍はレベル${ARENA_GIANT_LV}・毎回全快で出撃し、倒すまで何度でも挑めます。巨大兵器は回復しません。少ない出撃回数で倒すほど良い記録です。</p><p>最高記録：<b class="gold">${GA[foe] ? `${GA[foe]}回で撃破` : 'なし'}</b></p></div></div>` : `<p class="dim">好きな3機で、次々に現れる敵と戦い続けます。選べるのは量産機と、図鑑で「入手」した機体です。勝つたびに機体のレベルが上がり、少し修理されます。</p>
+    <p>最高記録：<b class="gold">${best}連勝</b></p>`}
     <div class="ar-sel">${[0, 1, 2].map(i => sel[i] ? `<button class="enc got" data-act="rm" data-i="${i}"><span class="uthumb" data-thumb="${sel[i]}" data-col="${unitCol(sel[i])}" data-size="58"></span><span>${UNITS[sel[i]].name}</span></button>` : `<div class="enc unknown"><span class="q">${i + 1}</span><span>未選択</span></div>`).join('')}</div>
     ${FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
     ${pool.some(T => T.id === WANDERER.unit) ? `<h4><span class="fb" style="--fc:${MERC_COL}">隠し</span> 放浪者</h4><div class="enc-grid"><button class="enc ${sel.includes(WANDERER.unit) ? 'got' : ''}" data-act="pick" data-t="${WANDERER.unit}"><span class="uthumb" data-thumb="${WANDERER.unit}" data-col="${MERC_COL}" data-size="52"></span><span>${UNITS[WANDERER.unit].name}</span></button></div><p class="dim small">乗るのは放浪者ゼファー本人です。</p>` : ''}
     ${(() => { const us = pool.filter(T => !T.f && T.id !== WANDERER.unit); return `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵の機体</h4>${us.length ? `<div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${MERC_COL}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''}<p class="dim small">傭兵の機体は、その傭兵を正式に仲間にしてクリアすると選べるようになります（乗るのはその傭兵本人です）。${us.length < MERCS.length ? `あと${MERCS.length - us.length}機。` : ''}</p>`; })()}`;
-  const p = openModal({ title: '模擬戦（連戦）', body: render(), cls: 'wide', buttons: [{ label: 'やめる', value: 'no' }, { label: '出撃', value: 'go', cls: 'primary' }], onAct: (act, t, M) => {
+  const p = openModal({ title: '模擬戦', body: render(), cls: 'wide', buttons: [{ label: 'やめる', value: 'no' }, { label: '出撃', value: 'go', cls: 'primary' }], onAct: (act, t, M) => {
     if (act === 'pick') { const id = t.dataset.t; if (sel.includes(id)) sel = sel.filter(x => x !== id); else if (sel.length < 3) sel.push(id); else { toast('3機まで選べます', 'bad'); return; } SFX.play('select'); M.refresh(render()); }
     if (act === 'rm') { sel.splice(+t.dataset.i, 1); SFX.play('select'); M.refresh(render()); }
+    if (act === 'foe') { foe = t.dataset.k || null; SFX.play('select'); M.refresh(render()); }
   } });
   fillThumbs(modalStack[modalStack.length - 1].el);
   if (await p !== 'go') return;
-  if (!sel.length) { toast('機体を選んでください', 'bad'); return openArena(sel); }
-  await runArena(sel);
+  if (!sel.length) { toast('機体を選んでください', 'bad'); return openArena(sel, foe); }
+  if (foe) await runGiantArena(sel, foe); else await runArena(sel);
+}
+// 模擬戦：一度倒した巨大兵器にもう一度挑む。自軍は毎回全快、巨大兵器の傷は残る
+const ARENA_GIANT_LV = 20;
+async function runGiantArena(sel, k) {
+  const prevG = G, RT = ROGUE_TYPES[k], T = UNITS[RT.unit];
+  const f = sel.map(t => UNITS[t].f).find(Boolean) || 'ugf', names = ['隊長', '僚機', '僚機'], LV = ARENA_GIANT_LV;
+  newGame(f, 'normal'); G.arena = true;
+  const mine = sel.map((t, i) => { const M = arenaMerc(t), P = M && PILOT_BASE[M.pilot];
+    return { uid: 'AR' + i, t, pilot: P ? { ...P, id: M.pilot, f, origin: 'mrc', named: true, lv: 18 } : { id: 'ar_p' + i, name: `模擬戦 ${names[i]}${i ? i : ''}`, f, origin: f, sh: 44, me: 44, sp: 44, pil: 2, sen: 1, cmd: 0, skill: null } }; });
+  const maxHp = c => UNITS[c.t].hp + Math.round(UNITS[c.t].hp * BAL.lvHp * (LV - 1));
+  const area = RT.home || (RT.maps.includes('earth') ? 'e_central' : 'a_belta');
+  let hp = T.hp, round = 0, won = false;
+  MUSIC.play('danger');
+  while (true) {
+    round++;
+    const ctx = { area, attacker: 0, player: true, arena: true, rogue: true, sides: [
+      { f, cs: mine.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: maxHp(c), maxHp: maxHp(c), lv: LV, mod: 0, part: null, pilot: { ...c.pilot } })) },
+      { f: ROGUE_F, sid: null, garrison: null, fort: null, ship: null, pool: [], cs: [{ uid: 'rogue', temp: true, t: T.id, name: T.name, hp, maxHp: T.hp, lv: 30, part: null, pilot: { ...ROGUE_PILOT }, f: ROGUE_F }] }] };
+    const pct = Math.max(1, Math.round(hp / T.hp * 100));
+    const go = await openModal({ title: `${T.name}　${round}回目の出撃`, cls: 'small', dismiss: false, body: `<div class="ar-giant"><span class="uthumb" data-thumb="${T.id}" data-col="${RT.col}" data-size="88"></span><div><p><b>${T.name}</b>　残り${pct}%</p><div class="ar-ghp"><i style="width:${pct}%;background:${RT.col}"></i></div><p class="dim">${AREAS[area].name}で戦います。自軍：${mine.map(c => `${UNITS[c.t].name} Lv${LV}`).join('・')}</p></div></div>`, buttons: [{ label: 'ここでやめる', value: 'quit' }, { label: '出撃（操作）', value: 'action', cls: 'primary' }, { label: 'オート', value: 'auto' }] });
+    if (go === 'quit') { round--; break; }
+    SETTINGS.battleAuto = go === 'auto';
+    show('battle');
+    const res = await startBattle(ctx, $('#scr-battle'));
+    show('title');
+    const r = res.units.rogue;
+    if (!r || r.dead || r.hp <= 0) { won = true; break; }
+    hp = Math.max(1, Math.round(r.hp));
+  }
+  const R = records(), GA = R.arenaGiant = R.arenaGiant || {}, prev = GA[k] || 0;
+  if (won && (!prev || round < prev)) { GA[k] = round; saveRecords(); }
+  G = prevG;
+  MUSIC.play('title', 'title');
+  if (won) SFX.play('capture');
+  await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${won ? 'win' : 'lose'}"><div class="res-head ${won ? 'win' : 'lose'}"><span class="res-t">${won ? `${T.name} 撃破` : '撤退'}</span><small>${won ? `${round}回の出撃で撃破${!prev || round < prev ? '・最高記録を更新！' : `（最高記録 ${prev}回）`}` : `${T.name}は残り${Math.max(1, Math.round(hp / T.hp * 100))}%`}</small></div></div>`, buttons: [{ label: 'タイトルへ', value: 'ok', cls: 'primary' }] });
 }
 function arenaFoes(w) {
   const all = Object.values(UNITS).filter(T => T.f);
