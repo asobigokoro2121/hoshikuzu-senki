@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v116</span>
+    <span class="t-ver">v117</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -12778,7 +12778,7 @@ function startBattle(ctx, root) {
     const terrain = AREAS[ctx.area].terrain;
     const B = BT = {
       ctx, root, resolve, terrain, t: 0, over: null, endT: 0, intro: 1.3,
-      auto: SETTINGS.battleAuto, speed: [1, 2, 4].includes(SETTINGS.bSpeed) ? SETTINGS.bSpeed : 1, zoom: false, paused: false,
+      auto: SETTINGS.battleAuto, speed: 1, zoom: false, paused: false,
       ents: [], shots: [], swings: [], bits: [], fx: [], texts: [], obstacles: [],
       turrets: [], ctrl: null, lock: null, camY: 0, retreatArmed: 0, cut: null, cutQ: [], cutCd: 0, cutN: 0, said: new Set(),
       input: { x: 0, y: 0, held: [false, false, false], keys: {}, t: [0, 0, 0], seq: 0 },
@@ -14079,7 +14079,7 @@ function buildBattleDom(B) {
     SFX.play('select');
     if (act === 'pause') B.paused = !B.paused;
     if (act === 'zoom') B.zoom = !B.zoom;
-    if (act === 'speed') { B.speed = B.speed === 1 ? 2 : B.speed === 2 ? 4 : 1; SETTINGS.bSpeed = B.speed; saveSettings(); toast(`戦闘の速さ ×${B.speed}（次の戦闘も同じ速さ）`); }
+    if (act === 'speed') { B.speed = B.speed === 1 ? 2 : B.speed === 2 ? 4 : 1;  }
     if (act === 'auto') { B.auto = !B.auto; }
     if (act === 'retreat') {
       if (B.retreatArmed > 0) endBattle(B, 1, 'retreat');
@@ -15731,7 +15731,6 @@ async function openSettings(fromTitle) {
     <label>BGMの音量<input type="range" id="set-bgm" min="0" max="1" step="0.1" value="${SETTINGS.bgm}"></label>
     <label>効果音の音量<input type="range" id="set-se" min="0" max="1" step="0.1" value="${SETTINGS.se}"></label>
     <div class="set-row"><span>溜め・連射の入力</span><div class="seg"><button data-act="cm" data-v="hold" class="${SETTINGS.chargeMode === 'hold' ? 'on' : ''}">長押し</button><button data-act="cm" data-v="tap" class="${SETTINGS.chargeMode === 'tap' ? 'on' : ''}">2回タップ</button></div></div>
-    <div class="set-row"><span>戦闘の速さ</span><div class="seg">${[1, 2, 4].map(v => `<button data-act="bs" data-v="${v}" class="${(SETTINGS.bSpeed || 1) === v ? 'on' : ''}">×${v}</button>`).join('')}</div></div>
     <div class="set-row"><span>CPUの動きを表示</span><div class="seg"><button data-act="ca" data-v="1" class="${SETTINGS.cpuAnim ? 'on' : ''}">する</button><button data-act="ca" data-v="0" class="${!SETTINGS.cpuAnim ? 'on' : ''}">しない</button></div></div>
     <div class="set-row"><span>ターンの報告</span><div class="seg"><button data-act="tr" data-v="1" class="${SETTINGS.turnReport !== false ? 'on' : ''}">出す</button><button data-act="tr" data-v="0" class="${SETTINGS.turnReport === false ? 'on' : ''}">出さない</button></div></div>
     <div class="set-row"><span>遊び方の表示</span><button class="btn small" data-act="tips">もう一度表示する</button></div>
@@ -15740,7 +15739,6 @@ async function openSettings(fromTitle) {
   const p = openModal({ title: '設定', body: render(), onAct: (act, t, M) => {
     if (act === 'cm') SETTINGS.chargeMode = t.dataset.v;
     if (act === 'ca') SETTINGS.cpuAnim = t.dataset.v === '1';
-    if (act === 'bs') SETTINGS.bSpeed = +t.dataset.v;
     if (act === 'tr') SETTINGS.turnReport = t.dataset.v === '1';
     if (act === 'tips') { SETTINGS.tips = {}; toast('遊び方をもう一度表示します'); }
     if (act === 'quit') { M.close('quit'); return; }
