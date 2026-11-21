@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v117</span>
+    <span class="t-ver">v118</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -12855,6 +12855,7 @@ function setupEntities(B) {
         ai: { tgt: null, ret: 0, strafe: Math.random() < 0.5 ? -1 : 1, strafeT: rand(0.8, 2), dodgeT: 0, dodge: [0, 0], scan: 0, fireJit: 0, chgGoal: 0 } });
     });
   });
+  if (B.ctx.plan) applyPlan(B, B.ctx.plan);
   if (B.ctx.rogue) B.texts.push({ x: BW / 2, y: BH / 2, text: '警告　巨大兵器', col: '#ff6a4a', t: 0, life: 3.2, big: true });
   try { applyBonds(B); } catch (e) {}
   B.ctrl = (B.ctx.ctrlShip && B.ents.find(e => e.kind === 'ship' && e.side === 0)) || B.ents.find(e => e.kind === 'mech' && e.side === 0) || null; // 戦闘前に母艦を選んでいれば、母艦から始める
@@ -13559,7 +13560,7 @@ function pointDefense(B, e) {
 function aiMech(B, e, dt) {
   const A = e.ai, D = BAL.diff[G.diff] || BAL.diff.normal;
   const enemySide = e.side === 1;
-  let ord = enemySide ? 'free' : (e.ord || B.order); // 個別の指示があればそれを優先
+  let ord = enemySide ? (e.tac || 'free') : (e.ord || B.order); // 個別の指示があればそれを優先（敵は模擬戦の戦法）
   // 射撃の弾が尽きたら、近づいて格闘で戦う（回避優先のときは逃げ続ける）
   const shotsLeft = e.w.some((id, s) => !['melee', 'dash', 'transform', 'shield'].includes(WEAPONS[id].cat) && weaponUsable(e, s));
   if (!shotsLeft && ord !== 'evade') ord = 'near';
@@ -16231,6 +16232,21 @@ async function runGiantArena(sel, k) {
   if (won) SFX.play('capture');
   await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${won ? 'win' : 'lose'}"><div class="res-head ${won ? 'win' : 'lose'}"><span class="res-t">${won ? `${T.name} 撃破` : '撤退'}</span><small>${won ? `${round}回の出撃で撃破${!prev || round < prev ? '・最高記録を更新！' : `（最高記録 ${prev}回）`}${rank >= 0 ? `・記録の${rank + 1}位` : ''}` : `${T.name}は残り${Math.max(1, Math.round(hp / T.hp * 100))}%`}</small></div></div>`, buttons: [{ label: 'タイトルへ', value: 'ok', cls: 'primary' }] });
 }
+// 模擬戦の敵の戦法：部隊ごとに作戦を決め、機体ごとの得意な間合いで動く
+const LONG_CATS = new Set(['rifle', 'shell', 'charge', 'rail', 'missile', 'homing', 'bit', 'mortar', 'plasma', 'laser', 'cluster', 'grav']);
+function unitRole(T) {
+  const ws = T.w.map(id => WEAPONS[id]).filter(Boolean), longN = ws.filter(w => LONG_CATS.has(w.cat)).length, mel = ws.some(w => w.cat === 'melee' || w.cat === 'dash');
+  return longN >= 2 || (longN && !mel) ? 'far' : mel && !longN ? 'near' : mel ? 'both' : 'free';
+}
+const ARENA_PLANS = {
+  mix: { name: '混成', desc: '機体ごとに得意な間合いで戦う', tac: T => { const r = unitRole(T); return r === 'both' ? pick(['far', 'near', 'free']) : r; } },
+  rush: { name: '突撃', desc: '全機で一気に距離を詰めてくる', tac: () => 'near' },
+  snipe: { name: '射撃戦', desc: '距離を取って撃ち合いを挑んでくる', tac: () => 'far' },
+  harass: { name: '翻弄', desc: '足の速い機体がかき回し、残りは遠くから撃つ', tac: T => T.spd >= 8 ? 'evade' : 'far' },
+  pincer: { name: '挟み撃ち', desc: '格闘の得意な機体が前に出て、射撃機が後ろから援護する', tac: T => unitRole(T) === 'far' ? 'far' : 'near' },
+};
+function arenaPlan(w) { return w <= 1 ? 'mix' : pick(['mix', 'mix', 'rush', 'snipe', 'harass', 'pincer']); }
+function applyPlan(B, k) { const P = ARENA_PLANS[k]; if (!P) return; for (const e of B.ents) if (e.kind === 'mech' && e.side === 1) e.tac = P.tac(e.T); }
 function arenaFoes(w) {
   const all = Object.values(UNITS).filter(T => T.f);
   const tier = w <= 2 ? T => T.bt > 0 : w <= 4 ? T => T.bt > 0 || (T.bt === 0 && T.cost < 1600 && T.cls !== '専用機') : w <= 7 ? T => T.bt === 0 && T.cls !== '最上位' : T => T.bt === 0 && T.cost >= 1700;
@@ -16253,8 +16269,9 @@ async function runArena(sel) {
     const foes = E.ts.map((t, i) => ({ uid: 'EN' + wave + '_' + i, t, lv: E.lv, hp: 0, pilot: { name: `${pick(GENERIC_RANKS)} ${pick(GENERIC_SURNAMES)}`, sh: 20 + wave * 2, me: 20 + wave * 2, sp: 20 + wave * 2, pil: Math.min(3, Math.floor(wave / 3)), sen: wave >= 6 ? 1 : 0, cmd: 0, skill: null } }));
     for (const c of foes) c.hp = maxHp(c);
     const cs = mine.filter(c => c.hp > 0);
-    const ctx = { area, attacker: 0, player: true, arena: true, sides: [{ f, cs: cs.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: c.hp, maxHp: maxHp(c), lv: c.lv, mod: 0, part: null, pilot: { ...c.pilot } })) }, { f: E.f, cs: foes.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: c.hp, maxHp: c.hp, lv: c.lv, mod: 0, part: null, pilot: c.pilot })) }] };
-    const go = await openModal({ title: `第${wave}戦`, cls: 'small', dismiss: false, body: `<p>${AREAS[area].name}（${TERRAIN_NAME[AREAS[area].terrain]}）で${FAC[E.f].name}の部隊と戦います。</p><div class="cap-list">${foes.map(c => `<div class="cap-u"><span class="uthumb" data-thumb="${c.t}" data-col="${FAC[E.f].color}" data-size="52"></span><span>${UNITS[c.t].name}<small>Lv${c.lv}</small></span></div>`).join('')}</div><p class="dim">自軍：${cs.map(c => `${UNITS[c.t].name} Lv${c.lv}（${Math.round(c.hp / maxHp(c) * 100)}%）`).join('・')}</p>`, buttons: [{ label: 'ここでやめる', value: 'quit' }, { label: '出撃（操作）', value: 'action', cls: 'primary' }, { label: 'オート', value: 'auto' }] });
+    const plan = arenaPlan(wave);
+    const ctx = { area, attacker: 0, player: true, arena: true, plan, sides: [{ f, cs: cs.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: c.hp, maxHp: maxHp(c), lv: c.lv, mod: 0, part: null, pilot: { ...c.pilot } })) }, { f: E.f, cs: foes.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: c.hp, maxHp: c.hp, lv: c.lv, mod: 0, part: null, pilot: c.pilot })) }] };
+    const go = await openModal({ title: `第${wave}戦`, cls: 'small', dismiss: false, body: `<p>${AREAS[area].name}（${TERRAIN_NAME[AREAS[area].terrain]}）で${FAC[E.f].name}の部隊と戦います。</p><p class="dim">敵の戦法：<b class="gold">${ARENA_PLANS[plan].name}</b>（${ARENA_PLANS[plan].desc}）</p><div class="cap-list">${foes.map(c => `<div class="cap-u"><span class="uthumb" data-thumb="${c.t}" data-col="${FAC[E.f].color}" data-size="52"></span><span>${UNITS[c.t].name}<small>Lv${c.lv}</small></span></div>`).join('')}</div><p class="dim">自軍：${cs.map(c => `${UNITS[c.t].name} Lv${c.lv}（${Math.round(c.hp / maxHp(c) * 100)}%）`).join('・')}</p>`, buttons: [{ label: 'ここでやめる', value: 'quit' }, { label: '出撃（操作）', value: 'action', cls: 'primary' }, { label: 'オート', value: 'auto' }] });
     if (go === 'quit') { wave--; break; }
     SETTINGS.battleAuto = go === 'auto';
     show('battle');
