@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v125</span>
+    <span class="t-ver">v126</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -16253,12 +16253,23 @@ const ARENA_PLANS = {
 };
 function arenaPlan(w) { return w <= 1 ? 'mix' : pick(['mix', 'mix', 'rush', 'snipe', 'harass', 'pincer']); }
 function applyPlan(B, k) { const P = ARENA_PLANS[k]; if (!P) return; for (const e of B.ents) if (e.kind === 'mech' && e.side === 1) e.tac = P.tac(e.T); }
+// 連戦の敵の顔ぶれ：1〜3戦目は量産機だけ、4戦目から発展機（中堅）が混ざり、7戦目から最上位機・専用機が混ざる
+function arenaTierW(w) {
+  if (w <= 3) return [1, 0, 0];
+  if (w <= 6) { const m = 0.3 + 0.15 * (w - 4); return [1 - m, m, 0]; }
+  const top = Math.min(0.7, 0.25 + 0.09 * (w - 7)), mass = Math.max(0, 0.25 - 0.08 * (w - 7));
+  return [mass, 1 - top - mass, top];
+}
 function arenaFoes(w) {
-  const all = Object.values(UNITS).filter(T => T.f);
-  const tier = w <= 2 ? T => T.bt > 0 : w <= 4 ? T => T.bt > 0 || (T.bt === 0 && T.cost < 1600 && T.cls !== '専用機') : w <= 7 ? T => T.bt === 0 && T.cls !== '最上位' : T => T.bt === 0 && T.cost >= 1700;
-  const f = pick(FACTIONS).id, pool = all.filter(T => T.f === f && tier(T));
-  const list = pool.length ? pool : all.filter(tier);
-  return { f, ts: [0, 1, 2].map(() => pick(list).id), lv: 1 + Math.max(0, w - 3) }; // 4戦目から1戦ごとに+1（自軍と同じ速さ）
+  const all = Object.values(UNITS).filter(T => T.f && !T.rogue);
+  const f = pick(FACTIONS).id, W = arenaTierW(w);
+  const ts = [0, 1, 2].map(() => {
+    let r = Math.random(), tier = 0; while (tier < 2 && r >= W[tier]) { r -= W[tier]; tier++; }
+    const tf = T => (T.bt > 0 ? 0 : (T.cls === '最上位' || T.cls === '専用機') ? 2 : 1) === tier;
+    const pool = all.filter(T => T.f === f && tf(T));
+    return pick(pool.length ? pool : all.filter(tf)).id;
+  });
+  return { f, ts, lv: 1 + Math.max(0, w - 3) }; // 4戦目から1戦ごとに+1（自軍と同じ速さ）
 }
 async function runArena(sel) {
   const prevG = G;
