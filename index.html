@@ -800,7 +800,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v143</span>
+    <span class="t-ver">v144</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -5063,6 +5063,13 @@ const SONGS = {
     chords: [[0, 'M'], [5, 'M'], [9, 'm'], [7, 'M'], [0, 'M'], [5, 'M'], [7, 'M'], [0, 'M']],
     lead: ['1 - 1 1 5 - - -', '4 - 3 - 2 - 5, -', '1 - 3 - 5 - 8 -', '7 - - - 5 - - -', '8 - 8 8 9 - 8 -', '6 - 5 - 4 - 6 -', '5 - - - 7 - 9 -', '8 - - - - - - .'],
     bass: 'R.R.R.R.R.R.5.8.', arp: 1, drums: ['k...s...k.k.s...', 'k...s...k.k.s.ss'], hat: 'h.h.h.h.h.h.h.h.' },
+  // 模擬戦の曲：明るく走る演習曲（ミクソリディア風に♭7の和音をはさむ）
+  arena: { bpm: 144, key: 67, scale: 'major', duty: 0.25,
+    chords: [[0, 'M'], [-2, 'M'], [5, 'M'], [0, 'M'], [0, 'M'], [-2, 'M'], [5, 'M'], [7, 'M']],
+    lead: ['1 - 3 5 8 - 7 -', '7b - 6 - 5 - 4 -', '6 - 8 - 9 - 8 6', '5 - - - 3 - 5 -', '1 - 3 5 8 - 9 -', '10 - 9 - 7b - 6 -', '8 - 6 - 4 - 6 -', '7 - - - 5 - 2 -'],
+    B: { chords: [[5, 'M'], [7, 'M'], [9, 'm'], [4, 'm'], [5, 'M'], [7, 'M'], [-2, 'M'], [7, 'M']],
+      lead: ['8 - - 9 10 - 8 -', '9 - - 10 11 - 9 -', '10 - 12 - 13 - 12 -', '11 - 10 - 9 - 7 -', '8 - 10 - 12 - 10 -', '9 - 11 - 12 - 14 -', '13 - 12 - 10b - 9 -', '9 - - - 7 - 5 -'] }, pad: 0.04, harm: 0.7, crash: true,
+    bass: 'R.R5R.R5R.R5R.8.', arp: 0.6, drums: ['k.h.s.h.k.k.s.h.', 'k.h.s.h.k.kss.ss'], hat: '' },
   // 勢力のテーマ（勢力を選ぶ画面と音楽室で流れる）
   th_ugf: { bpm: 118, key: 60, scale: 'major', duty: 0.25,
     chords: [[0, 'M'], [7, 'M'], [9, 'm'], [5, 'M'], [0, 'M'], [5, 'M'], [7, 'M'], [0, 'M']],
@@ -5103,6 +5110,7 @@ const SONG_INFO = [
   { id: 'map', name: '作戦会議', desc: '戦略マップ' },
   { id: 'battle', name: '交戦', desc: '戦闘' },
   { id: 'danger', name: '迎撃', desc: '首都の防衛・強敵との戦い' },
+  { id: 'arena', name: '模擬演習', desc: '模擬戦' },
   { id: 'win', name: '勝利', desc: '戦闘に勝ったとき' },
   { id: 'lose', name: '敗北', desc: '戦闘に負けたとき' },
   { id: 'clear', name: '地球圏統一', desc: 'エンディング', need: 'clear' },
@@ -12868,7 +12876,7 @@ function setupEntities(B) {
   if (B.ctx.plan) applyPlan(B, B.ctx.plan);
   if (B.ctx.rogue) B.texts.push({ x: BW / 2, y: BH / 2, text: '警告　巨大兵器', col: '#ff6a4a', t: 0, life: 3.2, big: true });
   try { applyBonds(B); } catch (e) {}
-  B.ctrl = (B.ctx.ctrlShip && B.ents.find(e => e.kind === 'ship' && e.side === 0)) || B.ents.find(e => e.kind === 'mech' && e.side === 0) || null; // 戦闘前に母艦を選んでいれば、母艦から始める
+  B.ctrl = (B.ctx.ctrlShip && B.ents.find(e => e.kind === 'ship' && e.side === 0)) || (B.ctx.ctrlUid && B.ents.find(e => e.kind === 'mech' && e.side === 0 && e.c?.uid === B.ctx.ctrlUid)) || B.ents.find(e => e.kind === 'mech' && e.side === 0) || null; // 戦闘前に母艦を選んでいれば母艦から。模擬戦は前の戦闘で操作していた機体から
 }
 function applyAwakening(B) {
   for (const e of B.ents) {
@@ -14170,7 +14178,9 @@ function buildBattleDom(B) {
     const hx = ev.clientX - r.left, hy = ev.clientY - r.top, row = (B.hudRows || []).find(h => hx >= h.x && hx <= h.x + h.w && hy >= h.y && hy <= h.y + h.h);
     if (row) { if (row.e.alive && row.e !== B.ctrl) switchCtrl(B, row.e); return; }
     const wx = (ev.clientX - r.left - v.ox) / v.scale, wy = (ev.clientY - r.top - v.oy) / v.scale + v.camY;
-    const hit = nearest(B.ents.filter(e => e.alive && Math.hypot(e.x - wx, e.y - wy) < e.r + 22), wx, wy);
+    // 敵が近くにいれば敵を優先して狙う。味方への切り替えは、その機体のすぐ上をタップしたときだけ（狙うつもりの操作で入れ替わらないように）
+    const foeHit = nearest(B.ents.filter(e => e.alive && e.side === 1 && Math.hypot(e.x - wx, e.y - wy) < e.r + 22), wx, wy);
+    const hit = foeHit || nearest(B.ents.filter(e => e.alive && e.side === 0 && Math.hypot(e.x - wx, e.y - wy) < e.r + 6), wx, wy);
     if (!hit) return;
     if (hit.side === 1) { B.lock = B.lock === hit ? null : hit; SFX.play('select'); }
     else if (hit.kind === 'mech' || hit.kind === 'ship') { switchCtrl(B, hit); }
@@ -14387,7 +14397,7 @@ function show(scr) {
   if (scr === 'title' && typeof trySecretReveal === 'function') setTimeout(trySecretReveal, 900); // 勲章40個の隠しコマンド案内（まだなら）
   UI.screen = scr;
   for (const s of ['title', 'faction', 'map', 'battle']) $('#scr-' + s).hidden = s !== scr;
-  if (scr === 'title' || scr === 'faction') MUSIC.play('title');
+  if ((scr === 'title' || scr === 'faction') && !UI.keepBgm) MUSIC.play('title'); // 模擬戦の合間は模擬戦の曲のまま
   if (scr === 'map' && !(G && G.over) && !UI.noMapBgm) MUSIC.play('map');
   if (scr === 'map') { resizeMap(); renderAll(); }
   if (scr === 'title') renderTitle();
@@ -16256,7 +16266,7 @@ async function openArena(pre = [], foe0 = null) {
   const best = records().arena || 0, GB = giantsBeaten(), GA = records().arenaGiant || {};
   const giants = Object.keys(ROGUE_TYPES).filter(k => GB[k]);
   const render = () => `${giants.length ? `<div class="seg ftabs ar-foe"><button data-act="foe" data-k="" class="${foe ? '' : 'on'}">連戦</button>${giants.map(k => `<button data-act="foe" data-k="${k}" class="${foe === k ? 'on' : ''}">${UNITS[ROGUE_TYPES[k].unit].name}</button>`).join('')}</div>` : ''}
-    ${foe ? `<div class="ar-giant"><span class="uthumb" data-thumb="${ROGUE_TYPES[foe].unit}" data-col="${ROGUE_TYPES[foe].col}" data-size="88"></span><div><p><b>${UNITS[ROGUE_TYPES[foe].unit].name}</b>に挑みます。</p><p class="dim">自軍はレベル${ARENA_GIANT_LV}・毎回全快で出撃し、倒すまで何度でも挑めます。巨大兵器は回復しません。少ない出撃回数で倒すほど良い記録です。</p><p>最高記録：<b class="gold">${GA[foe] ? `${GA[foe]}回で撃破` : 'なし'}</b></p></div></div>${arenaTopHtml('g_' + foe, v => `${v}回で撃破`)}` : `<p class="dim">好きな3機で、次々に現れる敵と戦い続けます。選べるのは量産機と、図鑑で「入手」した機体です。勝つたびに機体のレベルが上がり、HPが最大の35%ぶん回復します。撃破された機体も、次の戦闘ではHP35%で復活します。</p>
+    ${foe ? `<div class="ar-giant"><span class="uthumb" data-thumb="${ROGUE_TYPES[foe].unit}" data-col="${ROGUE_TYPES[foe].col}" data-size="88"></span><div><p><b>${UNITS[ROGUE_TYPES[foe].unit].name}</b>に挑みます。</p><p class="dim">自軍はレベル${ARENA_GIANT_LV}・毎回全快で出撃し、倒すまで何度でも挑めます。巨大兵器は回復しません。少ない出撃回数で倒すほど良い記録です。</p><p>最高記録：<b class="gold">${GA[foe] ? `${GA[foe]}回で撃破` : 'なし'}</b></p></div></div>${arenaTopHtml('g_' + foe, v => `${v}回で撃破`)}` : `<p class="dim">好きな3機で、次々に現れる敵と戦い続けます。選べるのは量産機と、図鑑で「入手」した機体です。勝つたびに機体のレベルが上がり、HPが最大の33%ぶん回復します。撃破された機体も、次の戦闘ではHP33%で復活します。</p>
     <p>最高記録：<b class="gold">${best}連勝</b></p>${arenaTopHtml('waves', v => `${v}連勝`)}`}
     <div class="ar-sel">${[0, 1, 2].map(i => sel[i] ? `<button class="enc got" data-act="rm" data-i="${i}"><span class="uthumb" data-thumb="${sel[i]}" data-col="${unitCol(sel[i])}" data-size="58"></span><span>${UNITS[sel[i]].name}</span></button>` : `<div class="enc unknown"><span class="q">${i + 1}</span><span>未選択</span></div>`).join('')}</div>
     ${FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
@@ -16282,11 +16292,11 @@ async function runGiantArena(sel, k) {
     return { uid: 'AR' + i, t, pilot: P ? { ...P, id: M.pilot, f, origin: 'mrc', named: true, lv: 18 } : { id: 'ar_p' + i, name: `模擬戦 ${names[i]}${i ? i : ''}`, f, origin: f, sh: 44, me: 44, sp: 44, pil: 2, sen: 1, cmd: 0, skill: null } }; });
   const maxHp = c => UNITS[c.t].hp + Math.round(UNITS[c.t].hp * BAL.lvHp * (LV - 1));
   const area = RT.home || (RT.maps.includes('earth') ? 'e_central' : 'a_belta');
-  let hp = T.hp, round = 0, won = false;
-  MUSIC.play('danger');
+  let hp = T.hp, round = 0, won = false, lastCtrl = null;
+  UI.keepBgm = true; MUSIC.play('arena');
   while (true) {
     round++;
-    const ctx = { area, attacker: 0, player: true, arena: true, rogue: true, sides: [
+    const ctx = { area, attacker: 0, player: true, arena: true, rogue: true, ctrlUid: lastCtrl, sides: [
       { f, cs: mine.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: maxHp(c), maxHp: maxHp(c), lv: LV, mod: 0, part: null, pilot: { ...c.pilot } })) },
       { f: ROGUE_F, sid: null, garrison: null, fort: null, ship: null, pool: [], cs: [{ uid: 'rogue', temp: true, t: T.id, name: T.name, hp, maxHp: T.hp, lv: 30, part: null, pilot: { ...ROGUE_PILOT }, f: ROGUE_F }] }] };
     const pct = Math.max(1, Math.round(hp / T.hp * 100));
@@ -16295,6 +16305,7 @@ async function runGiantArena(sel, k) {
     SETTINGS.battleAuto = go === 'auto';
     show('battle');
     const res = await startBattle(ctx, $('#scr-battle'));
+    lastCtrl = (typeof BT !== 'undefined' && BT?.ctrl?.c?.uid) || lastCtrl;
     show('title');
     const r = res.units.rogue;
     if (!r || r.dead || r.hp <= 0) { won = true; break; }
@@ -16304,7 +16315,7 @@ async function runGiantArena(sel, k) {
   if (won && (!prev || round < prev)) { GA[k] = round; saveRecords(); }
   const rank = won ? arenaRecord('g_' + k, round, sel, (a, b) => a < b) : -1;
   G = prevG;
-  MUSIC.play('title', 'title');
+  UI.keepBgm = false; MUSIC.play('title', 'title');
   if (won) SFX.play('capture');
   await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${won ? 'win' : 'lose'}"><div class="res-head ${won ? 'win' : 'lose'}"><span class="res-t">${won ? `${T.name} 撃破` : '撤退'}</span><small>${won ? `${round}回の出撃で撃破${!prev || round < prev ? '・最高記録を更新！' : `（最高記録 ${prev}回）`}${rank >= 0 ? `・記録の${rank + 1}位` : ''}` : `${T.name}は残り${Math.max(1, Math.round(hp / T.hp * 100))}%`}</small></div></div>`, buttons: [{ label: 'タイトルへ', value: 'ok', cls: 'primary' }] });
 }
@@ -16352,8 +16363,8 @@ async function runArena(sel) {
   const mine = sel.map((t, i) => { const M = arenaMerc(t), P = M && PILOT_BASE[M.pilot];
     return { uid: 'AR' + i, t, lv: 1, hp: UNITS[t].hp, pilot: P ? { ...P, id: M.pilot, f, origin: 'mrc', named: true, lv: 8 } : { id: 'ar_p' + i, name: `模擬戦 ${names[i]}${i ? i : ''}`, f, origin: f, sh: 28, me: 28, sp: 28, pil: 1, sen: 1, cmd: 0, skill: null } }; });
   const maxHp = c => UNITS[c.t].hp + Math.round(UNITS[c.t].hp * BAL.lvHp * (c.lv - 1));
-  let wave = 0, alive = true;
-  MUSIC.play('battle');
+  let wave = 0, alive = true, lastCtrl = null;
+  UI.keepBgm = true; MUSIC.play('arena');
   while (alive) {
     wave++;
     const E = arenaFoes(wave), area = pick(ARENA_AREAS);
@@ -16362,17 +16373,18 @@ async function runArena(sel) {
     const cs = mine.filter(c => c.hp > 0);
     const plan = arenaPlan(wave);
     const ai = arenaAI(wave);
-    const ctx = { area, attacker: 0, player: true, arena: true, plan, aiTier: ai.tier, sides: [{ f, cs: cs.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: c.hp, maxHp: maxHp(c), lv: c.lv, mod: 0, part: null, pilot: { ...c.pilot } })) }, { f: E.f, cs: foes.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: c.hp, maxHp: c.hp, lv: c.lv, mod: 0, part: null, pilot: c.pilot })) }] };
+    const ctx = { area, attacker: 0, player: true, arena: true, plan, aiTier: ai.tier, ctrlUid: lastCtrl, sides: [{ f, cs: cs.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: c.hp, maxHp: maxHp(c), lv: c.lv, mod: 0, part: null, pilot: { ...c.pilot } })) }, { f: E.f, cs: foes.map(c => ({ uid: c.uid, t: c.t, name: UNITS[c.t].name, hp: c.hp, maxHp: c.hp, lv: c.lv, mod: 0, part: null, pilot: c.pilot })) }] };
     const go = await openModal({ title: `第${wave}戦`, cls: 'small', dismiss: false, body: `<p>${AREAS[area].name}（${TERRAIN_NAME[AREAS[area].terrain]}）で${FAC[E.f].name}の部隊と戦います。</p><p class="dim">敵の戦法：<b class="gold">${ARENA_PLANS[plan].name}</b>（${ARENA_PLANS[plan].desc}）　敵の腕前：<b class="gold">${ai.rank}</b></p><div class="cap-list">${foes.map(c => `<div class="cap-u"><span class="uthumb" data-thumb="${c.t}" data-col="${FAC[E.f].color}" data-size="52"></span><span>${UNITS[c.t].name}<small>Lv${c.lv}</small></span></div>`).join('')}</div><p class="dim">自軍：${cs.map(c => `${UNITS[c.t].name} Lv${c.lv}（${Math.round(c.hp / maxHp(c) * 100)}%）`).join('・')}</p>`, buttons: [{ label: 'ここでやめる', value: 'quit' }, { label: '出撃（操作）', value: 'action', cls: 'primary' }, { label: 'オート', value: 'auto' }] });
     if (go === 'quit') { wave--; break; }
     SETTINGS.battleAuto = go === 'auto';
     show('battle');
     const res = await startBattle(ctx, $('#scr-battle'));
+    lastCtrl = (typeof BT !== 'undefined' && BT?.ctrl?.c?.uid) || lastCtrl;
     show('title');
     for (const c of mine) { const r = res.units[c.uid]; if (r) c.hp = r.dead ? 0 : r.hp; }
     if (res.winner !== 0 || !mine.some(c => c.hp > 0)) { alive = false; wave--; break; }
-    // 勝つと全機のレベルが上がり、HPが最大の35%ぶん回復する。撃破された機体も、次の戦闘ではHP35%で復活する。モブパイロットは射撃・格闘・特殊が+1
-    for (const c of mine) { c.lv++; c.hp = c.hp > 0 ? Math.min(maxHp(c), c.hp + Math.round(maxHp(c) * 0.35)) : Math.round(maxHp(c) * 0.35); if (!c.pilot.named) { c.pilot.sh++; c.pilot.me++; c.pilot.sp++; } }
+    // 勝つと全機のレベルが上がり、HPが最大の33%ぶん回復する。撃破された機体も、次の戦闘ではHP33%で復活する。モブパイロットは射撃・格闘・特殊が+1
+    for (const c of mine) { c.lv++; c.hp = c.hp > 0 ? Math.min(maxHp(c), c.hp + Math.round(maxHp(c) * 0.33)) : Math.round(maxHp(c) * 0.33); if (!c.pilot.named) { c.pilot.sh++; c.pilot.me++; c.pilot.sp++; } }
     SFX.play('capture');
   }
   const R = records(), best = R.arena || 0;
@@ -16382,7 +16394,7 @@ async function runArena(sel) {
   if (wave >= 5) awardMedal('arena5');
   if (wave >= 10) awardMedal('arena10');
   if (wave >= 20) awardMedal('arena20');
-  MUSIC.play('title', 'title');
+  UI.keepBgm = false; MUSIC.play('title', 'title');
   await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${wave ? 'win' : 'lose'}"><div class="res-head ${wave ? 'win' : 'lose'}"><span class="res-t">${wave}連勝</span><small>${wave > best ? '最高記録を更新！' : `最高記録 ${best}連勝`}${rank >= 0 ? `・記録の${rank + 1}位に入った` : ''}</small></div></div>`, buttons: [{ label: 'タイトルへ', value: 'ok', cls: 'primary' }] });
 }
 MEDALS.push({ id: 'aceduel', name: '一騎打ちの誉れ', desc: 'エースの一騎打ちに勝つ', icon: 'bolt' });
