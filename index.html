@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v123</span>
+    <span class="t-ver">v124</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1024,7 +1024,7 @@ const ABILITIES = {
   barrier: { name: '位相バリア', desc: 'ビーム属性のダメージを半減する' },
   awaken:  { name: '感応共鳴', desc: '敵に感応者がいると覚醒し、直撃率+50%' },
   crisis:  { name: '危機覚醒', desc: '戦闘開始時にHPが1/3未満なら覚醒し、直撃率+50%' },
-  regen:   { name: '自己再生', desc: '戦闘中、HPが少しずつ回復する（毎秒最大HPの0.8%）' },
+  regen:   { name: '自己再生', desc: '戦闘中、HPが少しずつ回復する（毎秒最大HPの0.8%。アルカは1%）' },
   reactive: { name: 'リアクティブ装甲', desc: '実弾・爆発のダメージを25%減らす' },
   stealth: { name: 'ステルス', desc: '遠く（180以上）からの射撃を20%の確率でかわす' },
   overdrive: { name: 'オーバードライブ', desc: 'HPが半分を切ると、速度+25%・攻撃力+20%になる' },
@@ -2652,7 +2652,7 @@ function simulateBattle(ctx) {
   let result = null;
   for (let t = 0; t < BAL.qs.time && !result; t++) {
     // 自己再生・修理フィールド
-    for (const x of ents) { if (!alive(x) || x.ship || x.fort) continue; if (x.ab === 'regen') x.hp = Math.min(x.maxHp, x.hp + x.maxHp * 0.008); if (x.ab === 'medic') for (const y of ents) if (y !== x && y.s === x.s && alive(y) && !y.ship && !y.fort) y.hp = Math.min(y.maxHp, y.hp + y.maxHp * 0.01); }
+    for (const x of ents) { if (!alive(x) || x.ship || x.fort) continue; if (x.ab === 'regen') x.hp = Math.min(x.maxHp, x.hp + x.maxHp * regenRate(x.c?.t)); if (x.ab === 'medic') for (const y of ents) if (y !== x && y.s === x.s && alive(y) && !y.ship && !y.fort) y.hp = Math.min(y.maxHp, y.hp + y.maxHp * 0.01); }
     for (const e of shuffle([...ents])) {
       if (!alive(e)) continue;
       const foes = ents.filter(x => x.s !== e.s && alive(x));
@@ -3599,6 +3599,8 @@ const ROGUE = {
   stay: 0.35,        // その場にとどまる確率
 };
 // 種類ごとの決まり。maps＝動ける地図、home＝現れる場所、r＝戦闘での大きさ、dmgK＝操作する戦闘での攻撃力の倍率
+// 自己再生の回復量（毎秒、最大HPに対する割合）。旧時代の試作機アルカだけ強い
+const regenRate = t => t === 'mrc_arca' ? 0.01 : 0.008;
 const ROGUE_TYPES = {
   gigas: {
     unit: 'rog_gigas', maps: ['earth'], home: 'w_ruins', r: 34, dmgK: 0.5, reward: 3000, col: '#ff5a3c',
@@ -13182,7 +13184,7 @@ function fire(B, e, s) {
 // 機体の特殊能力（戦闘中に働くもの）
 function abilityTick(B, e, dt) {
   const ab = e.T.ab; if (!ab) return;
-  if (ab === 'regen' && e.hp < e.maxHp) { e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.008 * dt); if (Math.random() < dt * 1.5) B.fx.push({ kind: 'heal', x: e.x + rand(-8, 8), y: e.y - 10, t: 0, life: 0.6 }); }
+  if (ab === 'regen' && e.hp < e.maxHp) { e.hp = Math.min(e.maxHp, e.hp + e.maxHp * regenRate(e.T?.id) * dt); if (Math.random() < dt * 1.5) B.fx.push({ kind: 'heal', x: e.x + rand(-8, 8), y: e.y - 10, t: 0, life: 0.6 }); }
   if (ab === 'overdrive' && !e.od && e.hp < e.maxHp * 0.5) { e.od = true; B.texts.push({ x: e.x, y: e.y - 34, text: 'オーバードライブ！', col: '#ff9a4a', t: 0, life: 1.4, big: true }); B.fx.push({ kind: 'ring', x: e.x, y: e.y, r: 40, t: 0, life: 0.4, col: '#ff9a4a' }); SFX.play('awaken'); }
   if (ab === 'medic') { e.medT = (e.medT ?? 1) - dt; if (e.medT <= 0) { e.medT = 1; for (const o of B.ents) { if (o === e || !o.alive || o.side !== e.side || o.kind !== 'mech' || o.hp >= o.maxHp) continue; if (Math.hypot(o.x - e.x, o.y - e.y) > 170) continue; o.hp = Math.min(o.maxHp, o.hp + o.maxHp * 0.02); B.fx.push({ kind: 'heal', x: o.x, y: o.y - 12, t: 0, life: 0.7 }); } } }
 }
