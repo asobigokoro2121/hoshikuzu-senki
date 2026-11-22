@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v121</span>
+    <span class="t-ver">v122</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -16254,7 +16254,7 @@ function arenaFoes(w) {
   const tier = w <= 2 ? T => T.bt > 0 : w <= 4 ? T => T.bt > 0 || (T.bt === 0 && T.cost < 1600 && T.cls !== '専用機') : w <= 7 ? T => T.bt === 0 && T.cls !== '最上位' : T => T.bt === 0 && T.cost >= 1700;
   const f = pick(FACTIONS).id, pool = all.filter(T => T.f === f && tier(T));
   const list = pool.length ? pool : all.filter(tier);
-  return { f, ts: [0, 1, 2].map(() => pick(list).id), lv: 1 + Math.max(0, w - 3) * 2 };
+  return { f, ts: [0, 1, 2].map(() => pick(list).id), lv: 1 + Math.max(0, w - 3) }; // 4戦目から1戦ごとに+1（自軍と同じ速さ）
 }
 async function runArena(sel) {
   const prevG = G;
