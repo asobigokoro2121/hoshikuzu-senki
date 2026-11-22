@@ -801,7 +801,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v153</span>
+    <span class="t-ver">v154</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -16310,11 +16310,11 @@ async function runShadowTrial() {
   const prevG = G, f = 'ugf';
   newGame(f, 'normal'); G.arena = true;
   G.pilots[WANDERER.pilot] = { ...PILOT_BASE[WANDERER.pilot], id: WANDERER.pilot, f, origin: f, named: true, lv: 18, exp: 0, alive: true };
-  const uid = createUnit(f, WANDERER.unit, { ar: capOf(f) }, WANDERER.pilot), u = G.units[uid]; u.lv = 16; u.hp = maxHpOf(u);
+  const uid = createUnit(f, WANDERER.unit, { ar: capOf(f) }, WANDERER.pilot), u = G.units[uid]; u.lv = 20; u.mod = BAL.modMax; u.hp = maxHpOf(u); // お試し：Lv20・改造最大
   const lv = u.lv + AWAKEN.lvPlus, hp = Math.round(UNITS[AWAKEN.unit].hp * AWAKEN.hpK);
   const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: AWAKEN.stat, me: AWAKEN.stat, sp: AWAKEN.stat, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
   const ctx = { area: 'e_central', attacker: 1, aiTier: AWAKEN.tier, arena: true, sides: [{ f, sid: null, garrison: null, fort: null, ship: null, cs: [combatant(uid)] }, { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [shadow] }], player: true, duel: true,
-    duelTitle: 'お試し：星の影', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタス（機体Lv${u.lv}・パイロットLv18）と、<b>星の影</b>（真リベルタス・Lv${lv}・HP${hp}・腕前ランク${AWAKEN.tier}）の一対一です。</p><p class="dim">本番のゼファー覚醒イベントと同じ強さです。お試しなので、記録や解放には影響しません。</p>` };
+    duelTitle: 'お試し：星の影', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタス（機体Lv${u.lv}・改造+${u.mod}・パイロットLv18）と、<b>星の影</b>（真リベルタス・Lv${lv}・HP${hp}・腕前ランク${AWAKEN.tier}）の一対一です。</p><p class="dim">本番のゼファー覚醒イベントと同じ強さです。お試しなので、記録や解放には影響しません。</p>` };
   UI.keepBgm = true;
   const res = await HOOKS.duel(ctx);
   UI.keepBgm = false; G = prevG; show('title');
