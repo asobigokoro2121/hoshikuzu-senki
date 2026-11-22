@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v124</span>
+    <span class="t-ver">v125</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1024,7 +1024,7 @@ const ABILITIES = {
   barrier: { name: '位相バリア', desc: 'ビーム属性のダメージを半減する' },
   awaken:  { name: '感応共鳴', desc: '敵に感応者がいると覚醒し、直撃率+50%' },
   crisis:  { name: '危機覚醒', desc: '戦闘開始時にHPが1/3未満なら覚醒し、直撃率+50%' },
-  regen:   { name: '自己再生', desc: '戦闘中、HPが少しずつ回復する（毎秒最大HPの0.8%。アルカは1%）' },
+  regen:   { name: '自己再生', desc: '戦闘中、HPが少しずつ回復する（毎秒最大HPの0.8%）' },
   reactive: { name: 'リアクティブ装甲', desc: '実弾・爆発のダメージを25%減らす' },
   stealth: { name: 'ステルス', desc: '遠く（180以上）からの射撃を20%の確率でかわす' },
   overdrive: { name: 'オーバードライブ', desc: 'HPが半分を切ると、速度+25%・攻撃力+20%になる' },
@@ -3601,6 +3601,8 @@ const ROGUE = {
 // 種類ごとの決まり。maps＝動ける地図、home＝現れる場所、r＝戦闘での大きさ、dmgK＝操作する戦闘での攻撃力の倍率
 // 自己再生の回復量（毎秒、最大HPに対する割合）。旧時代の試作機アルカだけ強い
 const regenRate = t => t === 'mrc_arca' ? 0.01 : 0.008;
+// 機体ごとの特殊能力の説明（回復量が機体で違う自己再生は、その機体の数字を出す）
+const abDesc = T => T.ab === 'regen' ? `戦闘中、HPが少しずつ回復する（毎秒最大HPの${+(regenRate(T.id) * 100).toFixed(1)}%）` : ABILITIES[T.ab]?.desc || '';
 const ROGUE_TYPES = {
   gigas: {
     unit: 'rog_gigas', maps: ['earth'], home: 'w_ruins', r: 34, dmgK: 0.5, reward: 3000, col: '#ff5a3c',
@@ -14965,7 +14967,7 @@ function weaponListHtml(T) {
     const am = ammoOf(w) === Infinity ? '弾数 無制限' : `弾数 ${ammoOf(w)}`;
     return `<div class="uw"><span class="uw-n">${i + 1}</span><div><b>${W.name}</b><span class="tag">${at[W.attr] || '特殊'}</span>${W.pierce ? '<span class="tag">貫通</span>' : ''}<small class="zk-ws">${[pw, W.range ? `射程 ${W.range}` : '', am].filter(Boolean).join('・')}</small>${WEAPON_DESC[w] ? `<p>${WEAPON_DESC[w]}</p>` : ''}</div></div>`; };
   const rows = T.w.map(row).join('') + (TF ? `<h4 class="uw-tf">変形すると（${TF.mode}）</h4>${TF.w.map((w, i) => w === 'transform' ? '' : row(w, i)).join('')}<p class="dim small">変形中は速さ ×${TF.spd}${TF.fly ? '・地形を問わず進める' : ''}。もう一度押すと人型に戻ります。</p>` : '');
-  return `<div class="uweap"><h4>武装</h4>${rows}${T.ab && ABILITIES[T.ab] ? `<p class="uw-ab"><b>特殊能力：${ABILITIES[T.ab].name}</b>${ABILITIES[T.ab].desc}</p>` : ''}<p class="apt">${aptLine(T)}</p></div>`;
+  return `<div class="uweap"><h4>武装</h4>${rows}${T.ab && ABILITIES[T.ab] ? `<p class="uw-ab"><b>特殊能力：${ABILITIES[T.ab].name}</b>${abDesc(T)}</p>` : ''}<p class="apt">${aptLine(T)}</p></div>`;
 }
 // パイロットの顔：<span data-face="pid" data-size="40" data-crop="head|b">
 function faceHtml(pid, size = 40, crop = 'head', cls = '', info = false) { return pid ? `<span class="pface-w ${cls}${info ? ' tap' : ''}" data-face="${pid}" data-size="${size}" data-crop="${crop}"${info ? ` data-pinfo="${pid}" role="button" aria-label="パイロットの詳細"` : ''}></span>` : ''; }
@@ -15700,7 +15702,7 @@ async function openEncyclopedia(tab = 'unit') {
       const b = `${heroHtml(T.id, col, 300)}<div class="enc-detail nohero"><div><p><b>${T.name}</b>（${T.cls}）${T.f ? facBadge(T.f) : ''}${seenU(T.id) === 2 ? '<span class="tag gold">入手</span>' : '<span class="tag">遭遇</span>'}</p>
         ${unitLoreHtml(T.id, col)}
         <p class="dim">コスト${fmt(T.cost)}・HP${hpn(T.hp)}・速度${T.spd}${baseEvade(T) ? `（回避${baseEvade(T)}%）` : ''}${T.bt ? `・生産${T.bt}ターン` : '・生産不可'}</p>
-        <p>武装：${T.w.map(w => WEAPONS[w].name).join('／')}</p>${T.ab ? `<p>特殊能力：${ABILITIES[T.ab].name}（${ABILITIES[T.ab].desc}）</p>` : ''}<p class="apt">${aptLine(T)}</p>
+        <p>武装：${T.w.map(w => WEAPONS[w].name).join('／')}</p>${T.ab ? `<p>特殊能力：${ABILITIES[T.ab].name}（${abDesc(T)}）</p>` : ''}<p class="apt">${aptLine(T)}</p>
         <p class="dim">進化元：${from.join('、') || 'なし'}<br>進化先：${evo || 'なし'}${ex.length ? `<br>専用機：${ex.join('・')}が乗ると進化できる` : ''}</p></div></div>`;
       const q = openModal({ title: T.name, body: b, cls: 'small' }); fillThumbs(modalStack[modalStack.length - 1].el); await q;
     }
