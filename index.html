@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v138</span>
+    <span class="t-ver">v139</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -867,7 +867,7 @@ const BAL = {
   shootHp: { shell: 3, gren: 2, miss: 3, hom: 2, cluster: 3 }, // 撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
   lvDmg: 0.03, lvHp: 0.03,   // 機体のレベル1つごとの攻撃力・HPの上昇
   // 機体のレベル：戦闘で得た経験値を「進化」か「レベルアップ」に使う。レベルアップの費用は lvUpBase から少しずつ増える
-  lvUpBase: 40, lvUpGrow: 0.15,
+  lvUpBase: 40, lvUpGrow: 0.2, evoK: 1.15, // evoK：進化に必要な経験値の倍率
   // パイロットの戦死：負けた戦闘で撃破されたときだけ。レベルが高いほど生き延びやすい（勝った戦闘では必ず回収される）
   pilotDeath: 0.15, pilotDeathMin: 0.04,
   scrapRate: 0.5, scrapRateAst: 0.7, partDrop: 0.5, // 解体で戻る資金（元値に対する割合）。機体も母艦も同じ
@@ -2333,7 +2333,7 @@ function moveTargets(sq) {
 }
 
 // ===================== パイロット・進化・スクラップ =====================
-function evoReq(u) { const e = UT(u).evo; return Math.round(e * (u.f === 'lun' ? 0.8 : 1)); }
+function evoReq(u) { const e = UT(u).evo; return Math.round(e * BAL.evoK * (u.f === 'lun' ? 0.8 : 1) / 5) * 5; }
 // 縛り（やり込みの条件）。プレイヤーの勢力にだけ効く
 function chal(id, f = G?.player) { return !!(G?.chal?.includes(id) && f === G.player); }
 function evoOptions(u) {
