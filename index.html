@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v167</span>
+    <span class="t-ver">v168</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1056,7 +1056,7 @@ const SKILLS = {
 };
 const PARTS = {
   booster: { name: 'ブースター', desc: '速度+1' },
-  armor:   { name: '増加装甲', desc: '最大HP+20' },
+  armor:   { name: '増加装甲', desc: `最大HP+${20 * HPX}` },
   scope:   { name: '照準スコープ', desc: '射撃系ダメージ+10%' },
 };
 
@@ -15079,7 +15079,7 @@ function weaponListHtml(T) {
   const at = { beam: 'ビーム', solid: '実弾', melee: '格闘', fire: '火炎' };
   const TF = TRANSFORM[T.id];
   const row = (w, i) => { const W = WEAPONS[w]; if (!W) return '';
-    const pw = W.pow ? `威力 ${W.pow}${W.rate ? '（連射）' : ''}${W.count && W.cat !== 'mine' ? `×${W.count}` : ''}${W.pellets ? `×${W.pellets}発` : ''}` : '';
+    const pw = W.pow ? `威力 ${Math.round(W.pow * HPX)}${W.rate ? '（連射）' : ''}${W.count && W.cat !== 'mine' ? `×${W.count}` : ''}${W.pellets ? `×${W.pellets}発` : ''}` : '';
     const am = ammoOf(w) === Infinity ? '弾数 無制限' : `弾数 ${ammoOf(w)}`;
     return `<div class="uw"><span class="uw-n">${i + 1}</span><div><b>${W.name}</b><span class="tag">${at[W.attr] || '特殊'}</span>${W.pierce ? '<span class="tag">貫通</span>' : ''}<small class="zk-ws">${[pw, W.range ? `射程 ${W.range}` : '', am].filter(Boolean).join('・')}</small>${WEAPON_DESC[w] ? `<p>${WEAPON_DESC[w]}</p>` : ''}</div></div>`; };
   const rows = T.w.map(row).join('') + (TF ? `<h4 class="uw-tf">変形すると（${TF.mode}）</h4>${TF.w.map((w, i) => w === 'transform' ? '' : row(w, i)).join('')}<p class="dim small">変形中は速さ ×${TF.spd}${TF.fly ? '・地形を問わず進める' : ''}。もう一度押すと人型に戻ります。</p>` : '');
@@ -15803,7 +15803,7 @@ async function openEncyclopedia(tab = 'unit') {
       const used = new Set();
       for (const [name, fn] of cats) {
         const ws = wList.filter(w => !used.has(w) && fn(w)); ws.forEach(w => used.add(w)); if (!ws.length) continue;
-        h += `<h4>${name}</h4><div class="zk-wl">${ws.map(w => { const W = WEAPONS[w], ok = seenW(w); return ok ? `<div class="zk-w"><b>${W.name}</b><span class="tag">${{ beam: 'ビーム', solid: '実弾', melee: '格闘', fire: '火炎' }[W.attr] || '特殊'}</span><p>${WEAPON_DESC[w]}</p><small class="zk-ws">${W.pow ? `威力 ${W.pow}${W.rate ? '（連射）' : ''}${W.count && W.cat !== 'mine' ? `×${W.count}` : ''}${W.pellets ? `×${W.pellets}発` : ''}・` : ''}弾数 ${ammoOf(w) === Infinity ? '無制限' : ammoOf(w)}</small><small class="dim">${units.filter(T => T.w.includes(w) && seenU(T.id)).map(T => T.name).slice(0, 6).join('・')}</small></div>` : `<div class="zk-w unknown"><b>？？？</b></div>`; }).join('')}</div>`;
+        h += `<h4>${name}</h4><div class="zk-wl">${ws.map(w => { const W = WEAPONS[w], ok = seenW(w); return ok ? `<div class="zk-w"><b>${W.name}</b><span class="tag">${{ beam: 'ビーム', solid: '実弾', melee: '格闘', fire: '火炎' }[W.attr] || '特殊'}</span><p>${WEAPON_DESC[w]}</p><small class="zk-ws">${W.pow ? `威力 ${Math.round(W.pow * HPX)}${W.rate ? '（連射）' : ''}${W.count && W.cat !== 'mine' ? `×${W.count}` : ''}${W.pellets ? `×${W.pellets}発` : ''}・` : ''}弾数 ${ammoOf(w) === Infinity ? '無制限' : ammoOf(w)}</small><small class="dim">${units.filter(T => T.w.includes(w) && seenU(T.id)).map(T => T.name).slice(0, 6).join('・')}</small></div>` : `<div class="zk-w unknown"><b>？？？</b></div>`; }).join('')}</div>`;
       }
     }
     return h;
