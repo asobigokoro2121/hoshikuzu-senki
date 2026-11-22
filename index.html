@@ -102,6 +102,7 @@ h1, h2, h3, h4 { font-family: var(--f-disp); font-weight: 400; margin: 0; text-w
 .zk-bond small { font-size: 11px; color: var(--muted); }
 .zk-bond.unknown { opacity: .5; }
 .zk-bond .q { width: 40px; height: 40px; display: grid; place-items: center; font-size: 20px; color: var(--muted); }
+.trial-btn { width: 100%; margin: 0 0 10px; border-color: #ffd56a; color: #ffd56a; }
 .ar-top { margin: 6px 0 12px; }
 .ar-top h4 { margin: 4px 0; }
 .ar-rk { display: grid; grid-template-columns: 3em 6.5em 1fr auto; align-items: center; gap: 6px; padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 13px; }
@@ -800,7 +801,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v149</span>
+    <span class="t-ver">v150</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -16304,6 +16305,21 @@ function arenaTopHtml(key, unit) {
   if (!L2.length) return '';
   return `<div class="ar-top"><h4>記録</h4>${L2.map((e, i) => `<div class="ar-rk"><b class="${i ? '' : 'gold'}">${i + 1}位</b><span class="ar-v">${unit(e.v)}</span><span class="ar-ts">${e.ts.map(t => UNITS[t] ? `<span class="uthumb" data-thumb="${t}" data-col="${unitCol(t)}" data-size="30" title="${UNITS[t].name}"></span>` : '').join('')}</span><small>${e.d}</small></div>`).join('')}</div>`;
 }
+// お試し（試験用）：ゼファー覚醒イベントの「星の影」との一騎打ちを、加入したときの強さのゼファーで遊ぶ。記録や解放には影響しない
+async function runShadowTrial() {
+  const prevG = G, f = 'ugf';
+  newGame(f, 'normal'); G.arena = true;
+  G.pilots[WANDERER.pilot] = { ...PILOT_BASE[WANDERER.pilot], id: WANDERER.pilot, f, origin: f, named: true, lv: 18, exp: 0, alive: true };
+  const uid = createUnit(f, WANDERER.unit, { ar: capOf(f) }, WANDERER.pilot), u = G.units[uid]; u.lv = 16;
+  const lv = u.lv + AWAKEN.lvPlus, hp = Math.round(UNITS[AWAKEN.unit].hp * AWAKEN.hpK);
+  const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: 70, me: 70, sp: 70, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
+  const ctx = { area: 'e_central', attacker: 1, aiTier: AWAKEN.tier, arena: true, sides: [{ f, sid: null, garrison: null, fort: null, ship: null, cs: [combatant(uid)] }, { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [shadow] }], player: true, duel: true,
+    duelTitle: 'お試し：星の影', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタス（機体Lv${u.lv}・パイロットLv18）と、<b>星の影</b>（真リベルタス・Lv${lv}・HP${hp}）の一対一です。</p><p class="dim">本番のゼファー覚醒イベントと同じ強さです。お試しなので、記録や解放には影響しません。</p>` };
+  UI.keepBgm = true;
+  const res = await HOOKS.duel(ctx);
+  UI.keepBgm = false; G = prevG; show('title');
+  await openModal({ title: 'お試しの結果', cls: 'small', body: `<div class="ending ${res.winner === 0 ? 'win' : 'lose'}"><div class="res-head ${res.winner === 0 ? 'win' : 'lose'}"><span class="res-t">${res.winner === 0 ? '星の影を越えた' : '星の影に敗れた'}</span><small>本番では、勝つとリベルタスが真リベルタスになります</small></div></div>`, buttons: [{ label: 'もう一度', value: 'again' }, { label: '閉じる', value: 'ok', cls: 'primary' }] }).then(v => v === 'again' ? runShadowTrial() : null);
+}
 async function openArena(pre = [], foe0 = null) {
   const pool = arenaPool(); let sel = pre.slice(), foe = foe0;
   const best = records().arena || 0, GB = giantsBeaten(), GA = records().arenaGiant || {};
@@ -16315,13 +16331,16 @@ async function openArena(pre = [], foe0 = null) {
     ${FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
     ${(() => { const hs = [WANDERER.unit, AWAKEN.unit, RELIC.unit].filter(t => pool.some(T => T.id === t)); return hs.length ? `<h4><span class="fb" style="--fc:${MERC_COL}">隠し</span> 隠し機体</h4><div class="enc-grid">${hs.map(t => `<button class="enc ${sel.includes(t) ? 'got' : ''}" data-act="pick" data-t="${t}"><span class="uthumb" data-thumb="${t}" data-col="${MERC_COL}" data-size="52"></span><span>${UNITS[t].name}</span></button>`).join('')}</div>${hs.some(x => x === WANDERER.unit || x === AWAKEN.unit) ? '<p class="dim small">リベルタスと真リベルタスに乗るのは放浪者ゼファー本人です。ゼファーは1人なので、どちらか一方しか選べません。</p>' : ''}` : ''; })()}
     ${(() => { const us = pool.filter(T => !T.f && T.id !== WANDERER.unit && T.id !== AWAKEN.unit && T.id !== RELIC.unit); return `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵の機体</h4>${us.length ? `<div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${MERC_COL}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''}<p class="dim small">傭兵の機体は、その傭兵を正式に仲間にしてクリアすると選べるようになります（乗るのはその傭兵本人です）。${us.length < MERCS.length ? `あと${MERCS.length - us.length}機。` : ''}</p>`; })()}`;
-  const p = openModal({ title: '模擬戦', body: render(), cls: 'wide', buttons: [{ label: 'やめる', value: 'no' }, { label: '出撃', value: 'go', cls: 'primary' }], onAct: (act, t, M) => {
+  const p = openModal({ title: '模擬戦', body: `<button class="btn small trial-btn" data-act="trial">お試し：ゼファー覚醒の「星の影」と戦う</button>` + render(), cls: 'wide', buttons: [{ label: 'やめる', value: 'no' }, { label: '出撃', value: 'go', cls: 'primary' }], onAct: (act, t, M) => {
+    if (act === 'trial') { SFX.play('select'); M.close('trial'); return; }
     if (act === 'pick') { const id = t.dataset.t, ZS = [WANDERER.unit, AWAKEN.unit]; if (sel.includes(id)) sel = sel.filter(x => x !== id); else if (ZS.includes(id) && sel.some(x => ZS.includes(x))) { toast('ゼファーは1人なので、リベルタスと真リベルタスは同時に選べません', 'bad'); SFX.play('bad'); return; } else if (sel.length < 3) sel.push(id); else { toast('3機まで選べます', 'bad'); return; } SFX.play('select'); M.refresh(render()); }
     if (act === 'rm') { sel.splice(+t.dataset.i, 1); SFX.play('select'); M.refresh(render()); }
     if (act === 'foe') { foe = t.dataset.k || null; SFX.play('select'); M.refresh(render()); }
   } });
   fillThumbs(modalStack[modalStack.length - 1].el);
-  if (await p !== 'go') return;
+  const pv = await p;
+  if (pv === 'trial') return runShadowTrial();
+  if (pv !== 'go') return;
   if (!sel.length) { toast('機体を選んでください', 'bad'); return openArena(sel, foe); }
   if (foe) await runGiantArena(sel, foe); else await runArena(sel);
 }
