@@ -804,7 +804,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v159</span>
+    <span class="t-ver">v160</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -12842,7 +12842,7 @@ function startBattle(ctx, root) {
     const terrain = AREAS[ctx.area].terrain;
     const B = BT = {
       ctx, root, resolve, terrain, t: 0, over: null, endT: 0, intro: 1.3,
-      auto: SETTINGS.battleAuto, speed: 1, zoom: false, paused: false,
+      auto: SETTINGS.battleAuto, everAuto: !!SETTINGS.battleAuto, speed: 1, zoom: false, paused: false,
       ents: [], shots: [], swings: [], bits: [], fx: [], texts: [], obstacles: [],
       turrets: [], ctrl: null, lock: null, camY: 0, retreatArmed: 0, cut: null, cutQ: [], cutCd: 0, cutN: 0, said: new Set(),
       input: { x: 0, y: 0, held: [false, false, false], keys: {}, t: [0, 0, 0], seq: 0 },
@@ -14179,7 +14179,7 @@ function buildBattleDom(B) {
     if (act === 'pause') B.paused = !B.paused;
     if (act === 'zoom') B.zoom = !B.zoom;
     if (act === 'speed') { B.speed = B.speed === 1 ? 2 : B.speed === 2 ? 4 : 1;  }
-    if (act === 'auto') { B.auto = !B.auto; }
+    if (act === 'auto') { B.auto = !B.auto; if (B.auto) B.everAuto = true; }
     if (act === 'retreat') {
       if (B.retreatArmed > 0) endBattle(B, 1, 'retreat');
       else { B.retreatArmed = 2.5; B.texts.push({ x: B.ctrl?.x || BW / 2, y: (B.ctrl?.y || BH / 2) - 40, text: 'もう一度押すと撤退', col: '#ffc04d', t: 0, life: 2.5, big: true }); }
@@ -15917,7 +15917,7 @@ async function openHelp() {
     <h4>ストーリーと仲間</h4><p>ゲームが進むと章ごとの場面が入り、勢力の指導者やエースが語ります。途中のターンで新しいパイロットが合流することもあります。ランダムな出来事には、資金を払うかどうかを選ぶものもあります。</p>
     <h4>結末</h4><p>統一すると、戦い方によって4つの結末のどれかになります。上から順に見て、最初に当てはまったものになります。</p><ul class="help-list">${Object.values(ENDING_KIND).map(E => `<li><b>${E.name}</b>：${E.cond}</li>`).join('')}</ul><p>見た結末は「戦績」に記録され、4つすべて見ると勲章がもらえます。</p>
     <h4>隠しコマンド</h4>${medalCount() >= SECRET_MEDALS ? secretHtml() : `<p>勲章を${SECRET_MEDALS}個集めると、ここに隠しコマンドの説明が出ます（いま${medalCount()}個）。</p>`}
-    <h4>図鑑・勲章・模擬戦</h4><p>図鑑には戦った機体・母艦・パイロット・武器が記録され、ゲームをまたいで残ります。勲章は条件を満たすとその場で獲得できます。クリアすると評価がつき、難易度「極」とクリア特典が使えるようになります。クリア特典は、クリアした勢力ごとに違う特典（追加の機体・経験値・収入・改造など）が解放され、勢力選択の画面で2つまで選べます。タイトルの「模擬戦」では、好きな3機でだんだん強くなる敵と戦い続け、連勝記録に挑めます。一度倒した巨大兵器にも、模擬戦でもう一度挑めます。模擬戦の記録は、使った3機と一緒に上位5件まで残ります。<br>勲章を集めると司令官の称号が上がります。<br>勢力選択の画面の「縛り」では、傭兵なし・進化なし・改造なし・資金不足の4つの縛りを好きに組み合わせて遊べます。縛りをつけるほどクリアの評価が上がり、勢力ごとにどの縛りでクリアしたかが記録に残ります。</p>
+    <h4>図鑑・勲章・模擬戦</h4><p>図鑑には戦った機体・母艦・パイロット・武器が記録され、ゲームをまたいで残ります。勲章は条件を満たすとその場で獲得できます。クリアすると評価がつき、難易度「極」とクリア特典が使えるようになります。クリア特典は、クリアした勢力ごとに違う特典（追加の機体・経験値・収入・改造など）が解放され、勢力選択の画面で2つまで選べます。タイトルの「模擬戦」では、好きな3機でだんだん強くなる敵と戦い続け、連勝記録に挑めます。オートを使った戦いでは模擬戦の勲章はもらえません。一度倒した巨大兵器にも、模擬戦でもう一度挑めます。模擬戦の記録は、使った3機と一緒に上位5件まで残ります。<br>勲章を集めると司令官の称号が上がります。<br>勢力選択の画面の「縛り」では、傭兵なし・進化なし・改造なし・資金不足の4つの縛りを好きに組み合わせて遊べます。縛りをつけるほどクリアの評価が上がり、勢力ごとにどの縛りでクリアしたかが記録に残ります。</p>
     <h4>傭兵</h4><p>戦闘前の画面で、1戦闘だけ傭兵を雇えます。同じ傭兵を何度か（3回以上）雇っていると、ターンの始めにまとまった契約金で正式に仲間になると申し出てくることがあります。仲間になった傭兵は、雇い賃なしでいつでも出撃でき、経験も積めます。</p>
     <h4>弾数</h4><p>実弾・ミサイル・ビームライフルなど多くの武器には弾数があり、ボタンに「残り」が出ます。弾が切れた機体は格闘に切り替えて戦います。格闘武器は無制限です。</p>
     <h4>戦闘中の指示</h4><p>左上の「指示」で、味方機の動き方を選べます（おまかせ・接近戦・射撃戦・回避優先・艦を狙え）。上の段で「全員」を選ぶと全機に、機体の名前を選ぶとその機体だけに指示します。機体ごとの指示はその機体に記録され、次の戦闘でも続きます。戦闘前の出撃画面でも、機体の「指示」を押して決められます。</p>
@@ -16331,8 +16331,9 @@ async function runShadowTrial() {
   UI.keepBgm = true;
   const res = await HOOKS.duel(ctx);
   UI.keepBgm = false; G = prevG; show('title');
-  if (res.winner === 0 && !test) { const RR = records(); RR.shadowWins = (RR.shadowWins || 0) + 1; saveRecords(); awardMedal('shadow'); }
-  await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${res.winner === 0 ? 'win' : 'lose'}"><div class="res-head ${res.winner === 0 ? 'win' : 'lose'}"><span class="res-t">${res.winner === 0 ? '星の影を越えた' : '星の影に敗れた'}</span><small>${test ? 'お試しなので、記録と勲章は付きません' : `星の影に勝った回数 ${records().shadowWins || 0}回`}</small></div></div>`, buttons: [{ label: 'もう一度', value: 'again' }, { label: '閉じる', value: 'ok', cls: 'primary' }] }).then(v => v === 'again' ? runShadowTrial() : null);
+  const autoUsed = typeof BT !== 'undefined' && !!BT?.everAuto;
+  if (res.winner === 0 && !test) { const RR = records(); RR.shadowWins = (RR.shadowWins || 0) + 1; saveRecords(); if (!autoUsed) awardMedal('shadow'); }
+  await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${res.winner === 0 ? 'win' : 'lose'}"><div class="res-head ${res.winner === 0 ? 'win' : 'lose'}"><span class="res-t">${res.winner === 0 ? '星の影を越えた' : '星の影に敗れた'}</span><small>${test ? 'お試しなので、記録と勲章は付きません' : `星の影に勝った回数 ${records().shadowWins || 0}回${res.winner === 0 && autoUsed ? '（オートを使ったので勲章は対象外）' : ''}`}</small></div></div>`, buttons: [{ label: 'もう一度', value: 'again' }, { label: '閉じる', value: 'ok', cls: 'primary' }] }).then(v => v === 'again' ? runShadowTrial() : null);
 }
 async function openArena(pre = [], foe0 = null) {
   const pool = arenaPool(); let sel = pre.slice(), foe = foe0;
@@ -16439,7 +16440,7 @@ async function runArena(sel) {
   const mine = sel.map((t, i) => { const M = arenaMerc(t), P = M && PILOT_BASE[M.pilot];
     return { uid: 'AR' + i, t, lv: 1, hp: UNITS[t].hp, pilot: P ? { ...P, id: M.pilot, f, origin: 'mrc', named: true, lv: 8 } : { id: 'ar_p' + i, name: `模擬戦 ${names[i]}${i ? i : ''}`, f, origin: f, sh: 28, me: 28, sp: 28, pil: 1, sen: 1, cmd: 0, skill: null } }; });
   const maxHp = c => UNITS[c.t].hp + Math.round(UNITS[c.t].hp * BAL.lvHp * (c.lv - 1));
-  let wave = 0, alive = true, lastCtrl = null;
+  let wave = 0, alive = true, lastCtrl = null, usedAuto = false; // オートを使った連戦では勲章が取れない
   UI.keepBgm = true; MUSIC.play('arena');
   while (alive) {
     wave++;
@@ -16456,6 +16457,7 @@ async function runArena(sel) {
     show('battle');
     const res = await startBattle(ctx, $('#scr-battle'));
     lastCtrl = (typeof BT !== 'undefined' && BT?.ctrl?.c?.uid) || lastCtrl;
+    if (typeof BT !== 'undefined' && BT?.everAuto) usedAuto = true;
     show('title');
     for (const c of mine) { const r = res.units[c.uid]; if (r) c.hp = r.dead ? 0 : r.hp; }
     if (res.winner !== 0 || !mine.some(c => c.hp > 0)) { alive = false; wave--; break; }
@@ -16467,11 +16469,9 @@ async function runArena(sel) {
   if (wave > best) { R.arena = wave; saveRecords(); }
   const rank = wave > 0 ? arenaRecord('waves', wave, sel, (a, b) => a > b) : -1;
   G = prevG;
-  if (wave >= 5) awardMedal('arena5');
-  if (wave >= 10) awardMedal('arena10');
-  if (wave >= 30) awardMedal('arena20');
+  if (!usedAuto) { if (wave >= 5) awardMedal('arena5'); if (wave >= 10) awardMedal('arena10'); if (wave >= 30) awardMedal('arena20'); }
   UI.keepBgm = false; MUSIC.play('title', 'title');
-  await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${wave ? 'win' : 'lose'}"><div class="res-head ${wave ? 'win' : 'lose'}"><span class="res-t">${wave}連勝</span><small>${wave > best ? '最高記録を更新！' : `最高記録 ${best}連勝`}${rank >= 0 ? `・記録の${rank + 1}位に入った` : ''}</small></div></div>`, buttons: [{ label: 'タイトルへ', value: 'ok', cls: 'primary' }] });
+  await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${wave ? 'win' : 'lose'}"><div class="res-head ${wave ? 'win' : 'lose'}"><span class="res-t">${wave}連勝</span><small>${wave > best ? '最高記録を更新！' : `最高記録 ${best}連勝`}${rank >= 0 ? `・記録の${rank + 1}位に入った` : ''}${usedAuto && wave >= 5 ? '<br>オートを使ったので勲章は対象外' : ''}</small></div></div>`, buttons: [{ label: 'タイトルへ', value: 'ok', cls: 'primary' }] });
 }
 MEDALS.push({ id: 'shadow', name: '星影を越えし者', desc: 'ゼファー覚醒で「星の影」を倒す（模擬戦の再戦でもよい）', icon: 'star' });
 MEDALS.push({ id: 'aceduel', name: '一騎打ちの誉れ', desc: 'エースの一騎打ちに勝つ', icon: 'bolt' });
