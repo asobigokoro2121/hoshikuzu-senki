@@ -800,7 +800,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v144</span>
+    <span class="t-ver">v145</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15750,7 +15750,7 @@ async function openEncyclopedia(tab = 'unit') {
       const from = units.filter(x => x.to.includes(T.id)).map(x => seenU(x.id) ? x.name : '？？？');
       const ex = [...new Set(EXCLUSIVE.filter(e => e.to === T.id).map(e => PILOT_BASE[e.pilot]?.name).filter(Boolean))];
       const evo = T.to.map(x => seenU(x) ? UNITS[x].name : '？？？').join('、');
-      const b = `${heroHtml(T.id, col, 300)}<div class="enc-detail nohero"><div><p><b>${T.name}</b>（${T.cls}）${T.f ? facBadge(T.f) : ''}${seenU(T.id) === 2 ? '<span class="tag gold">入手</span>' : '<span class="tag">遭遇</span>'}</p>
+      const b = `${heroHtml(T.id, col, 300)}<div class="enc-detail nohero"><div><p><b>${T.name}</b>（${T.cls}）${T.f ? facBadge(T.f) : ''}${seenU(T.id) === 2 ? '<span class="tag gold">入手</span>' : '<span class="tag">遭遇</span>'}</p>${T.f && !T.rogue ? `<p class="dim small">模擬戦：${T.bt > 0 || seenU(T.id) === 2 ? '<b class="gold">使える</b>' : '本編で自軍の機体として手に入れる（生産・進化・捕獲）と使えるようになる（いまは遭遇のみ）'}</p>` : ''}
         ${unitLoreHtml(T.id, col)}
         <p class="dim">コスト${fmt(T.cost)}・HP${hpn(T.hp)}・速度${T.spd}${baseEvade(T) ? `（回避${baseEvade(T)}%）` : ''}${T.bt ? `・生産${T.bt}ターン` : '・生産不可'}</p>
         <p>武装：${T.w.map(w => WEAPONS[w].name).join('／')}</p>${T.ab ? `<p>特殊能力：${ABILITIES[T.ab].name}（${abDesc(T)}）</p>` : ''}<p class="apt">${aptLine(T)}</p>
