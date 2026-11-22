@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}.rk-tbl{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0 8px}.rk-tbl th,.rk-tbl td{border:1px solid rgba(255,255,255,.15);padding:3px 6px;text-align:left}.rk-tbl th{background:rgba(255,255,255,.07)}.rk-tbl td:first-child,.rk-tbl th:first-child{text-align:center;width:3em}.rk-ul{margin:4px 0 8px 1.2em;padding:0}.rk-ul li{margin:2px 0}
+</style>
 </head>
 <body>
 <title>星屑戦記</title>
@@ -804,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v162</span>
+    <span class="t-ver">v163</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15265,7 +15266,7 @@ async function openPilotInfo(pid) {
     ${bar('射撃', p.sh)}${bar('格闘', p.me)}${bar('特殊', p.sp)}
     ${p.alive !== false && G ? `<div class="pi-exp"><span>次のLvまで ${Math.max(0, need - (p.exp || 0))}</span><i><b style="width:${Math.min(100, (p.exp || 0) / need * 100)}%"></b></i></div>${next ? `<p class="pi-next">${next}</p>` : ''}` : ''}
     ${p.skill ? `<p class="pi-sk"><b>${SKILLS[p.skill].name}</b><span>${SKILLS[p.skill].desc}</span></p>` : ''}
-    ${PILOT_BASE[pid] && p.role !== 'cap' ? `<p class="pi-sk"><b>腕前</b><span>${PILOT_RANK_NAME[pilotRankBonus({ id: pid })]}（モブパイロットより${pilotRankBonus({ id: pid })}段上の判断と動き）</span></p>` : ''}${PILOT_TRAIT[pid] ? '' : ''}${pilotLoreHtml(pid)}${(() => { const BF = records().bonds || {}, L2 = BONDS.filter(o => (o.a === pid || o.b === pid) && BF[o.key]); return L2.length ? `<p class="pi-sk"><b>相性</b><span>${L2.map(o => `「${o.name}」${PILOT_BASE[o.a === pid ? o.b : o.a].name}`).join('／')}（同じ戦闘で与えるダメージ+${Math.round((BOND_K - 1) * 100)}%）</span></p>` : ''; })()}
+    ${PILOT_BASE[pid] && p.role !== 'cap' ? `<p class="pi-sk"><b>腕前</b><span>${(() => { const b = pilotRankBonus({ id: pid }); return `${PILOT_RANK_NAME[b]}（格+${b}）。敵として出るとランク 易${1 + b}・普${2 + b}・難${3 + b}・極${Math.min(7, 4 + b)}、味方のときはランク${2 + b}${pid === WANDERER.pilot && records().awakened ? '。覚醒後と真リベルタスに乗ったときはランク8' : ''}`; })()}</span></p>` : ''}${PILOT_TRAIT[pid] ? '' : ''}${pilotLoreHtml(pid)}${(() => { const BF = records().bonds || {}, L2 = BONDS.filter(o => (o.a === pid || o.b === pid) && BF[o.key]); return L2.length ? `<p class="pi-sk"><b>相性</b><span>${L2.map(o => `「${o.name}」${PILOT_BASE[o.a === pid ? o.b : o.a].name}`).join('／')}（同じ戦闘で与えるダメージ+${Math.round((BOND_K - 1) * 100)}%）</span></p>` : ''; })()}
     <p class="pi-rec">撃墜 <b>${p.kills || 0}</b>　出撃 <b>${p.sorties || 0}</b>${ace ? `　<span class="ace-r r${ace}">${ace}</span>` : ''}</p>
     ${u ? `<div class="pi-u"><span class="uthumb" data-thumb="${u.t}" data-size="48"></span><span><small>搭乗機</small><b>${UT(u).name}</b> Lv${u.lv}</span></div>` : sq ? `<div class="pi-u"><span class="sthumb" data-sthumb="${sq.ship.t}"></span><span><small>指揮する艦</small><b>${SHIPS[sq.ship.t].name}</b></span></div>` : ''}
     </div></div>`;
@@ -15926,7 +15927,29 @@ async function openHelp() {
     <h4>戦闘中の指示</h4><p>左上の「指示」で、味方機の動き方を選べます（おまかせ・接近戦・射撃戦・回避優先・艦を狙え）。上の段で「全員」を選ぶと全機に、機体の名前を選ぶとその機体だけに指示します。機体ごとの指示はその機体に記録され、次の戦闘でも続きます。戦闘前の出撃画面でも、機体の「指示」を押して決められます。</p>
     <h4>拠点の守り</h4><p>艦に乗っていない機体は「守備隊」としてエリアを守ります。首都・要塞・生産拠点では守備隊が2回まで迎撃します（2回目は1回目に出なかった機体）。守りきれなかったとき、戦わなかった守備隊は隣の自軍エリアへ退きます（首都では捕獲されます）。首都の守備隊が${BAL.capGuard}機より少ないと、毎ターン首都防衛隊が1機配備されます。</p>
     <h4>地形適性</h4><p>機体ごとに宇宙・平地・山岳・砂漠・海の適性（◎○△×）があり、戦闘中の移動速度が変わります（攻撃力は変わりません）。×の地形ではほとんど動けないので、敵をそこへ誘えば捕獲のチャンスです。</p>
-    <h4>パイロット</h4><p>指揮（艦長の搭載数・隊長の経験値）、操縦（移動速度と回避）、感応（ビットの数。感応者でなくても1基は動かせる）、射撃・格闘・特殊（その系統の武器の直撃率。数字がそのまま％になり、直撃するとダメージ1.5倍）。射撃はライフルやビーム砲、格闘はサーベルや突進、特殊はミサイル・砲弾・ビット・爆弾などの武器に効きます。特殊が30以上で有線ビットが2基、50以上で3基になります。腕前はモブ＜ネームド＜エースの順に高く、判断の速さや狙い、よけ方が上手になります。</p>
+    <h4>パイロット</h4><p>指揮（艦長の搭載数・隊長の経験値）、操縦（移動速度と回避）、感応（ビットの数。感応者でなくても1基は動かせる）、射撃・格闘・特殊（その系統の武器の直撃率。数字がそのまま％になり、直撃するとダメージ1.5倍）。射撃はライフルやビーム砲、格闘はサーベルや突進、特殊はミサイル・砲弾・ビット・爆弾などの武器に効きます。特殊が30以上で有線ビットが2基、50以上で3基になります。腕前はモブ＜ネームド＜エースの順に高く、判断の速さや狙い、よけ方が上手になります（くわしくは下の「パイロットの腕前」）。</p>
+    <h4>パイロットの腕前</h4><p>腕前は、コンピュータが動かす機体の上手さで、<b>ランク1〜8</b>の8段階です。敵も味方も、オートにしたときの自分の機体もランクどおりに動きます。自分で操作している間は、あなたの腕前がすべてです。</p>
+    <p><b>ランクの決まり方</b>　基準 ＋ パイロットの格 です（ふつうは最大7）。</p>
+    <ul class="rk-ul"><li><b>基準</b>：敵は難易度で決まり、易1・普2・難3・極4。味方はいつも2（普と同じ）。模擬戦の連戦の敵は、1〜3戦目が1、4〜7戦目が2、8〜11戦目が3、12戦目からが4。</li>
+    <li><b>パイロットの格</b>：モブ・志願兵 +0、ネームド +1、各勢力のエースと傭兵 +2、放浪者 +3。</li>
+    <li><b>ランク8</b>：ごく一部の特別なパイロットだけがたどり着く、格の上限を超えた腕前です。</li></ul>
+    <p class="dim small">例：難易度「難」の敵エースは 3＋2＝ランク5。味方のネームドは 2＋1＝ランク3。</p>
+    <table class="rk-tbl"><tr><th>ランク</th><th>目安</th><th>判断の間隔</th><th>狙いのぶれ</th></tr>
+    <tr><td>1</td><td>易のモブ</td><td>0.55秒</td><td>約13°</td></tr>
+    <tr><td>2</td><td>普のモブ・味方のモブ</td><td>0.35秒</td><td>約7°</td></tr>
+    <tr><td>3</td><td>難のモブ・味方のネームド</td><td>0.2秒</td><td>約3.4°</td></tr>
+    <tr><td>4</td><td>極のモブ・味方のエース</td><td>0.12秒</td><td>約1.7°</td></tr>
+    <tr><td>5</td><td>手ごわいネームド・エース</td><td>0.09秒</td><td>約1.1°</td></tr>
+    <tr><td>6</td><td>一流のエース・傭兵</td><td>0.07秒</td><td>約0.7°</td></tr>
+    <tr><td>7</td><td>格の上限</td><td>0.05秒</td><td>約0.3°</td></tr>
+    <tr><td>8</td><td>特別</td><td>0.035秒</td><td>約0.2°</td></tr></table>
+    <p><b>ランクで変わる動き</b></p>
+    <ul class="rk-ul"><li><b>判断の速さ</b>：相手の動きや飛んでくる弾に気づいて動きを変えるまでの間隔。</li>
+    <li><b>狙い</b>：ぶれが小さいほど、遠くの相手にも当たります。</li>
+    <li><b>撃つ機会</b>：ランク1は撃てる場面でも見送りがち。上がるほど、撃てるときに撃ってきます。</li>
+    <li><b>集中攻撃</b>（ランク3から）：弱った機体や、味方が狙っている機体を選んで狙います。</li>
+    <li><b>先読み射撃</b>（ランク3から）：動いている相手の行き先を見越して撃ちます。ランク5からはさらに正確です。</li>
+    <li><b>回避</b>：ランク1〜2はよける向きがでたらめ。ランク3から、弾の線から外れる側へよけ、格闘の間合いからも離れます。ランク5からは、より遠くの弾にも反応します。</li></ul>
     <h4>パイロットの成長</h4><p>戦闘のたびに経験を積み、レベルが上がると能力が伸びます。よく使った系統（射撃・格闘・特殊）ほど伸びやすく、Lv6・12・18で操縦ランク、感応者はLv8・16で感応ランクが上がります。特技のないパイロットはLv10で特技を覚えます。艦長はLv6・12で指揮ランクが上がり、搭載数が増えます。<br>撃破されても、勝った戦闘なら必ず救助されます。負けた戦闘では戻らないこともありますが、レベルが高いほど生き延びやすくなります。</p>
     <h4>鹵獲機の解析</h4><p>捕獲した他勢力の機体を進化かレベルアップさせると解析が終わり、その機体を自軍の工場で生産できるようになります。量産できない高性能機の場合は、その系統の元になった量産機が作れるようになります。</p>
     <h4>武器の種類</h4><p>ショットガン（近いほど強い散弾）、火炎放射器（押している間、炎を浴びせる）、レールガン（照準のあと壁も機体も貫く弾）、ビームランス・ドリル・ファング（敵へ突進して貫く）、機雷（置いておくと敵が近づいたとき爆発）、ビームブーメラン（行きと帰りで2回当たる）、薙ぎ払いレーザー（扇形に払う光線）、電磁ネット（当たった敵の足を鈍らせる）、クラスターミサイル（目標の手前で子弾をばらまく）、照射レーザー（押している間、光線を当て続ける）、プラズマ砲（ゆっくり進む光球が触れた敵を焼き、最後に破裂）、自律砲台（置くとしばらく自動で撃つ）、ハンマー（当てた敵を吹き飛ばす）、ビームシールド（押している間、正面の弾を防ぐ）など。武器は一度に1つしか使えません。</p>
