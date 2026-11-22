@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v130</span>
+    <span class="t-ver">v131</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -16321,7 +16321,7 @@ async function runArena(sel) {
   while (alive) {
     wave++;
     const E = arenaFoes(wave), area = pick(ARENA_AREAS);
-    const foes = E.ts.map((t, i) => ({ uid: 'EN' + wave + '_' + i, t, lv: E.lv, hp: 0, pilot: { name: `${pick(GENERIC_RANKS)} ${pick(GENERIC_SURNAMES)}`, sh: 20 + wave, me: 20 + wave, sp: 20 + wave, pil: Math.min(3, Math.floor(wave / 3)), sen: wave >= 6 ? 1 : 0, cmd: 0, skill: null } }));
+    const foes = E.ts.map((t, i) => ({ uid: 'EN' + wave + '_' + i, t, lv: E.lv, hp: 0, pilot: { name: `${pick(GENERIC_RANKS)} ${pick(GENERIC_SURNAMES)}`, sh: 20 + Math.ceil(wave / 2), me: 20 + Math.ceil(wave / 2), sp: 20 + Math.ceil(wave / 2), pil: Math.min(3, Math.floor(wave / 3)), sen: wave >= 6 ? 1 : 0, cmd: 0, skill: null } }));
     for (const c of foes) c.hp = maxHp(c);
     const cs = mine.filter(c => c.hp > 0);
     const plan = arenaPlan(wave);
@@ -16335,7 +16335,7 @@ async function runArena(sel) {
     show('title');
     for (const c of mine) { const r = res.units[c.uid]; if (r) c.hp = r.dead ? 0 : r.hp; }
     if (res.winner !== 0 || !mine.some(c => c.hp > 0)) { alive = false; wave--; break; }
-    for (const c of mine) if (c.hp > 0) { c.lv++; c.hp = Math.min(maxHp(c), c.hp + Math.round(maxHp(c) * 0.3)); }
+    for (const c of mine) if (c.hp > 0) { c.lv++; c.hp = Math.min(maxHp(c), c.hp + Math.round(maxHp(c) * 0.3)); if (!c.pilot.named) { c.pilot.sh++; c.pilot.me++; c.pilot.sp++; } } // 模擬戦のモブパイロットは1勝ごとに射撃・格闘・特殊が+1
     SFX.play('capture');
   }
   const R = records(), best = R.arena || 0;
