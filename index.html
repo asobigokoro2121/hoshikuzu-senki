@@ -801,7 +801,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v151</span>
+    <span class="t-ver">v152</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -3189,7 +3189,7 @@ async function wandererEvent() {
 
 // ===================== ゼファー覚醒 =====================
 // ゼファーが仲間になったあと、まれに起きる。リベルタスの月輪が呼ぶ「星の影」に、ゼファー1機で挑む（難しい）。勝てばリベルタスが真リベルタスになる
-const AWAKEN = { stat: 62, unit: 'mrc_libertas_x', after: 6, chance: 0.06, gap: [8, 12], tier: 5, hpK: 1, lvPlus: 1 };
+const AWAKEN = { stat: 62, unit: 'mrc_libertas_x', after: 6, chance: 0.06, gap: [8, 12], tier: 6, hpK: 1, lvPlus: 1 };
 async function zephyrAwakenEvent() {
   const W = G.wanderer; if (!W || W.st !== 2 || W.awk) return;
   if (W.awkNext == null) W.awkNext = (W.joinT ?? G.turn) + AWAKEN.after;
@@ -13640,7 +13640,7 @@ function pilotRankBonus(p) {
   return 1;
 }
 const PILOT_RANK_NAME = ['モブ', 'ネームド', 'エース', '別格'];
-function pilotRank(B, e) { const base = e.side === 1 ? (B.ctx.aiTier || DIFF_TIER[G?.diff] || 2) : 2; return clamp(base + pilotRankBonus(e.pilot), 1, 7); }
+function pilotRank(B, e) { const base = e.side === 1 ? (B.ctx.aiTier || DIFF_TIER[G?.diff] || 2) : 2, r = clamp(base + pilotRankBonus(e.pilot), 1, 7); return e.pilot?.id === WANDERER.pilot && e.T?.id === 'mrc_libertas_x' ? Math.max(6, r) : r; } // 真リベルタスに乗ったゼファーはランク6
 function aiMech(B, e, dt) {
   const A = e.ai, enemySide = e.side === 1;
   const RK = PILOT_RANKS[A.rank || (A.rank = pilotRank(B, e))];
