@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v119</span>
+    <span class="t-ver">v120</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15915,7 +15915,7 @@ const MEDALS = [
   { id: 'clear_hard', name: '歴戦の司令官', desc: '難易度「難」以上でクリアする', icon: 'crown' },
   { id: 'clear_extreme', name: '伝説の司令官', desc: '難易度「極」でクリアする', icon: 'crown' },
   { id: 'clear_fast', name: '電撃戦', desc: '30ターン以内にクリアする', icon: 'bolt' },
-  { id: 'clear_faster', name: '疾風迅雷', desc: '25ターン以内にクリアする', icon: 'bolt' },
+  { id: 'clear_faster', name: '疾風迅雷', desc: '20ターン以内にクリアする', icon: 'bolt' },
   { id: 'clear_fastest', name: '神速', desc: '15ターン以内にクリアする', icon: 'bolt' },
   { id: 'clear_s', name: '完全勝利', desc: '評価Sでクリアする', icon: 'crown' },
   { id: 'clear_all', name: '星屑の覇者', desc: 'すべての勢力でクリアする', icon: 'crown' },
@@ -16092,7 +16092,7 @@ async function showEnding() {
     if (G.diff === 'hard' || G.diff === 'extreme') awardMedal('clear_hard');
     if (G.diff === 'extreme') awardMedal('clear_extreme');
     if (G.turn <= 30) awardMedal('clear_fast');
-    if (G.turn <= 25) awardMedal('clear_faster');
+    if (G.turn <= 20) awardMedal('clear_faster');
     if (G.turn <= 15) awardMedal('clear_fastest');
     if (R.rank === 'S') awardMedal('clear_s');
     if (G.relocated) awardMedal('comeback');
