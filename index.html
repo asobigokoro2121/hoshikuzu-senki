@@ -118,6 +118,8 @@ h1, h2, h3, h4 { font-family: var(--f-disp); font-weight: 400; margin: 0; text-w
 .t-menu { position: relative; display: grid; gap: 10px; width: min(320px, 100%); margin: 0 auto; }
 .t-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .t-row .btn { padding-left: 2px; padding-right: 2px; white-space: nowrap; }
+.t-secret { position: relative; text-align: center; color: #ffd56a; font-size: 12px; margin: 6px 12px 0; line-height: 1.5; }
+.t-secret b { color: #ffe9a0; }
 .t-foot { position: relative; text-align: center; color: var(--muted); font-size: 11px; margin: 0; }
 
 /* ---------- 勢力選択 ---------- */
@@ -801,7 +803,8 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v157</span>
+    <p class="t-secret" id="t-secret" hidden></p>
+    <span class="t-ver">v158</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -14436,7 +14439,15 @@ const facBadge = f => f === ROGUE_F ? `<span class="fb rogue" style="--fc:#ff5a3
 const hpBar = (v, m, cls = '') => `<span class="hp ${cls}"><i style="width:${Math.max(0, Math.min(100, v / m * 100))}%"></i></span>`;
 
 // ===================== 画面切り替え =====================
+// 隠しコマンドが明かされたのにまだ入力していないときは、タイトル画面の下にやり方を出す
+function renderTitleSecret() {
+  const el = $('#t-secret'); if (!el || typeof medalCount !== 'function') return;
+  const on = medalCount() >= SECRET_MEDALS && !records().zephyr;
+  el.hidden = !on; if (!on) return;
+  el.innerHTML = `隠しコマンド：上の題字<b>「星屑戦記」を2.5秒以内に7回</b>タップすると、模擬戦で真リベルタスが使えます${zephyrKnown() ? '' : '（図鑑にゼファーが載ってから）'}`;
+}
 function show(scr) {
+  if (scr === 'title') renderTitleSecret();
   if (scr === 'title' && typeof trySecretReveal === 'function') setTimeout(trySecretReveal, 900); // 勲章40個の隠しコマンド案内（まだなら）
   UI.screen = scr;
   for (const s of ['title', 'faction', 'map', 'battle']) $('#scr-' + s).hidden = s !== scr;
@@ -15952,7 +15963,7 @@ function boot(data) {
     if (!zephyrKnown()) return;
     SFX.init(); const R = records();
     if (R.zephyr) { SFX.play('select'); toast('真リベルタスは模擬戦で使えます'); return; }
-    R.zephyr = 1; saveRecords(); SFX.play('capture'); toast('隠し要素：模擬戦で真リベルタスが使えるようになった', 'good');
+    R.zephyr = 1; saveRecords(); SFX.play('capture'); toast('隠し要素：模擬戦で真リベルタスが使えるようになった', 'good'); renderTitleSecret();
   }); }
   $('#chal-tg').addEventListener('click', async () => { SFX.play('select'); await openChalPick(); renderFaction(); });
   $('#bonus-tg').addEventListener('click', async () => { SFX.play('select'); await openBonusPick(); renderFaction(); });
@@ -16098,7 +16109,7 @@ function trySecretReveal() {
   const R = records();
   if (R.secretTold || medalCount() < SECRET_MEDALS) return;
   if (UI.screen === 'battle' || modalStack.length || UI.busy) { setTimeout(trySecretReveal, 2000); return; }
-  R.secretTold = 1; saveRecords();
+  R.secretTold = 1; saveRecords(); renderTitleSecret();
   SFX.play('capture');
   openModal({ title: `勲章${SECRET_MEDALS}個達成：隠しコマンド解禁`, dismiss: false, body: `<p>勲章を${SECRET_MEDALS}個集めたあなたに、隠しコマンドをお教えします。</p>${secretHtml()}<p class="dim small">この説明は「勲章」の画面と「遊び方」でいつでも読み返せます。</p>`, buttons: [{ label: '了解', value: 'ok', cls: 'primary' }] });
 }
