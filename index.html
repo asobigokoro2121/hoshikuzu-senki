@@ -800,7 +800,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v142</span>
+    <span class="t-ver">v143</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -3161,7 +3161,6 @@ async function wandererEvent() {
   const mine = pickSortie(unitsOf(f).map(u => u.uid));
   const ctx = { area: capOf(f), attacker: 1, sides: [{ f, sid: null, garrison: null, fort: null, ship: null, cs: mine.map(id => combatant(id)) }, wandererSide()], player: true, duel: true };
   const res = await HOOKS.duel(ctx);
-  { const E = G.enc; E.su = E.su || {}; E.sp = E.sp || {}; E.su[WANDERER.unit] = 1; E.sp[WANDERER.pilot] = 1; } // 決闘で戦えば図鑑に載る
   // 決闘の結果：自軍の機体は失われない（HPは減る）。経験は多め
   for (const cb of ctx.sides[0].cs) { const r = res.units[cb.uid], u = G.units[cb.uid]; if (!u || !r) continue; u.hp = clamp(r.dead ? 1 : r.hp, 1, maxHpOf(u)); u.foughtT = G.turn; const gain = Math.round(BAL.expBattle * 2 + r.dmg * BAL.expPerDmg + (res.winner === 0 ? 40 : 0)); u.exp += gain; u.xp += gain; growPilot(G.pilots[u.pil], gain, r.use); }
   if (res.winner === 0) {
@@ -16033,12 +16032,11 @@ function secretHtml() {
     <ol class="help-list">
       <li><b>やり方</b>：タイトル画面の大きな文字「星屑戦記」を、<b>2.5秒以内に7回</b>続けてタップ（クリック）します。下の説明文や背景ではなく、題字そのものをたたいてください。</li>
       <li><b>条件</b>：図鑑にゼファー（パイロットの放浪者ゼファー、または機体リベルタス）が載っていること。載っていないときは、たたいても何も起きません。
-        <br><span class="dim">ゼファーに会うには：本編で自軍の拠点が12以上になり、24ターン目をすぎると、ときどき「放浪者」が決闘を挑んできます。決闘に一度でも挑めば図鑑に載ります（勝てば仲間になります）。</span></li>
+        <br><span class="dim">ゼファーに会うには：本編で自軍の拠点が12以上になり、24ターン目をすぎると、ときどき「放浪者」が決闘を挑んできます。決闘に勝つとゼファーが仲間になり、図鑑に載ります。</span></li>
       <li><b>成功すると</b>：「隠し要素：模擬戦で放浪者ゼファーのリベルタスが使えるようになった」と表示されます。模擬戦の機体選択の下の方に「隠し機体」の枠が出て、リベルタスを選べます。乗るのはゼファー本人です。</li>
       <li><b>一度だけでよい</b>：解放は記録に残るので、次からはたたく必要はありません。もう一度たたくと「リベルタスは模擬戦で使えます」と出るだけです。</li>
     </ol>
     <p class="dim small">いまの状態：図鑑のゼファー ${known ? '<b class="gold">登録済み</b>' : '未登録'}　／　模擬戦のリベルタス ${got ? '<b class="gold">解放済み</b>' : '未解放'}</p>
-    <p class="dim small">もうひとつの隠し機体：本編の「古戦場の残骸」で試作機の部品を3つ集めると、旧時代の試作機アルカが組み上がり、模擬戦の「隠し機体」の枠でも使えるようになります。</p>
   </div>`;
 }
 // 勲章が40個に届いたら、戦闘中やほかの画面を開いていないときに一度だけ大きく知らせる
