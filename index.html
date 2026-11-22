@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v122</span>
+    <span class="t-ver">v123</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -16268,7 +16268,7 @@ async function runArena(sel) {
   while (alive) {
     wave++;
     const E = arenaFoes(wave), area = pick(ARENA_AREAS);
-    const foes = E.ts.map((t, i) => ({ uid: 'EN' + wave + '_' + i, t, lv: E.lv, hp: 0, pilot: { name: `${pick(GENERIC_RANKS)} ${pick(GENERIC_SURNAMES)}`, sh: 20 + wave * 2, me: 20 + wave * 2, sp: 20 + wave * 2, pil: Math.min(3, Math.floor(wave / 3)), sen: wave >= 6 ? 1 : 0, cmd: 0, skill: null } }));
+    const foes = E.ts.map((t, i) => ({ uid: 'EN' + wave + '_' + i, t, lv: E.lv, hp: 0, pilot: { name: `${pick(GENERIC_RANKS)} ${pick(GENERIC_SURNAMES)}`, sh: 20 + wave, me: 20 + wave, sp: 20 + wave, pil: Math.min(3, Math.floor(wave / 3)), sen: wave >= 6 ? 1 : 0, cmd: 0, skill: null } }));
     for (const c of foes) c.hp = maxHp(c);
     const cs = mine.filter(c => c.hp > 0);
     const plan = arenaPlan(wave);
