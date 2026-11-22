@@ -800,7 +800,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v147</span>
+    <span class="t-ver">v148</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1184,8 +1184,8 @@ mrc_ronin|ローニン|傭兵|0|140|7|0|999|lrifle,axe,hmiss|crisis|◎◎◎○
 mrc_titan|タイタン|傭兵|0|230|3|0|999|mega,claw,mpod|barrier|◎◎◎○×||dome,heavy,cannon
 mrc_ghost|ゴースト|傭兵|0|110|8|0|999|rifle,twin,bit|awaken|◎◎◎○○||crest,slim,halo
 mrc_hydra|ヒドラ|傭兵|0|160|5|0|999|scatter,whip,mpod|-|○◎○○◎||fin,aqua,fins
-mrc_libertas|リベルタス|放浪者|4200|320|9|0|999|smart,katana,arc|overdrive|◎◎◎◎○||crest,slim,halo
-mrc_libertas_x|真リベルタス|放浪者|5000|340|9|0|999|z_star,z_moon,z_meteor|overdrive|◎◎◎◎○||crest,slim,halo
+mrc_libertas|リベルタス|放浪者|4200|300|9|0|999|smart,katana,arc|overdrive|◎◎◎◎○||crest,slim,halo
+mrc_libertas_x|真リベルタス|放浪者|5000|320|9|0|999|z_star,z_moon,z_meteor|overdrive|◎◎◎◎○||crest,slim,halo
 mrc_arca|アルカ|試作機|3800|270|6|0|999|pierce,pile,turret|regen|◎◎◎○○||dome,std,halo
 rog_gigas|ギガス|巨大兵器|0|6000|3|0|999|gcannon,gham,gmiss|-|×◎◎◎○||dome,heavy,cannon
 rog_ufo|ハロー|巨大兵器|0|4700|5|0|999|ubeam,usweep,umiss|-|◎◎◎◎◎||dome,heavy,cannon
@@ -15951,7 +15951,7 @@ function boot(data) {
     if (!zephyrKnown()) return;
     SFX.init(); const R = records();
     if (R.zephyr) { SFX.play('select'); toast('真リベルタスは模擬戦で使えます'); return; }
-    R.zephyr = 1; saveRecords(); SFX.play('capture'); toast('隠し要素：模擬戦で真リベルタス（とリベルタス）が使えるようになった', 'good');
+    R.zephyr = 1; saveRecords(); SFX.play('capture'); toast('隠し要素：模擬戦で真リベルタスが使えるようになった', 'good');
   }); }
   $('#chal-tg').addEventListener('click', async () => { SFX.play('select'); await openChalPick(); renderFaction(); });
   $('#bonus-tg').addEventListener('click', async () => { SFX.play('select'); await openBonusPick(); renderFaction(); });
@@ -16085,7 +16085,8 @@ function secretHtml() {
       <li><b>やり方</b>：タイトル画面の大きな文字「星屑戦記」を、<b>2.5秒以内に7回</b>続けてタップ（クリック）します。下の説明文や背景ではなく、題字そのものをたたいてください。</li>
       <li><b>条件</b>：図鑑にゼファー（パイロットの放浪者ゼファー、または機体リベルタス）が載っていること。載っていないときは、たたいても何も起きません。
         <br><span class="dim">ゼファーに会うには：本編で自軍の拠点が12以上になり、24ターン目をすぎると、ときどき「放浪者」が決闘を挑んできます。決闘に勝つとゼファーが仲間になり、図鑑に載ります。</span></li>
-      <li><b>成功すると</b>：「隠し要素：模擬戦で真リベルタス（とリベルタス）が使えるようになった」と表示されます。模擬戦の機体選択の下の方に「隠し機体」の枠が出て、真リベルタスと、ふつうのリベルタスを選べます。乗るのはどちらもゼファー本人なので、同時には選べません。</li>
+      <li><b>成功すると</b>：「隠し要素：模擬戦で真リベルタスが使えるようになった」と表示されます。模擬戦の機体選択の下の方に「隠し機体」の枠が出て、真リベルタスを選べます。乗るのはゼファー本人です。</li>
+      <li><b>ふつうのリベルタス</b>：こちらは隠しコマンドではなく、ゼファーを仲間にしたままクリアすると模擬戦で使えるようになります。ゼファーは1人なので、リベルタスと真リベルタスは同時には選べません。</li>
       <li><b>一度だけでよい</b>：解放は記録に残るので、次からはたたく必要はありません。もう一度たたくと「真リベルタスは模擬戦で使えます」と出るだけです。</li>
     </ol>
     <p class="dim small">いまの状態：図鑑のゼファー ${known ? '<b class="gold">登録済み</b>' : '未登録'}　／　模擬戦の真リベルタス ${got ? '<b class="gold">解放済み</b>' : '未解放'}</p>
@@ -16211,7 +16212,7 @@ async function showEnding() {
     const R = gameRank(), C = records().clears[f], prev = C ? { ...C } : null;
     records().clears[f] = { turn: Math.min(C?.turn || 999, G.turn), rank: !C || 'SABCD'.indexOf(R.rank) < 'SABCD'.indexOf(C.rank) ? R.rank : C.rank, diff: G.diff, at: Date.now() };
     records().wins = (records().wins || 0) + 1;
-    { const RM = records().mercs = records().mercs || {}, got = MERCS.filter(m => G.pilots[m.pilot]?.f === f && !RM[m.unit]); for (const m of got) RM[m.unit] = 1; if (got.length) toast(`模擬戦で${got.map(m => UNITS[m.unit].name).join('・')}が使えるようになった`, 'good'); }
+    { const RM = records().mercs = records().mercs || {}, got = [...MERCS, { unit: WANDERER.unit, pilot: WANDERER.pilot }].filter(m => G.pilots[m.pilot]?.f === f && G.pilots[m.pilot]?.alive !== false && !RM[m.unit]); /* ゼファーを仲間にしてクリアすると、模擬戦でリベルタスが使える */ for (const m of got) RM[m.unit] = 1; if (got.length) toast(`模擬戦で${got.map(m => UNITS[m.unit].name).join('・')}が使えるようになった`, 'good'); }
     saveRecords();
     awardMedal('clear');
     if (G.diff === 'hard' || G.diff === 'extreme') awardMedal('clear_hard');
@@ -16284,7 +16285,7 @@ async function openMedals() {
 // ===================== 模擬戦（連戦モード） =====================
 // 好きな3機で、だんだん強くなる敵と戦い続ける。最高記録は残り、勲章にもつながる。
 const ARENA_AREAS = ['e_central', 'c_arca', 'n_canyon', 'e_sandria', 'o_capital', 'a_belta', 'p_capital', 'l_polis'];
-function arenaPool() { const Z = zukan(), RM = records().mercs || {}; return Object.values(UNITS).filter(T => T.f ? (T.bt > 0 || Z.u[T.id] === 2) : T.id === WANDERER.unit || T.id === AWAKEN.unit ? !!records().zephyr : T.id === RELIC.unit ? !!records().relic : !!RM[T.id]); }
+function arenaPool() { const Z = zukan(), RM = records().mercs || {}; return Object.values(UNITS).filter(T => T.f ? (T.bt > 0 || Z.u[T.id] === 2) : T.id === AWAKEN.unit ? !!records().zephyr : T.id === WANDERER.unit ? !!RM[T.id] : T.id === RELIC.unit ? !!records().relic : !!RM[T.id]); }
 // 隠し要素：図鑑にゼファーが載っていれば、タイトルの「星屑戦記」を素早く7回たたくと、模擬戦でリベルタス（ゼファー搭乗）が使える
 const zephyrKnown = () => { const Z = zukan(); return !!(Z.u[WANDERER.unit] || Z.p[WANDERER.pilot]); };
 const MERC_COL = '#c9b98a';
@@ -16312,7 +16313,7 @@ async function openArena(pre = [], foe0 = null) {
     <p>最高記録：<b class="gold">${best}連勝</b></p>${arenaTopHtml('waves', v => `${v}連勝`)}`}
     <div class="ar-sel">${[0, 1, 2].map(i => sel[i] ? `<button class="enc got" data-act="rm" data-i="${i}"><span class="uthumb" data-thumb="${sel[i]}" data-col="${unitCol(sel[i])}" data-size="58"></span><span>${UNITS[sel[i]].name}</span></button>` : `<div class="enc unknown"><span class="q">${i + 1}</span><span>未選択</span></div>`).join('')}</div>
     ${FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
-    ${(() => { const hs = [WANDERER.unit, AWAKEN.unit, RELIC.unit].filter(t => pool.some(T => T.id === t)); return hs.length ? `<h4><span class="fb" style="--fc:${MERC_COL}">隠し</span> 隠し機体</h4><div class="enc-grid">${hs.map(t => `<button class="enc ${sel.includes(t) ? 'got' : ''}" data-act="pick" data-t="${t}"><span class="uthumb" data-thumb="${t}" data-col="${MERC_COL}" data-size="52"></span><span>${UNITS[t].name}</span></button>`).join('')}</div>${hs.includes(WANDERER.unit) ? '<p class="dim small">リベルタスと真リベルタスに乗るのは放浪者ゼファー本人です。ゼファーは1人なので、どちらか一方しか選べません。</p>' : ''}` : ''; })()}
+    ${(() => { const hs = [WANDERER.unit, AWAKEN.unit, RELIC.unit].filter(t => pool.some(T => T.id === t)); return hs.length ? `<h4><span class="fb" style="--fc:${MERC_COL}">隠し</span> 隠し機体</h4><div class="enc-grid">${hs.map(t => `<button class="enc ${sel.includes(t) ? 'got' : ''}" data-act="pick" data-t="${t}"><span class="uthumb" data-thumb="${t}" data-col="${MERC_COL}" data-size="52"></span><span>${UNITS[t].name}</span></button>`).join('')}</div>${hs.some(x => x === WANDERER.unit || x === AWAKEN.unit) ? '<p class="dim small">リベルタスと真リベルタスに乗るのは放浪者ゼファー本人です。ゼファーは1人なので、どちらか一方しか選べません。</p>' : ''}` : ''; })()}
     ${(() => { const us = pool.filter(T => !T.f && T.id !== WANDERER.unit && T.id !== AWAKEN.unit && T.id !== RELIC.unit); return `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵の機体</h4>${us.length ? `<div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${MERC_COL}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''}<p class="dim small">傭兵の機体は、その傭兵を正式に仲間にしてクリアすると選べるようになります（乗るのはその傭兵本人です）。${us.length < MERCS.length ? `あと${MERCS.length - us.length}機。` : ''}</p>`; })()}`;
   const p = openModal({ title: '模擬戦', body: render(), cls: 'wide', buttons: [{ label: 'やめる', value: 'no' }, { label: '出撃', value: 'go', cls: 'primary' }], onAct: (act, t, M) => {
     if (act === 'pick') { const id = t.dataset.t, ZS = [WANDERER.unit, AWAKEN.unit]; if (sel.includes(id)) sel = sel.filter(x => x !== id); else if (ZS.includes(id) && sel.some(x => ZS.includes(x))) { toast('ゼファーは1人なので、リベルタスと真リベルタスは同時に選べません', 'bad'); SFX.play('bad'); return; } else if (sel.length < 3) sel.push(id); else { toast('3機まで選べます', 'bad'); return; } SFX.play('select'); M.refresh(render()); }
@@ -16435,12 +16436,12 @@ async function runArena(sel) {
   G = prevG;
   if (wave >= 5) awardMedal('arena5');
   if (wave >= 10) awardMedal('arena10');
-  if (wave >= 20) awardMedal('arena20');
+  if (wave >= 30) awardMedal('arena20');
   UI.keepBgm = false; MUSIC.play('title', 'title');
   await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${wave ? 'win' : 'lose'}"><div class="res-head ${wave ? 'win' : 'lose'}"><span class="res-t">${wave}連勝</span><small>${wave > best ? '最高記録を更新！' : `最高記録 ${best}連勝`}${rank >= 0 ? `・記録の${rank + 1}位に入った` : ''}</small></div></div>`, buttons: [{ label: 'タイトルへ', value: 'ok', cls: 'primary' }] });
 }
 MEDALS.push({ id: 'aceduel', name: '一騎打ちの誉れ', desc: 'エースの一騎打ちに勝つ', icon: 'bolt' });
-MEDALS.push({ id: 'arena5', name: '模擬戦の常連', desc: '模擬戦で5連勝する', icon: 'bolt' }, { id: 'arena10', name: '模擬戦の覇者', desc: '模擬戦で10連勝する', icon: 'crown' }, { id: 'arena20', name: '模擬戦の鬼', desc: '模擬戦で20連勝する', icon: 'crown' });
+MEDALS.push({ id: 'arena5', name: '模擬戦の常連', desc: '模擬戦で5連勝する', icon: 'bolt' }, { id: 'arena10', name: '模擬戦の覇者', desc: '模擬戦で10連勝する', icon: 'crown' }, { id: 'arena20', name: '模擬戦の鬼', desc: '模擬戦で30連勝する', icon: 'crown' });
 
 
 // ===================== 戦歴・回想・音楽室（タイトルから開く） =====================
