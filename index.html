@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v127</span>
+    <span class="t-ver">v128</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -12922,6 +12922,7 @@ function stepBattle(B, dt) {
 
 function moveEnt(B, e, vx, vy, dt) {
   if (!Number.isFinite(vx) || !Number.isFinite(vy)) return; // 念のため：壊れた移動量は無視する
+  e.mvx = vx; e.mvy = vy; // 腕前の高い敵が先読みに使う
   e.x = clamp(e.x + vx * dt, e.r, BW - e.r);
   e.y = clamp(e.y + vy * dt, e.r, BH - e.r);
   for (const o of B.obstacles) {
@@ -13564,6 +13565,9 @@ function pointDefense(B, e) {
 function aiMech(B, e, dt) {
   const A = e.ai, D = B.ctx.ai || BAL.diff[G.diff] || BAL.diff.normal; // 模擬戦は戦ごとの腕前
   const enemySide = e.side === 1;
+  // 敵の腕前（0＝新兵〜1＝エース級）。高いほど弱った機体を集中して狙い、先読みして撃ち、弾をよけ、武器を的確に使う
+  // sk0：0＝新兵〜1＝エース級。sk：「普」より上の部分だけ（0＝普以下〜1＝極）。普の敵は今までどおりの動き
+  const sk0 = enemySide ? clamp((0.55 - D.react) / 0.43, 0, 1) : 0.47, sk = clamp((sk0 - 0.47) / 0.53, 0, 1);
   let ord = enemySide ? (e.tac || 'free') : (e.ord || B.order); // 個別の指示があればそれを優先（敵は模擬戦の戦法）
   // 射撃の弾が尽きたら、近づいて格闘で戦う（回避優先のときは逃げ続ける）
   const shotsLeft = e.w.some((id, s) => !['melee', 'dash', 'transform', 'shield'].includes(WEAPONS[id].cat) && weaponUsable(e, s));
@@ -13579,15 +13583,23 @@ function aiMech(B, e, dt) {
     // 艦を狙う個体もいる（捕獲狙い・艦落とし）。操作中の母艦が近くにいれば、なおさら狙う
     const shipNear = ship && Math.hypot(ship.x - e.x, ship.y - e.y) < 420, shipCtl = ship && ship === B.ctrl && !B.auto;
     if (ship && (ord === 'ship' || !mechs.length || (enemySide && Math.random() < (shipCtl ? (shipNear ? 0.5 : 0.3) : shipNear ? 0.3 : 0.15)) || (!enemySide && ord === 'free' && B.auto && Math.random() < 0.15))) A.tgt = ship;
+    else if (enemySide && mechs.length > 1 && Math.random() < sk * 0.3) { // 集中攻撃：弱った機体・味方が狙っている機体を選ぶ
+      const mates = B.ents.filter(o => o !== e && o.side === e.side && o.kind === 'mech' && o.alive && o.ai);
+      let best = null, bs = Infinity;
+      for (const o of mechs) { const s = Math.hypot(o.x - e.x, o.y - e.y) / 420 + (o.hp / o.maxHp) * 1.4 - mates.filter(m => m.ai.tgt === o).length * 0.35; if (s < bs) { bs = s; best = o; } }
+      A.tgt = best;
+    }
     else A.tgt = nearest(mechs.length ? mechs : foes, e.x, e.y);
-    A.ret = rand(1.2, 2.5);
+    A.ret = enemySide ? rand(1.2, 2.5) * (1 - sk * 0.4) : rand(1.2, 2.5);
   }
   if (e === B.ctrl && B.lock?.alive) A.tgt = B.lock;
   const tg = A.tgt;
   if (!tg) return;
   const dist = Math.hypot(tg.x - e.x, tg.y - e.y);
   const err = (enemySide ? D.aimErr : 0.1) * Math.sin(B.t * 3 + e.id);
-  e.aim = angTo(e, tg) + err; e.face = Math.cos(e.aim) >= 0 ? 1 : -1;
+  if (enemySide && sk > 0 && tg.kind === 'mech' && dist > 60) { const ld = Math.min(0.3, dist / 900) * sk * 0.2; e.aim = Math.atan2(tg.y + (tg.mvy || 0) * ld - e.y, tg.x + (tg.mvx || 0) * ld - e.x) + err; } // 先読み
+  else e.aim = angTo(e, tg) + err;
+  e.face = Math.cos(e.aim) >= 0 ? 1 : -1;
   // 間合い
   const w0 = wOf(e, 0), w1 = wOf(e, 1);
   const meleeW = e.w.map(id => WEAPONS[id]).find(w => w.cat === 'melee');
@@ -13623,24 +13635,25 @@ function aiMech(B, e, dt) {
     for (const p of B.shots) {
       if (p.side === e.side) continue;
       const dx = e.x - p.x, dy = e.y - p.y, d = Math.hypot(dx, dy);
-      if (d > (ev ? 260 : 120)) continue;
+      if (d > (ev ? 260 : 120 + 35 * sk)) continue;
       const sp = Math.hypot(p.vx, p.vy) || 1;
-      if ((p.vx * dx + p.vy * dy) / (sp * d) > (ev ? 0.6 : 0.85)) {
-        // 弾の進む線から外れる向きへよける（回避優先は線からの距離を見て、遠ざかる側を選ぶ）
-        const cross = (p.vx * dy - p.vy * dx) / sp, s = ev ? (cross >= 0 ? 1 : -1) : (Math.random() < 0.5 ? 1 : -1);
-        A.dodge = [-p.vy / sp * s, p.vx / sp * s]; A.dodgeT = ev ? 0.5 : 0.35; break;
+      if ((p.vx * dx + p.vy * dy) / (sp * d) > (ev ? 0.6 : 0.85 - 0.04 * sk)) {
+        // 弾の進む線から外れる向きへよける（回避優先と腕前の高い敵は、線からの距離を見て遠ざかる側を選ぶ）
+        const cross = (p.vx * dy - p.vy * dx) / sp, s = ev || Math.random() < sk * 0.12 ? (cross >= 0 ? 1 : -1) : (Math.random() < 0.5 ? 1 : -1);
+        A.dodge = [-p.vy / sp * s, p.vx / sp * s]; A.dodgeT = ev ? 0.5 : 0.35 + 0.04 * sk; break;
       }
     }
     // 回避優先：振りかぶった敵の格闘からも離れる
-    if (ev) for (const sw of B.swings) { if (sw.e.side === e.side) continue; const d = Math.hypot(sw.e.x - e.x, sw.e.y - e.y); if (d < sw.range + 40) { const k = 1 / (d || 1); A.dodge = [(e.x - sw.e.x) * k, (e.y - sw.e.y) * k]; A.dodgeT = 0.4; break; } }
+    if (ev || Math.random() < sk * 0.3) for (const sw of B.swings) { if (sw.e.side === e.side) continue; const d = Math.hypot(sw.e.x - e.x, sw.e.y - e.y); if (d < sw.range + 40) { const k = 1 / (d || 1); A.dodge = [(e.x - sw.e.x) * k, (e.y - sw.e.y) * k]; A.dodgeT = 0.4; break; } }
   }
-  if (A.dodgeT > 0) { const k = ord === 'evade' ? 3.2 : 1.6; mx += A.dodge[0] * k; my += A.dodge[1] * k; }
+  if (A.dodgeT > 0) { const k = ord === 'evade' ? 3.2 : 1.6 + 0.25 * sk; mx += A.dodge[0] * k; my += A.dodge[1] * k; }
   const m = Math.hypot(mx, my); if (m > 1) { mx /= m; my /= m; }
   moveEnt(B, e, mx * curSpeed(e), my * curSpeed(e), dt);
   // 射撃判断：使いたい武器を選び、一度に使うのは1つだけ（溜め中の武器は撃つまで続ける）
   if (busyOf(e)) { for (let s = 0; s < 3; s++) if (e.held[s]) setHeld(B, e, s, false); return; }
   if (pointDefense(B, e)) return;
   const want = [false, false, false];
+  const fm = enemySide ? 1 + 0.4 * (sk0 - 0.47) : 1, rnd = () => Math.random() / fm; // 腕前が高いほど撃つ機会を逃さない
   for (let s = 0; s < 3; s++) {
     const w = wOf(e, s);
     if (!weaponUsable(e, s)) continue;
@@ -13648,28 +13661,28 @@ function aiMech(B, e, dt) {
     switch (w.cat) {
       case 'melee': ok = dist < w.range + tg.r + 4 && e.cd[s] <= 0; break;
       case 'rapid': ok = dist < (w.range || 300) * 0.95; break;
-      case 'rifle': ok = dist < 520 && e.cd[s] <= 0 && Math.random() < dt * 6; break;
-      case 'shell': ok = dist < 430 && e.cd[s] <= 0 && Math.random() < dt * 3; break;
-      case 'charge': ok = e.chg[s] < w.charge ? dist < 600 && e.cd[s] <= 0 : !(dist < 560 && Math.random() < dt * 8); break;
-      case 'launcher': ok = dist < w.range * 0.95 && dist > 70 && e.cd[s] <= 0 && Math.random() < dt * 2; break;
-      case 'missile': case 'homing': ok = dist < (w.range || 500) && e.cd[s] <= 0 && Math.random() < dt * 2; break;
-      case 'chain': ok = dist < w.range * 0.95 && e.cd[s] <= 0 && Math.random() < dt * 4; break;
-      case 'grav': ok = dist < w.range * 0.9 && dist > 80 && e.cd[s] <= 0 && Math.random() < dt * 2; break;
-      case 'mortar': ok = dist < w.range * 0.95 && dist > 110 && e.cd[s] <= 0 && Math.random() < dt * 2.5; break;
-      case 'bit': ok = dist < 520 && e.bitsOut === 0 && e.cd[s] <= 0 && Math.random() < dt * 2; break;
-      case 'reflect': ok = dist < 320 && e.cd[s] <= 0 && Math.random() < dt * 2; break;
+      case 'rifle': ok = dist < 520 && e.cd[s] <= 0 && rnd() < dt * 6; break;
+      case 'shell': ok = dist < 430 && e.cd[s] <= 0 && rnd() < dt * 3; break;
+      case 'charge': ok = e.chg[s] < w.charge ? dist < 600 && e.cd[s] <= 0 : !(dist < 560 && rnd() < dt * 8); break;
+      case 'launcher': ok = dist < w.range * 0.95 && dist > 70 && e.cd[s] <= 0 && rnd() < dt * 2; break;
+      case 'missile': case 'homing': ok = dist < (w.range || 500) && e.cd[s] <= 0 && rnd() < dt * 2; break;
+      case 'chain': ok = dist < w.range * 0.95 && e.cd[s] <= 0 && rnd() < dt * 4; break;
+      case 'grav': ok = dist < w.range * 0.9 && dist > 80 && e.cd[s] <= 0 && rnd() < dt * 2; break;
+      case 'mortar': ok = dist < w.range * 0.95 && dist > 110 && e.cd[s] <= 0 && rnd() < dt * 2.5; break;
+      case 'bit': ok = dist < 520 && e.bitsOut === 0 && e.cd[s] <= 0 && rnd() < dt * 2; break;
+      case 'reflect': ok = dist < 320 && e.cd[s] <= 0 && rnd() < dt * 2; break;
       case 'bomb': ok = dist < 90 && e.cd[s] <= 0; break;
-      case 'shotgun': ok = dist < w.range * 0.8 && e.cd[s] <= 0 && Math.random() < dt * 5; break;
+      case 'shotgun': ok = dist < w.range * 0.8 && e.cd[s] <= 0 && rnd() < dt * 5; break;
       case 'flame': ok = dist < w.range * 0.95; break;
-      case 'rail': ok = dist < 620 && e.cd[s] <= 0 && Math.random() < dt * 3; break;
-      case 'dash': ok = dist < w.range + tg.r && dist > 34 && e.cd[s] <= 0 && Math.random() < dt * 4; break;
-      case 'mine': ok = dist < 250 && e.cd[s] <= 0 && Math.random() < dt * 2; break;
-      case 'boomerang': ok = dist < w.range && e.cd[s] <= 0 && !(e.boomOut > 0) && Math.random() < dt * 3; break;
-      case 'sweep': ok = dist < w.range * 0.95 && e.cd[s] <= 0 && Math.random() < dt * 2.5; break;
-      case 'snare': ok = dist < w.range && e.cd[s] <= 0 && !(tg.slowT > 0) && Math.random() < dt * 2; break;
-      case 'cluster': ok = dist < w.range * 1.1 && e.cd[s] <= 0 && Math.random() < dt * 2; break;
-      case 'plasma': ok = dist < w.range * 0.9 && e.cd[s] <= 0 && Math.random() < dt * 2.5; break;
-      case 'turret': ok = dist < 420 && e.cd[s] <= 0 && Math.random() < dt * 1.2; break;
+      case 'rail': ok = dist < 620 && e.cd[s] <= 0 && rnd() < dt * 3; break;
+      case 'dash': ok = dist < w.range + tg.r && dist > 34 && e.cd[s] <= 0 && rnd() < dt * 4; break;
+      case 'mine': ok = dist < 250 && e.cd[s] <= 0 && rnd() < dt * 2; break;
+      case 'boomerang': ok = dist < w.range && e.cd[s] <= 0 && !(e.boomOut > 0) && rnd() < dt * 3; break;
+      case 'sweep': ok = dist < w.range * 0.95 && e.cd[s] <= 0 && rnd() < dt * 2.5; break;
+      case 'snare': ok = dist < w.range && e.cd[s] <= 0 && !(tg.slowT > 0) && rnd() < dt * 2; break;
+      case 'cluster': ok = dist < w.range * 1.1 && e.cd[s] <= 0 && rnd() < dt * 2; break;
+      case 'plasma': ok = dist < w.range * 0.9 && e.cd[s] <= 0 && rnd() < dt * 2.5; break;
+      case 'turret': ok = dist < 420 && e.cd[s] <= 0 && rnd() < dt * 1.2; break;
       case 'laser': ok = dist < w.range * 0.95; break;
       case 'shield': { // 弾が飛んでくる・敵が近いときに盾を張る
         if (A.shieldT > 0) { A.shieldT -= dt; ok = true; break; }
