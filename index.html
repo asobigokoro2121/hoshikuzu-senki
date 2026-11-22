@@ -800,7 +800,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v145</span>
+    <span class="t-ver">v146</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -994,6 +994,10 @@ const WEAPONS = {
   mortar:  { name: '迫撃砲', cat: 'mortar', attr: 'solid', pow: 24, cd: 1.5, range: 430, blast: 46 },
   pile:    { name: 'パイルバンカー', cat: 'melee', attr: 'melee', pow: 38, cd: 1.35, range: 34, arc: 70, knock: 40, heavy: true },
   bgat:    { name: 'ビームガトリング', cat: 'rapid', attr: 'beam', pow: 4.4, rate: 0.09, speed: 500, range: 310 },
+  // リベルタス専用（星渡りの三つの武器）
+  z_star:  { name: '星槍砲スターライン', cat: 'charge', attr: 'beam', pow: 25, charge: 0.55, cd: 1.15, speed: 940, width: 8, pierce: true },
+  z_moon:  { name: '月輪刀クレセント', cat: 'melee', attr: 'melee', pow: 30, cd: 0.95, range: 64, arc: 210, knock: 34, heavy: true },
+  z_meteor: { name: '流星群メテオレイン', cat: 'homing', attr: 'beam', pow: 8, cd: 1.7, speed: 330, count: 4, blast: 14, shoot: true, life: 4 },
   // 変形したときの武器
   nosegun: { name: '機首機関砲', cat: 'rapid', attr: 'solid', pow: 4.4, rate: 0.09, speed: 540, range: 300, noWind: true },
   amiss:   { name: '空対地ミサイル', cat: 'missile', attr: 'solid', pow: 19, turnR: 2.6, homT: 1.6, cd: 1.0, speed: 340, turns: 2, blast: 22, shoot: true, spread: 2, range: 420 },
@@ -1008,7 +1012,7 @@ const WEAPONS = {
 };
 // 弾数：1回の戦闘で撃てる回数（押し続ける武器は1発ごとに1つ減る）。近接は無制限。戦艦と砲台は無制限
 const AMMO_CAT = { melee: Infinity, dash: Infinity, transform: Infinity, rapid: 300, rifle: 50, shell: 35, charge: 20, launcher: 25, missile: 25, homing: 16, bit: 8, reflect: 20, bomb: 20, shotgun: 30, flame: 600, rail: 18, mine: 10, boomerang: 24, sweep: 12, snare: 14, cluster: 18, laser: 450, shield: 160, plasma: 14, turret: 6 };
-const AMMO_W = { nosegun: 320, amiss: 22, hcannon: 30, bgat: 340, vulcan: 260, way3: 200, gat: 360, lrifle: 40, brifle2: 45, cannon2: 28, mega: 10, bazooka: 18, torpedo: 20, smine: 8, arc: 30, grav: 10, smart: 40, mortar: 20 };
+const AMMO_W = { z_star: 24, z_meteor: 18, nosegun: 320, amiss: 22, hcannon: 30, bgat: 340, vulcan: 260, way3: 200, gat: 360, lrifle: 40, brifle2: 45, cannon2: 28, mega: 10, bazooka: 18, torpedo: 20, smine: 8, arc: 30, grav: 10, smart: 40, mortar: 20 };
 function ammoOf(wid) { const w = WEAPONS[wid]; return w.ammo ?? AMMO_W[wid] ?? AMMO_CAT[w.cat] ?? Infinity; }
 // 防衛砲台：勢力ごとの武装と特性。首都はもう1門、要塞は硬く、生産拠点はまわりの味方を修理する
 const FORT_DEF = {
@@ -1180,7 +1184,7 @@ mrc_ronin|ローニン|傭兵|0|140|7|0|999|lrifle,axe,hmiss|crisis|◎◎◎○
 mrc_titan|タイタン|傭兵|0|230|3|0|999|mega,claw,mpod|barrier|◎◎◎○×||dome,heavy,cannon
 mrc_ghost|ゴースト|傭兵|0|110|8|0|999|rifle,twin,bit|awaken|◎◎◎○○||crest,slim,halo
 mrc_hydra|ヒドラ|傭兵|0|160|5|0|999|scatter,whip,mpod|-|○◎○○◎||fin,aqua,fins
-mrc_libertas|リベルタス|放浪者|4200|320|9|0|999|smart,katana,arc|overdrive|◎◎◎◎○||crest,slim,halo
+mrc_libertas|リベルタス|放浪者|4200|320|9|0|999|z_star,z_moon,z_meteor|overdrive|◎◎◎◎○||crest,slim,halo
 mrc_arca|アルカ|試作機|3800|270|6|0|999|pierce,pile,turret|regen|◎◎◎○○||dome,std,halo
 rog_gigas|ギガス|巨大兵器|0|6000|3|0|999|gcannon,gham,gmiss|-|×◎◎◎○||dome,heavy,cannon
 rog_ufo|ハロー|巨大兵器|0|4700|5|0|999|ubeam,usweep,umiss|-|◎◎◎◎◎||dome,heavy,cannon
@@ -1677,7 +1681,7 @@ const UNIT_DESC = {
   psy_prophet: 'カントルの発展型。感応者の力で照射レーザーの狙いが鋭くなる。',
   psy_abyss: '深淵の名を持つ解放戦線のもう1つの最上位機。プラズマ砲とファングで闇から襲う。',
   // ---- 追加の機体 ----
-  mrc_libertas: '放浪者ゼファーの愛機。どこの工房の機体かは誰も知らない。夜空色の装甲に金の縁、背には欠けた月の輪、肩には星を散らした外套。スマートガン・斬艦刀・電撃をひとりで使いこなす、地球圏で最強の一機。',
+  mrc_libertas: '放浪者ゼファーの愛機。どこの工房の機体かは誰も知らない。夜空色の装甲に金の縁、背には欠けた月の輪、肩には星を散らした外套。光の槍・三日月の大刀・流星の光弾という、この機体にしかない三つの武器を使いこなす、地球圏で最強の一機。',
   mrc_arca: '古戦場の残骸から組み上げた、旧時代の試作機。風化した石のような装甲に鈍い古金の縁、背には石柱を削り出したような二枚の刃。擦り切れた前垂れを下げ、琥珀色の目で静かに敵を見据える。貫通ビームとパイルバンカーで正面から押し通り、傷ついた装甲は少しずつひとりでに元へ戻る。',
   ugf_striker: '統合政府の新しい切り込み役。照準器つきのスマートガンで撃ちながら近づき、巨大な斬艦刀で叩き斬る。傷つくほど動きが鋭くなる。',
   ugf_crusader: '統合政府の象徴として作られた白い最上位機。指揮官機として周りの部隊の力を引き出す。',
@@ -1841,6 +1845,7 @@ const WEAPON_DESC = {
   laser: '押している間、光線を当て続ける。', bshield: '押している間、正面の弾を防ぐビームの盾。', plasma: 'ゆっくり進む光球。触れた敵を焼き続け、最後に破裂する。',
   turret: '自動で撃ち続ける小さな砲台を置く。', transform: '別の形態に変形して、使う武器と速さが入れ替わる。もう一度押すと人型に戻る。',
   arc: '電撃を放つ。当たった敵から近くの敵へ2回まで跳ね、少し痺れさせる。', grav: 'ゆっくり進む重力の球。まわりの敵を引き寄せてから破裂する。',
+  z_star: 'リベルタス専用。短い溜めで撃つ細い光の槍。並んだ敵をまとめて貫く。', z_moon: 'リベルタス専用。三日月の形の大刀。正面のほとんどを薙ぎ払い、敵を押し返す。', z_meteor: 'リベルタス専用。星屑のような光弾を4つ放ち、敵を追って降りそそぐ。',
   smart: '照準装置つきのビーム銃。1回で3発を素早く撃つ。', katana: '巨大な実体剣。広く重い一撃で敵を吹き飛ばす。',
   mortar: '高く弾を打ち上げ、障害物を越えて敵のいた場所に落とす。',
   pile: '腕の杭を火薬で打ち出す。射程は短いが、当たれば装甲ごと貫いて吹き飛ばす。', bgat: 'ビームの小粒を回転砲身からばらまく。押している間、撃ち続ける。',
@@ -5836,8 +5841,8 @@ const GUN = {
 const GUN_ART = { mg: 'mg', gat: 'gat', way3: 'way3', bmg: 'bmg', rifle: 'rifle', lrifle: 'lrifle', brifle2: 'brifle2', bazooka: 'bazooka', grenade: 'grenade', bcannon: 'cannon', mega: 'cannon', pierce: 'cannon', scatter: 'cannon', torpedo: 'torpedo', saber: 'saber', axe: 'axe', twin: 'twin', whip: 'whip', claw: 'claw',
   shotgun: 'shotgun', rail: 'rail', flame: 'flamer', snare: 'grenade', lance: 'lance', drill: 'drill', fang: 'fang', boomer: 'boomer',
   cluster: 'cluster', laser: 'laser', plasma: 'plasma', bshield: 'bshield', turret: 'turretpod', hammer: 'hammer',
-  arc: 'arcgun', grav: 'gravgun', smart: 'smartgun', katana: 'katana', mortar: 'mortar', pile: 'drill', bgat: 'gat', gcannon: 'cannon', gham: 'hammer', gmiss: 'cluster', ubeam: 'cannon', usweep: 'laser', umiss: 'cluster', lgat: 'gat', lcannon: 'cannon', lswarm: 'cluster' };
-const MELEE_W = new Set(['saber', 'axe', 'twin', 'whip', 'claw', 'lance', 'drill', 'fang', 'boomer', 'hammer', 'bshield', 'katana', 'pile', 'gham']);
+  arc: 'arcgun', grav: 'gravgun', smart: 'smartgun', katana: 'katana', z_star: 'smartgun', z_moon: 'katana', z_meteor: 'cluster', mortar: 'mortar', pile: 'drill', bgat: 'gat', gcannon: 'cannon', gham: 'hammer', gmiss: 'cluster', ubeam: 'cannon', usweep: 'laser', umiss: 'cluster', lgat: 'gat', lcannon: 'cannon', lswarm: 'cluster' };
+const MELEE_W = new Set(['saber', 'axe', 'twin', 'whip', 'claw', 'lance', 'drill', 'fang', 'boomer', 'hammer', 'bshield', 'katana', 'pile', 'gham', 'z_moon']);
 
 // ===================== 盾 =====================
 const SHIELD = {
@@ -10926,7 +10931,7 @@ function drawDamageTexts(c, B) {
 
 // ---------- 格闘の描画 ----------
 // 武器ごとの見せ方：ビーム刃・実体刀・赤熱・鞭・爪・打撃・杭打ち
-const SWING_STYLE = { saber: 'beam', twin: 'beam', katana: 'steel', axe: 'heat', whip: 'whip', claw: 'claw', hammer: 'blunt', gham: 'blunt', pile: 'pile', lance: 'beam', drill: 'drill', fang: 'claw' };
+const SWING_STYLE = { saber: 'beam', twin: 'beam', katana: 'steel', z_moon: 'beam', axe: 'heat', whip: 'whip', claw: 'claw', hammer: 'blunt', gham: 'blunt', pile: 'pile', lance: 'beam', drill: 'drill', fang: 'claw' };
 function swingStyle(wid) { return SWING_STYLE[wid] || 'beam'; }
 function swingCol(e, wid) {
   const st = swingStyle(wid);
