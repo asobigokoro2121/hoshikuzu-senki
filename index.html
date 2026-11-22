@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v134</span>
+    <span class="t-ver">v135</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -16221,7 +16221,7 @@ async function openArena(pre = [], foe0 = null) {
   const best = records().arena || 0, GB = giantsBeaten(), GA = records().arenaGiant || {};
   const giants = Object.keys(ROGUE_TYPES).filter(k => GB[k]);
   const render = () => `${giants.length ? `<div class="seg ftabs ar-foe"><button data-act="foe" data-k="" class="${foe ? '' : 'on'}">連戦</button>${giants.map(k => `<button data-act="foe" data-k="${k}" class="${foe === k ? 'on' : ''}">${UNITS[ROGUE_TYPES[k].unit].name}</button>`).join('')}</div>` : ''}
-    ${foe ? `<div class="ar-giant"><span class="uthumb" data-thumb="${ROGUE_TYPES[foe].unit}" data-col="${ROGUE_TYPES[foe].col}" data-size="88"></span><div><p><b>${UNITS[ROGUE_TYPES[foe].unit].name}</b>に挑みます。</p><p class="dim">自軍はレベル${ARENA_GIANT_LV}・毎回全快で出撃し、倒すまで何度でも挑めます。巨大兵器は回復しません。少ない出撃回数で倒すほど良い記録です。</p><p>最高記録：<b class="gold">${GA[foe] ? `${GA[foe]}回で撃破` : 'なし'}</b></p></div></div>${arenaTopHtml('g_' + foe, v => `${v}回で撃破`)}` : `<p class="dim">好きな3機で、次々に現れる敵と戦い続けます。選べるのは量産機と、図鑑で「入手」した機体です。勝つたびに機体のレベルが上がり、少し修理されます。</p>
+    ${foe ? `<div class="ar-giant"><span class="uthumb" data-thumb="${ROGUE_TYPES[foe].unit}" data-col="${ROGUE_TYPES[foe].col}" data-size="88"></span><div><p><b>${UNITS[ROGUE_TYPES[foe].unit].name}</b>に挑みます。</p><p class="dim">自軍はレベル${ARENA_GIANT_LV}・毎回全快で出撃し、倒すまで何度でも挑めます。巨大兵器は回復しません。少ない出撃回数で倒すほど良い記録です。</p><p>最高記録：<b class="gold">${GA[foe] ? `${GA[foe]}回で撃破` : 'なし'}</b></p></div></div>${arenaTopHtml('g_' + foe, v => `${v}回で撃破`)}` : `<p class="dim">好きな3機で、次々に現れる敵と戦い続けます。選べるのは量産機と、図鑑で「入手」した機体です。勝つたびに機体のレベルが上がり、HPが最大の35%ぶん回復します。</p>
     <p>最高記録：<b class="gold">${best}連勝</b></p>${arenaTopHtml('waves', v => `${v}連勝`)}`}
     <div class="ar-sel">${[0, 1, 2].map(i => sel[i] ? `<button class="enc got" data-act="rm" data-i="${i}"><span class="uthumb" data-thumb="${sel[i]}" data-col="${unitCol(sel[i])}" data-size="58"></span><span>${UNITS[sel[i]].name}</span></button>` : `<div class="enc unknown"><span class="q">${i + 1}</span><span>未選択</span></div>`).join('')}</div>
     ${FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
@@ -16336,7 +16336,7 @@ async function runArena(sel) {
     show('title');
     for (const c of mine) { const r = res.units[c.uid]; if (r) c.hp = r.dead ? 0 : r.hp; }
     if (res.winner !== 0 || !mine.some(c => c.hp > 0)) { alive = false; wave--; break; }
-    for (const c of mine) if (c.hp > 0) { c.lv++; c.hp = Math.min(maxHp(c), c.hp + Math.round(maxHp(c) * 0.3)); if (!c.pilot.named) { c.pilot.sh++; c.pilot.me++; c.pilot.sp++; } } // 模擬戦のモブパイロットは1勝ごとに射撃・格闘・特殊が+1
+    for (const c of mine) if (c.hp > 0) { c.lv++; c.hp = Math.min(maxHp(c), c.hp + Math.round(maxHp(c) * 0.35)); if (!c.pilot.named) { c.pilot.sh++; c.pilot.me++; c.pilot.sp++; } } // 模擬戦のモブパイロットは1勝ごとに射撃・格闘・特殊が+1
     SFX.play('capture');
   }
   const R = records(), best = R.arena || 0;
