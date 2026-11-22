@@ -804,7 +804,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v161</span>
+    <span class="t-ver">v162</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -3192,7 +3192,7 @@ async function wandererEvent() {
 
 // ===================== ゼファー覚醒 =====================
 // ゼファーが仲間になったあと、まれに起きる。リベルタスの月輪が呼ぶ「星の影」に、ゼファー1機で挑む（難しい）。勝てばリベルタスが真リベルタスになる
-const AWAKEN = { stat: 62, unit: 'mrc_libertas_x', after: 6, chance: 0.06, gap: [8, 12], tier: 7, hpK: 1, lv: 20 }; // 星の影はLv20
+const AWAKEN = { stat: 62, unit: 'mrc_libertas_x', after: 6, chance: 0.06, gap: [8, 12], tier: 8, hpK: 1, lv: 20 }; // 星の影はLv20
 async function zephyrAwakenEvent() {
   const W = G.wanderer; if (!W || W.st !== 2 || W.awk) return;
   if (W.awkNext == null) W.awkNext = (W.joinT ?? G.turn) + AWAKEN.after;
