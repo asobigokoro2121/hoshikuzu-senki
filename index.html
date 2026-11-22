@@ -801,7 +801,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v152</span>
+    <span class="t-ver">v153</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -3140,7 +3140,7 @@ async function mercJoinEvent() {
   F.funds -= cost; G.evT = G.turn;
   G.pilots[m.pilot] = { ...P, f, origin: 'mrc', named: true, lv: 8, exp: 0, alive: true };
   const cap = capOf(f), uid = createUnit(f, m.unit, G.areas[cap]?.owner === f ? { ar: cap } : { ar: areasOf(f)[0] }, m.pilot);
-  G.units[uid].lv = 6; G.enc.units[m.unit] = 1; G.enc.pilots[m.pilot] = 1;
+  G.units[uid].lv = 6; G.units[uid].hp = maxHpOf(G.units[uid]); G.enc.units[m.unit] = 1; G.enc.pilots[m.pilot] = 1;
   F.mercs = (F.mercs || []).filter(o => o.pilot !== m.pilot);
   const ev = { title: '傭兵が仲間に', face: m.pilot, thumb: m.unit, body: `${MERC_LINES2[m.pilot] || ''}${P.name}と${UNITS[m.unit].name}が正式に仲間になり、${AREAS[unitArea(G.units[uid])].name}に加わった。` };
   L(`【${ev.title}】${P.name}と${UNITS[m.unit].name}が仲間になった（契約金 ${fmt(cost)}）。`, 'good'); await HOOKS.event(ev);
@@ -3176,7 +3176,7 @@ async function wandererEvent() {
     W.st = 2; W.joinT = G.turn;
     G.pilots[WANDERER.pilot] = { ...P, f, origin: f, named: true, lv: 18, exp: 0, alive: true };
     const cap = capOf(f), uid = createUnit(f, WANDERER.unit, G.areas[cap]?.owner === f ? { ar: cap } : { ar: areasOf(f)[0] }, WANDERER.pilot);
-    G.units[uid].lv = 16; G.enc.units[WANDERER.unit] = 1; G.enc.pilots[WANDERER.pilot] = 1;
+    G.units[uid].lv = 16; G.units[uid].hp = maxHpOf(G.units[uid]); G.enc.units[WANDERER.unit] = 1; G.enc.pilots[WANDERER.pilot] = 1;
     const ev = { title: '放浪者が仲間に', face: WANDERER.pilot, thumb: WANDERER.unit, body: `「……見事だ。約束どおり、この腕をお前に預けよう」${P.name}と愛機${UNITS[WANDERER.unit].name}が仲間になり、${AREAS[unitArea(G.units[uid])].name}に加わった。` };
     L(`【${ev.title}】${ev.body}`, 'good'); await HOOKS.event(ev);
     if (typeof gameEvent === 'function') gameEvent('wanderer', {});
@@ -3248,7 +3248,7 @@ async function relicTurn() {
       }
       R.done = true;
       const cap = capOf(me), uid = createUnit(me, RELIC.unit, G.areas[cap]?.owner === me ? { ar: cap } : { ar: areasOf(me)[0] });
-      G.units[uid].lv = RELIC.lv; G.enc.units[RELIC.unit] = 1;
+      G.units[uid].lv = RELIC.lv; G.units[uid].hp = maxHpOf(G.units[uid]); G.enc.units[RELIC.unit] = 1;
       const RR = records(); if (!RR.relic) { RR.relic = 1; saveRecords(); }
       L(`【古戦場の残骸】試作機の部品がそろい、旧時代の機体${UNITS[RELIC.unit].name}が組み上がった。`, 'good');
       await HOOKS.event({ title: '旧時代の試作機', thumb: RELIC.unit, col: '#ffb257', body: `${A.name}で最後の部品、<b>${nm}</b>が見つかった。<br>整備班が三つの部品をつなぐと、背の刃に琥珀色の光が走り、機体がゆっくりと目を開けた。<br>旧時代の試作機<b>${UNITS[RELIC.unit].name}</b>が${AREAS[unitArea(G.units[uid])].name}に加わった。<span class="dim">（模擬戦でも使えるようになった）</span>` });
@@ -16310,7 +16310,7 @@ async function runShadowTrial() {
   const prevG = G, f = 'ugf';
   newGame(f, 'normal'); G.arena = true;
   G.pilots[WANDERER.pilot] = { ...PILOT_BASE[WANDERER.pilot], id: WANDERER.pilot, f, origin: f, named: true, lv: 18, exp: 0, alive: true };
-  const uid = createUnit(f, WANDERER.unit, { ar: capOf(f) }, WANDERER.pilot), u = G.units[uid]; u.lv = 16;
+  const uid = createUnit(f, WANDERER.unit, { ar: capOf(f) }, WANDERER.pilot), u = G.units[uid]; u.lv = 16; u.hp = maxHpOf(u);
   const lv = u.lv + AWAKEN.lvPlus, hp = Math.round(UNITS[AWAKEN.unit].hp * AWAKEN.hpK);
   const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: AWAKEN.stat, me: AWAKEN.stat, sp: AWAKEN.stat, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
   const ctx = { area: 'e_central', attacker: 1, aiTier: AWAKEN.tier, arena: true, sides: [{ f, sid: null, garrison: null, fort: null, ship: null, cs: [combatant(uid)] }, { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [shadow] }], player: true, duel: true,
