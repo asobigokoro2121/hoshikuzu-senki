@@ -801,7 +801,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v156</span>
+    <span class="t-ver">v157</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -3206,7 +3206,7 @@ async function zephyrAwakenEvent() {
   const res = await HOOKS.duel(ctx);
   const r = res.units[u.uid]; if (r && G.units[u.uid]) { u.hp = clamp(r.dead ? 1 : r.hp, 1, maxHpOf(u)); u.foughtT = G.turn; const gain = Math.round(BAL.expBattle * 2 + r.dmg * BAL.expPerDmg); u.exp += gain; u.xp += gain; growPilot(zp, gain, r.use); }
   if (res.winner === 0) {
-    W.awk = 1; { const RR = records(); if (!RR.awakened) { RR.awakened = 1; saveRecords(); } } // 模擬戦で「星の影」と戦えるようになる
+    W.awk = 1; if (typeof awardMedal === 'function') awardMedal('shadow'); { const RR = records(); if (!RR.awakened) { RR.awakened = 1; saveRecords(); } } // 模擬戦で「星の影」と戦えるようになる
     const ratio = u.hp / maxHpOf(u); u.t = AWAKEN.unit; u.hp = Math.max(1, Math.round(maxHpOf(u) * ratio));
     G.enc.units[AWAKEN.unit] = 1;
     L(`【ゼファー覚醒】ゼファーが星の影を越え、リベルタスは${UNITS[AWAKEN.unit].name}になった。`, 'good');
@@ -16318,7 +16318,7 @@ async function runShadowTrial() {
   UI.keepBgm = true;
   const res = await HOOKS.duel(ctx);
   UI.keepBgm = false; G = prevG; show('title');
-  if (res.winner === 0) { const RR = records(); RR.shadowWins = (RR.shadowWins || 0) + 1; saveRecords(); }
+  if (res.winner === 0) { const RR = records(); RR.shadowWins = (RR.shadowWins || 0) + 1; saveRecords(); awardMedal('shadow'); }
   await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${res.winner === 0 ? 'win' : 'lose'}"><div class="res-head ${res.winner === 0 ? 'win' : 'lose'}"><span class="res-t">${res.winner === 0 ? '星の影を越えた' : '星の影に敗れた'}</span><small>星の影に勝った回数 ${records().shadowWins || 0}回</small></div></div>`, buttons: [{ label: 'もう一度', value: 'again' }, { label: '閉じる', value: 'ok', cls: 'primary' }] }).then(v => v === 'again' ? runShadowTrial() : null);
 }
 async function openArena(pre = [], foe0 = null) {
@@ -16460,6 +16460,7 @@ async function runArena(sel) {
   UI.keepBgm = false; MUSIC.play('title', 'title');
   await openModal({ title: '模擬戦の結果', cls: 'small', body: `<div class="ending ${wave ? 'win' : 'lose'}"><div class="res-head ${wave ? 'win' : 'lose'}"><span class="res-t">${wave}連勝</span><small>${wave > best ? '最高記録を更新！' : `最高記録 ${best}連勝`}${rank >= 0 ? `・記録の${rank + 1}位に入った` : ''}</small></div></div>`, buttons: [{ label: 'タイトルへ', value: 'ok', cls: 'primary' }] });
 }
+MEDALS.push({ id: 'shadow', name: '星影を越えし者', desc: 'ゼファー覚醒で「星の影」を倒す（模擬戦の再戦でもよい）', icon: 'star' });
 MEDALS.push({ id: 'aceduel', name: '一騎打ちの誉れ', desc: 'エースの一騎打ちに勝つ', icon: 'bolt' });
 MEDALS.push({ id: 'arena5', name: '模擬戦の常連', desc: '模擬戦で5連勝する', icon: 'bolt' }, { id: 'arena10', name: '模擬戦の覇者', desc: '模擬戦で10連勝する', icon: 'crown' }, { id: 'arena20', name: '模擬戦の鬼', desc: '模擬戦で30連勝する', icon: 'crown' });
 
