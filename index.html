@@ -800,7 +800,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v146</span>
+    <span class="t-ver">v147</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1184,7 +1184,8 @@ mrc_ronin|ローニン|傭兵|0|140|7|0|999|lrifle,axe,hmiss|crisis|◎◎◎○
 mrc_titan|タイタン|傭兵|0|230|3|0|999|mega,claw,mpod|barrier|◎◎◎○×||dome,heavy,cannon
 mrc_ghost|ゴースト|傭兵|0|110|8|0|999|rifle,twin,bit|awaken|◎◎◎○○||crest,slim,halo
 mrc_hydra|ヒドラ|傭兵|0|160|5|0|999|scatter,whip,mpod|-|○◎○○◎||fin,aqua,fins
-mrc_libertas|リベルタス|放浪者|4200|320|9|0|999|z_star,z_moon,z_meteor|overdrive|◎◎◎◎○||crest,slim,halo
+mrc_libertas|リベルタス|放浪者|4200|320|9|0|999|smart,katana,arc|overdrive|◎◎◎◎○||crest,slim,halo
+mrc_libertas_x|真リベルタス|放浪者|5000|340|9|0|999|z_star,z_moon,z_meteor|overdrive|◎◎◎◎○||crest,slim,halo
 mrc_arca|アルカ|試作機|3800|270|6|0|999|pierce,pile,turret|regen|◎◎◎○○||dome,std,halo
 rog_gigas|ギガス|巨大兵器|0|6000|3|0|999|gcannon,gham,gmiss|-|×◎◎◎○||dome,heavy,cannon
 rog_ufo|ハロー|巨大兵器|0|4700|5|0|999|ubeam,usweep,umiss|-|◎◎◎◎◎||dome,heavy,cannon
@@ -1681,7 +1682,8 @@ const UNIT_DESC = {
   psy_prophet: 'カントルの発展型。感応者の力で照射レーザーの狙いが鋭くなる。',
   psy_abyss: '深淵の名を持つ解放戦線のもう1つの最上位機。プラズマ砲とファングで闇から襲う。',
   // ---- 追加の機体 ----
-  mrc_libertas: '放浪者ゼファーの愛機。どこの工房の機体かは誰も知らない。夜空色の装甲に金の縁、背には欠けた月の輪、肩には星を散らした外套。光の槍・三日月の大刀・流星の光弾という、この機体にしかない三つの武器を使いこなす、地球圏で最強の一機。',
+  mrc_libertas: '放浪者ゼファーの愛機。どこの工房の機体かは誰も知らない。夜空色の装甲に金の縁、背には欠けた月の輪、肩には星を散らした外套。スマートガン・斬艦刀・電撃をひとりで使いこなす、地球圏で最強の一機。',
+  mrc_libertas_x: '覚醒したゼファーとともに、本当の姿を取り戻したリベルタス。月輪は金色に燃え、星槍砲スターライン・月輪刀クレセント・流星群メテオレインという、この機体にしかない三つの武器を目覚めさせた。',
   mrc_arca: '古戦場の残骸から組み上げた、旧時代の試作機。風化した石のような装甲に鈍い古金の縁、背には石柱を削り出したような二枚の刃。擦り切れた前垂れを下げ、琥珀色の目で静かに敵を見据える。貫通ビームとパイルバンカーで正面から押し通り、傷ついた装甲は少しずつひとりでに元へ戻る。',
   ugf_striker: '統合政府の新しい切り込み役。照準器つきのスマートガンで撃ちながら近づき、巨大な斬艦刀で叩き斬る。傷つくほど動きが鋭くなる。',
   ugf_crusader: '統合政府の象徴として作られた白い最上位機。指揮官機として周りの部隊の力を引き出す。',
@@ -2060,6 +2062,7 @@ mrc_titan|解体待ちの重機を、ボロスが退職金で買い取って組�
 mrc_ghost|製造番号はすべて削り取られている。撃墜されたはずの戦場で、何度も同じ機体が目撃されている。
 mrc_hydra|首に見える砲塔は、倒した相手の機体から一つずつ奪った物。七つめを付けた日から、ヒュドラはその名を名乗りはじめた。
 mrc_libertas|骨組みは八つの勢力のどれとも合わず、部品には製造印がない。ゼファーは「拾った」としか言わない。背の月輪は推進器と放熱器を兼ね、外套は熱と電波を散らす織物。夜明け前の空のような色から、見た者は「星渡り」と呼んだ。
+mrc_libertas_x|月輪の光の中に現れた「星の影」は、リベルタスを最初に駆った誰かの記憶だったのかもしれない。影を越えたとき、機体は封じていた三つの武器を目覚めさせた。ゼファーは「やっと、こいつに認められた」とだけ言った。
 mrc_arca|ギガスと同じ時代の工房で造られたらしいが、どの記録にも名前がない。背の刃に刻まれた文字は誰にも読めず、ただ一語だけ「方舟」と訳せる部分があったことから、アルカと呼ばれるようになった。
 `.trim().split('\n').forEach(l => { const i = l.indexOf('|'); UNIT_STORY[l.slice(0, i)] = l.slice(i + 1); });
 
@@ -2074,7 +2077,7 @@ function unitSpec(id) {
   const num = `${M[1]}-${String(10 + hb % 89).padStart(2, '0')}${T.cls === '最上位' ? 'X' : T.cls === '専用機' || custom ? 'C' : ''}`;
   const tall = (T.cls === '戦闘機' || T.cls === '車両' ? 9 : 16.5) + (big ? 3.2 : 0) + (T.hp - 100) / 60 + (h % 9) / 10;
   const ton = Math.round((T.hp * 0.34 + (big ? 18 : 6) + h % 7) * 10) / 10;
-  return { num: id === 'mrc_libertas' ? '登録なし' : id === 'mrc_arca' ? '旧時代' : num, maker: id === 'mrc_arca' ? '不明（旧時代の工房）' : custom && T.cls === '専用機' ? `${M[0]}（個人調整）` : M[0], tall: tall.toFixed(1), ton: ton.toFixed(1) };
+  return { num: id === 'mrc_libertas' || id === 'mrc_libertas_x' ? '登録なし' : id === 'mrc_arca' ? '旧時代' : num, maker: id === 'mrc_arca' ? '不明（旧時代の工房）' : custom && T.cls === '専用機' ? `${M[0]}（個人調整）` : M[0], tall: tall.toFixed(1), ton: ton.toFixed(1) };
 }
 function unitLoreHtml(id, col, full = true) {
   const d = UNIT_DESC[id], st = UNIT_STORY[id], sp = unitSpec(id);
@@ -3049,7 +3052,7 @@ async function newTurn() {
   if (typeof rogueTurn === 'function') await rogueTurn(); // 巨大兵器の回復と出現
   await seasonTurn(); // 地形の季節
   await relicTurn(); // 古戦場の残骸
-  if (G.fac[G.player].alive) { refreshMercs(); await randomEvent(); if (typeof factionEvent === 'function') await factionEvent(); await wandererEvent(); await aceDuelEvent(); await mercJoinEvent(); }
+  if (G.fac[G.player].alive) { refreshMercs(); await randomEvent(); if (typeof factionEvent === 'function') await factionEvent(); await wandererEvent(); await zephyrAwakenEvent(); await aceDuelEvent(); await mercJoinEvent(); }
   if (typeof gameEvent === 'function') gameEvent('turn', {});
   checkOver();
 }
@@ -3144,7 +3147,7 @@ async function mercJoinEvent() {
 }
 const MERC_LINES = { m_jin: '「……雇われるたびに、お前の軍の飯がうまくなる。そろそろ腰を落ち着けてもいい」', m_boros: '「この歳になると、毎回違う旗の下で戦うのは骨でな。どうだ、この老いぼれを丸ごと買わんか」', m_saya: '「次も、その次も呼ぶつもりなら――いっそ、私を手元に置いたら？」', m_hydra: '「毎度ご贔屓に！　いっそ専属契約といかないか？　八つめの首は、お前の軍の旗にしてやる」' };
 const MERC_LINES2 = { m_jin: '「今日から、ここが俺の帰る場所だ」', m_boros: '「よし、雇い主を置いて逃げたことは一度もない。これからもな」', m_saya: '「……契約成立。消えたりしないから、安心して」', m_hydra: '「一座の看板は、今日からお前の軍だ！」' };
-const WANDERER = { unit: 'mrc_libertas', pilot: 'm_zephyr', from: 24, areas: 12, rumor: 0.1, challenge: 0.35, lv: 20, hpK: 1.2 }; // 決闘のゼファーはレベル20・体力1.2倍
+const WANDERER = { unit: 'mrc_libertas', pilot: 'm_zephyr', from: 24, areas: 12, rumor: 0.08, challenge: 0.28, lv: 22, hpK: 1.3 }; // 決闘のゼファーはレベル22・体力1.3倍
 function wandererSide() { return { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [combatant('wanderer', WANDERER)] }; }
 async function wandererEvent() {
   if (chal('nomerc')) return;
@@ -3169,7 +3172,7 @@ async function wandererEvent() {
   // 決闘の結果：自軍の機体は失われない（HPは減る）。経験は多め
   for (const cb of ctx.sides[0].cs) { const r = res.units[cb.uid], u = G.units[cb.uid]; if (!u || !r) continue; u.hp = clamp(r.dead ? 1 : r.hp, 1, maxHpOf(u)); u.foughtT = G.turn; const gain = Math.round(BAL.expBattle * 2 + r.dmg * BAL.expPerDmg + (res.winner === 0 ? 40 : 0)); u.exp += gain; u.xp += gain; growPilot(G.pilots[u.pil], gain, r.use); }
   if (res.winner === 0) {
-    W.st = 2;
+    W.st = 2; W.joinT = G.turn;
     G.pilots[WANDERER.pilot] = { ...P, f, origin: f, named: true, lv: 18, exp: 0, alive: true };
     const cap = capOf(f), uid = createUnit(f, WANDERER.unit, G.areas[cap]?.owner === f ? { ar: cap } : { ar: areasOf(f)[0] }, WANDERER.pilot);
     G.units[uid].lv = 16; G.enc.units[WANDERER.unit] = 1; G.enc.pilots[WANDERER.pilot] = 1;
@@ -3180,6 +3183,36 @@ async function wandererEvent() {
     W.next = G.turn + randi(12, 16);
     const ev = { title: '決闘の結果', face: WANDERER.pilot, body: `「まだまだだな。腕を磨いたら、また来る」${P.name}は去っていった。しばらくすれば、また挑んでくるだろう。` };
     L(`【放浪者】決闘に敗れた。`, 'event'); await HOOKS.event(ev);
+  }
+}
+
+// ===================== ゼファー覚醒 =====================
+// ゼファーが仲間になったあと、まれに起きる。リベルタスの月輪が呼ぶ「星の影」に、ゼファー1機で挑む（難しい）。勝てばリベルタスが真リベルタスになる
+const AWAKEN = { unit: 'mrc_libertas_x', after: 6, chance: 0.06, gap: [8, 12], tier: 5, hpK: 1, lvPlus: 1 };
+async function zephyrAwakenEvent() {
+  const W = G.wanderer; if (!W || W.st !== 2 || W.awk) return;
+  if (W.awkNext == null) W.awkNext = (W.joinT ?? G.turn) + AWAKEN.after;
+  if (G.turn < W.awkNext || G.evT === G.turn || Math.random() > AWAKEN.chance) return;
+  const zp = G.pilots[WANDERER.pilot]; if (!zp || zp.alive === false || zp.f !== G.player) return;
+  const u = unitsOf(G.player).find(x => x.pil === WANDERER.pilot && x.t === WANDERER.unit); if (!u) return;
+  G.evT = G.turn; W.awkNext = G.turn + randi(...AWAKEN.gap);
+  const c = await HOOKS.choice({ title: 'ゼファー覚醒', face: WANDERER.pilot, thumb: AWAKEN.unit, col: '#ffd56a', body: `夜の格納庫で、リベルタスの背の月輪がひとりでに光りはじめた。<br>「……こいつが、俺を呼んでいる」<br>ゼファーが乗り込むと、月輪の光の中に、金色に燃えるもう一機のリベルタス――<b>星の影</b>が現れた。<br><span class="dim">ゼファーのリベルタス1機だけで、星の影と一対一で戦います。とても手ごわい相手です。勝てばリベルタスが本当の姿「${UNITS[AWAKEN.unit].name}」になります。負けても機体とゼファーは失われず、いつかまた月輪が光ります。</span>`, options: ['受けて立つ（ゼファー1機で戦う）', '今はやめておく'] });
+  if (c !== 0) { L('【ゼファー覚醒】月輪の光は、静かに消えていった。', 'event'); return; }
+  const lv = (u.lv || 1) + AWAKEN.lvPlus, hp = Math.round(UNITS[AWAKEN.unit].hp * AWAKEN.hpK);
+  const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: 62, me: 62, sp: 62, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
+  const ctx = { area: capOf(G.player), attacker: 1, aiTier: AWAKEN.tier, sides: [{ f: G.player, sid: null, garrison: null, fort: null, ship: null, cs: [combatant(u.uid)] }, { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [shadow] }], player: true, duel: true,
+    duelTitle: 'ゼファー覚醒', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタスと、月輪の光から現れた<b>星の影</b>の一対一です。</p><p class="dim">星の影は真リベルタスの力をすべて使ってきます。撃破されてもゼファーと機体は失われません。時間切れのときは、残りHPの割合が多い方の勝ちです。</p>` };
+  const res = await HOOKS.duel(ctx);
+  const r = res.units[u.uid]; if (r && G.units[u.uid]) { u.hp = clamp(r.dead ? 1 : r.hp, 1, maxHpOf(u)); u.foughtT = G.turn; const gain = Math.round(BAL.expBattle * 2 + r.dmg * BAL.expPerDmg); u.exp += gain; u.xp += gain; growPilot(zp, gain, r.use); }
+  if (res.winner === 0) {
+    W.awk = 1;
+    const ratio = u.hp / maxHpOf(u); u.t = AWAKEN.unit; u.hp = Math.max(1, Math.round(maxHpOf(u) * ratio));
+    G.enc.units[AWAKEN.unit] = 1;
+    L(`【ゼファー覚醒】ゼファーが星の影を越え、リベルタスは${UNITS[AWAKEN.unit].name}になった。`, 'good');
+    await HOOKS.event({ title: '真リベルタス', face: WANDERER.pilot, thumb: AWAKEN.unit, col: '#ffd56a', body: `星の影が光の粒になってほどけ、リベルタスの月輪へ吸い込まれていった。<br>「……やっと、こいつに認められた」<br>月輪は金色に燃え上がり、機体は封じていた三つの武器――星槍砲スターライン・月輪刀クレセント・流星群メテオレインを目覚めさせた。<br>リベルタスが<b>${UNITS[AWAKEN.unit].name}</b>になった。` });
+  } else {
+    L('【ゼファー覚醒】星の影に敗れた。月輪の光は消えた。', 'event');
+    await HOOKS.event({ title: '星の影', face: WANDERER.pilot, body: '星の影は、何も言わずに光の中へ消えていった。<br>「まだ届かない、か。……次は越える」<br><span class="dim">しばらくすると、また月輪が光ることがあります。</span>' });
   }
 }
 
@@ -8926,6 +8959,10 @@ const ARCA_MID = (c, P) => {
 DES.mrc_arca = mech('mrc', { head: 'arca', mid: ARCA_MID, pad: { kind: 'pauldron' }, legs: { w: 0.96, lx: 7.4, flare: 1.18, knee: '#a07a3e' }, torso: { w: 14, plate: '#5c5d56' }, hand: 'lrifle', scale: 1.1, pivot: [18, -11],
   pre: ARCA_PRE, style: { line: true, kneeSpike: true, calfFin: true }, flameCol: '#ffd9a0',
   P: { a: '#727368', b: '#2e302d', c: '#9c7a42', d: '#141513', w: '#40423e', e: '#ffb257', beam: '#ffe2b8' } });
+// 真リベルタス：同じ骨組みに、金色に燃える月輪と、まわりを巡る星のかけら。装甲は深い夜の色、縁と光は金
+DES.mrc_libertas_x = mech('mrc', { head: 'libertas', pad: { kind: 'pauldron' }, legs: { w: 0.98, lx: 7.4, flare: 1.25, knee: '#ffd56a' }, torso: { w: 14.4, plate: '#2b2f66' }, hand: 'smart', scale: 1.12, pivot: [18, -11],
+  pre: LIBERTAS_PRE, orbit: { n: 5, rx: 34, ry: 5, cy: -62, col: '#ffe08a', shape: 'blade' }, ace: { front: ['chest', 'belt', 'collar'], mark: 'moon', arm: ['fin', 'elbow'] }, style: { line: true, kneeSpike: true, calfFin: true },
+  flameCol: '#fff0b8', P: { a: '#1b1e48', b: '#f6f2e6', c: '#ffd56a', d: '#0e0f1c', w: '#363c66', e: '#ffe9a0', beam: '#fff2c8' } });
 DES.mrc_libertas = mech('mrc', { head: 'libertas', pad: { kind: 'pauldron' }, legs: { w: 0.98, lx: 7.4, flare: 1.25, knee: '#e6b84a' }, torso: { w: 14.4, plate: '#3a4488' }, hand: 'smart', scale: 1.1, pivot: [18, -11],
   pre: LIBERTAS_PRE, ace: { front: ['chest', 'belt', 'collar'], mark: 'moon', arm: ['fin', 'elbow'] }, style: { line: true, kneeSpike: true, calfFin: true },
   flameCol: '#ffe9a0', P: { a: '#262d5c', b: '#eef0f8', c: '#e6b84a', d: '#13141f', w: '#3d4468', e: '#8ff4ff', beam: '#c8fbff' } });
@@ -15856,7 +15893,7 @@ async function openHelp() {
     <h4>修理</h4><p>自軍のエリアにいる機体と母艦は、ターンが変わるたびにHPが回復します（首都・生産拠点では多め）。ただし直前のターンに戦った機体と母艦は、回復が3分の1ほどに減ります。急いで直したいときは、自軍のエリアにいる間に資金を払って「修理」すれば、その場でHPが満タンになります（減ったHPが多いほど高い）。「戦力一覧」の「まとめて修理」で、自軍のエリアにいる傷ついた母艦と機体を一度に直せます（資金が足りないときは、HPの減っている順に直せるだけ直します）。「まとめてLv上げ」は経験値の続くかぎりレベルを上げますが、進化できる機体は進化に要る経験値を残します。</p>
     <h4>戦闘の操作</h4><p>戦闘は70秒です。左上の「指示」で全員か1機ずつに指示を出せます（選んでいる間は時間が止まります）。「回避優先」にした機体は、弾の来る向きを見てしっかりよけ、よける確率も上がります。その下の「操作切替」か、上の一覧の味方の名前をタップすると、操作する機体を切り替えられます。<br>母艦を連れている戦いでは、戦闘前の画面で「自分で操作するのは」から母艦を選ぶと、最初から母艦を操作できます。母艦を操作中は、武器ボタンの3門（ビーム・主砲・ミサイルなど）を自分で撃ち、4門目の対空機銃だけは自動で撃ちます。</p>
     <h4>勢力ごとの出来事</h4><p>ターンのはじめに、自分の勢力ならではの出来事が起きることがあります。その勢力の人物たちの会話のあとに、どうするかを選びます。資金を使う選択肢は、成功すれば大きな見返りがありますが、運が悪いと空振りすることもあります。収入が数ターンだけ増減する結果は、収入の表示にもそのまま反映されます。ほかの勢力にも同じように出来事が起き、記録に「〔勢力名〕」として残ります。勢力ごとの出来事のほかに、どの勢力にも起きる出来事（宿敵の挑発・古参兵の復帰・試作機の払い下げなど）もあり、その勢力の人物が話します。</p>
-    <h4>放浪者</h4><p>ゲームの終盤近くになると、まれに、どの勢力にも属さない最強のパイロット「放浪者ゼファー」のうわさが届きます。自軍が大きくなると（拠点12以上）、ゼファーがときどき自軍の最強の3機に決闘を挑んできます。決闘は必ず戦闘（オートか手動）で決着をつけます。勝てば、ゼファーと愛機リベルタスが仲間になります（負けても機体は失われず、しばらくするとまた挑んできます）。</p>
+    <h4>放浪者</h4><p>ゲームの終盤近くになると、まれに、どの勢力にも属さない最強のパイロット「放浪者ゼファー」のうわさが届きます。自軍が大きくなると（拠点12以上）、ゼファーがときどき自軍の最強の3機に決闘を挑んできます。決闘は必ず戦闘（オートか手動）で決着をつけます。勝てば、ゼファーと愛機リベルタスが仲間になります（負けても機体は失われず、しばらくするとまた挑んできます）。仲間になったゼファーとリベルタスには、まだ秘密があるといわれています。</p>
     <h4>エースの一騎打ち</h4><p>ときどき敵勢力のエースが、自軍のエースを名指しで一騎打ちに呼び出します。一騎打ちではどちらも捕まらず、機体も失われません。勝つと相手の勢力の士気が下がり、数ターンのあいだ攻撃力が下がります。負けると相手の士気が上がり、断ると自軍の士気が少し下がります。</p>
     <h4>古戦場の残骸</h4><p>ときどき、自軍のまわりのエリアで旧時代の機体の残骸が見つかります（地図に「？」の印）。自軍の部隊（母艦）をそのエリアに入れておくと、ターンの始めに調べます。試作機の部品を3つ集めると、旧時代の試作機が1機組み上がります。しばらくたつと、残骸はほかの勢力に持ち去られます。</p>
     <h4>天候</h4><p>ときどき、ある地形に数ターンだけ天候の変化（砂嵐・大しけ・濃霧・長雨・太陽風）が起きます。そのあいだ、その地形での戦闘では、その地形が得意（◎）な機体の動きが良くなり、それ以外の機体は鈍ります。いま起きている天候は、地図の上の欄に出ます。</p>
@@ -15913,8 +15950,8 @@ function boot(data) {
     if (taps.length < 7) return; taps = [];
     if (!zephyrKnown()) return;
     SFX.init(); const R = records();
-    if (R.zephyr) { SFX.play('select'); toast('リベルタスは模擬戦で使えます'); return; }
-    R.zephyr = 1; saveRecords(); SFX.play('capture'); toast('隠し要素：模擬戦で放浪者ゼファーのリベルタスが使えるようになった', 'good');
+    if (R.zephyr) { SFX.play('select'); toast('真リベルタスは模擬戦で使えます'); return; }
+    R.zephyr = 1; saveRecords(); SFX.play('capture'); toast('隠し要素：模擬戦で真リベルタス（とリベルタス）が使えるようになった', 'good');
   }); }
   $('#chal-tg').addEventListener('click', async () => { SFX.play('select'); await openChalPick(); renderFaction(); });
   $('#bonus-tg').addEventListener('click', async () => { SFX.play('select'); await openBonusPick(); renderFaction(); });
@@ -16043,15 +16080,15 @@ const medalCount = () => MEDALS.filter(m => hasMedal(m.id)).length;
 function secretHtml() {
   const known = typeof zephyrKnown === 'function' && zephyrKnown(), got = !!records().zephyr;
   return `<div class="secret">
-    <p class="gold"><b>隠しコマンド：模擬戦で放浪者ゼファーを使う</b></p>
+    <p class="gold"><b>隠しコマンド：模擬戦で真リベルタスを使う</b></p>
     <ol class="help-list">
       <li><b>やり方</b>：タイトル画面の大きな文字「星屑戦記」を、<b>2.5秒以内に7回</b>続けてタップ（クリック）します。下の説明文や背景ではなく、題字そのものをたたいてください。</li>
       <li><b>条件</b>：図鑑にゼファー（パイロットの放浪者ゼファー、または機体リベルタス）が載っていること。載っていないときは、たたいても何も起きません。
         <br><span class="dim">ゼファーに会うには：本編で自軍の拠点が12以上になり、24ターン目をすぎると、ときどき「放浪者」が決闘を挑んできます。決闘に勝つとゼファーが仲間になり、図鑑に載ります。</span></li>
-      <li><b>成功すると</b>：「隠し要素：模擬戦で放浪者ゼファーのリベルタスが使えるようになった」と表示されます。模擬戦の機体選択の下の方に「隠し機体」の枠が出て、リベルタスを選べます。乗るのはゼファー本人です。</li>
-      <li><b>一度だけでよい</b>：解放は記録に残るので、次からはたたく必要はありません。もう一度たたくと「リベルタスは模擬戦で使えます」と出るだけです。</li>
+      <li><b>成功すると</b>：「隠し要素：模擬戦で真リベルタス（とリベルタス）が使えるようになった」と表示されます。模擬戦の機体選択の下の方に「隠し機体」の枠が出て、真リベルタスと、ふつうのリベルタスを選べます。乗るのはどちらもゼファー本人なので、同時には選べません。</li>
+      <li><b>一度だけでよい</b>：解放は記録に残るので、次からはたたく必要はありません。もう一度たたくと「真リベルタスは模擬戦で使えます」と出るだけです。</li>
     </ol>
-    <p class="dim small">いまの状態：図鑑のゼファー ${known ? '<b class="gold">登録済み</b>' : '未登録'}　／　模擬戦のリベルタス ${got ? '<b class="gold">解放済み</b>' : '未解放'}</p>
+    <p class="dim small">いまの状態：図鑑のゼファー ${known ? '<b class="gold">登録済み</b>' : '未登録'}　／　模擬戦の真リベルタス ${got ? '<b class="gold">解放済み</b>' : '未解放'}</p>
   </div>`;
 }
 // 勲章が40個に届いたら、戦闘中やほかの画面を開いていないときに一度だけ大きく知らせる
@@ -16247,12 +16284,12 @@ async function openMedals() {
 // ===================== 模擬戦（連戦モード） =====================
 // 好きな3機で、だんだん強くなる敵と戦い続ける。最高記録は残り、勲章にもつながる。
 const ARENA_AREAS = ['e_central', 'c_arca', 'n_canyon', 'e_sandria', 'o_capital', 'a_belta', 'p_capital', 'l_polis'];
-function arenaPool() { const Z = zukan(), RM = records().mercs || {}; return Object.values(UNITS).filter(T => T.f ? (T.bt > 0 || Z.u[T.id] === 2) : T.id === WANDERER.unit ? !!records().zephyr : T.id === RELIC.unit ? !!records().relic : !!RM[T.id]); }
+function arenaPool() { const Z = zukan(), RM = records().mercs || {}; return Object.values(UNITS).filter(T => T.f ? (T.bt > 0 || Z.u[T.id] === 2) : T.id === WANDERER.unit || T.id === AWAKEN.unit ? !!records().zephyr : T.id === RELIC.unit ? !!records().relic : !!RM[T.id]); }
 // 隠し要素：図鑑にゼファーが載っていれば、タイトルの「星屑戦記」を素早く7回たたくと、模擬戦でリベルタス（ゼファー搭乗）が使える
 const zephyrKnown = () => { const Z = zukan(); return !!(Z.u[WANDERER.unit] || Z.p[WANDERER.pilot]); };
 const MERC_COL = '#c9b98a';
 const unitCol = t => UNITS[t].f ? FAC[UNITS[t].f].color : MERC_COL;
-const arenaMerc = t => MERCS.find(m => m.unit === t) || (t === WANDERER.unit ? { unit: t, pilot: WANDERER.pilot } : null);
+const arenaMerc = t => MERCS.find(m => m.unit === t) || (t === WANDERER.unit || t === AWAKEN.unit ? { unit: t, pilot: WANDERER.pilot } : null);
 // 模擬戦の記録：上位5件を、使った3機と一緒に残す（連戦は多いほど、巨大兵器は少ない出撃回数ほど上）
 const ARENA_TOP = 5;
 function arenaRecord(key, v, ts, better) {
@@ -16275,10 +16312,10 @@ async function openArena(pre = [], foe0 = null) {
     <p>最高記録：<b class="gold">${best}連勝</b></p>${arenaTopHtml('waves', v => `${v}連勝`)}`}
     <div class="ar-sel">${[0, 1, 2].map(i => sel[i] ? `<button class="enc got" data-act="rm" data-i="${i}"><span class="uthumb" data-thumb="${sel[i]}" data-col="${unitCol(sel[i])}" data-size="58"></span><span>${UNITS[sel[i]].name}</span></button>` : `<div class="enc unknown"><span class="q">${i + 1}</span><span>未選択</span></div>`).join('')}</div>
     ${FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
-    ${(() => { const hs = [WANDERER.unit, RELIC.unit].filter(t => pool.some(T => T.id === t)); return hs.length ? `<h4><span class="fb" style="--fc:${MERC_COL}">隠し</span> 隠し機体</h4><div class="enc-grid">${hs.map(t => `<button class="enc ${sel.includes(t) ? 'got' : ''}" data-act="pick" data-t="${t}"><span class="uthumb" data-thumb="${t}" data-col="${MERC_COL}" data-size="52"></span><span>${UNITS[t].name}</span></button>`).join('')}</div>${hs.includes(WANDERER.unit) ? '<p class="dim small">リベルタスに乗るのは放浪者ゼファー本人です。</p>' : ''}` : ''; })()}
-    ${(() => { const us = pool.filter(T => !T.f && T.id !== WANDERER.unit && T.id !== RELIC.unit); return `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵の機体</h4>${us.length ? `<div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${MERC_COL}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''}<p class="dim small">傭兵の機体は、その傭兵を正式に仲間にしてクリアすると選べるようになります（乗るのはその傭兵本人です）。${us.length < MERCS.length ? `あと${MERCS.length - us.length}機。` : ''}</p>`; })()}`;
+    ${(() => { const hs = [WANDERER.unit, AWAKEN.unit, RELIC.unit].filter(t => pool.some(T => T.id === t)); return hs.length ? `<h4><span class="fb" style="--fc:${MERC_COL}">隠し</span> 隠し機体</h4><div class="enc-grid">${hs.map(t => `<button class="enc ${sel.includes(t) ? 'got' : ''}" data-act="pick" data-t="${t}"><span class="uthumb" data-thumb="${t}" data-col="${MERC_COL}" data-size="52"></span><span>${UNITS[t].name}</span></button>`).join('')}</div>${hs.includes(WANDERER.unit) ? '<p class="dim small">リベルタスと真リベルタスに乗るのは放浪者ゼファー本人です。ゼファーは1人なので、どちらか一方しか選べません。</p>' : ''}` : ''; })()}
+    ${(() => { const us = pool.filter(T => !T.f && T.id !== WANDERER.unit && T.id !== AWAKEN.unit && T.id !== RELIC.unit); return `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵の機体</h4>${us.length ? `<div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${MERC_COL}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''}<p class="dim small">傭兵の機体は、その傭兵を正式に仲間にしてクリアすると選べるようになります（乗るのはその傭兵本人です）。${us.length < MERCS.length ? `あと${MERCS.length - us.length}機。` : ''}</p>`; })()}`;
   const p = openModal({ title: '模擬戦', body: render(), cls: 'wide', buttons: [{ label: 'やめる', value: 'no' }, { label: '出撃', value: 'go', cls: 'primary' }], onAct: (act, t, M) => {
-    if (act === 'pick') { const id = t.dataset.t; if (sel.includes(id)) sel = sel.filter(x => x !== id); else if (sel.length < 3) sel.push(id); else { toast('3機まで選べます', 'bad'); return; } SFX.play('select'); M.refresh(render()); }
+    if (act === 'pick') { const id = t.dataset.t, ZS = [WANDERER.unit, AWAKEN.unit]; if (sel.includes(id)) sel = sel.filter(x => x !== id); else if (ZS.includes(id) && sel.some(x => ZS.includes(x))) { toast('ゼファーは1人なので、リベルタスと真リベルタスは同時に選べません', 'bad'); SFX.play('bad'); return; } else if (sel.length < 3) sel.push(id); else { toast('3機まで選べます', 'bad'); return; } SFX.play('select'); M.refresh(render()); }
     if (act === 'rm') { sel.splice(+t.dataset.i, 1); SFX.play('select'); M.refresh(render()); }
     if (act === 'foe') { foe = t.dataset.k || null; SFX.play('select'); M.refresh(render()); }
   } });
