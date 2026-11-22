@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v170</span>
+    <span class="t-ver">v171</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -874,7 +874,7 @@ const BAL = {
   fuse: 0.5,                 // 近接信管が働く距離（爆風半径に対する割合）
   barrierBeam: 0.8,          // 位相バリアが受けるビームダメージの倍率
   evade: { base: 5, per: 6, pil: 3, max: 30 }, // 機動回避：速度が base を超えた分×per%（パイロットの操縦ランク1つにつき+pil%）
-  shootHp: { shell: 3, gren: 2, miss: 2, hom: 2, cluster: 2 }, shootPad: { miss: 6, hom: 6, cluster: 6 }, missTurnK: 1.15, missHomK: 1.15, // ミサイルの曲がる速さ・誘導が続く時間の倍率 // 撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
+  shootHp: { shell: 3, gren: 2, miss: 2, hom: 2, cluster: 2 }, shootPad: { miss: 6, hom: 6, cluster: 6 }, missTurnK: 1.15, missHomK: 1.15, rogueFireK: 1.3, // shootHp：撃ち落とせる弾の耐久／shootPad：当たり判定の上乗せ／missTurnK・missHomK：ミサイルの曲がる速さ・誘導時間の倍率／rogueFireK：巨大兵器の攻撃の速さ（再使用と溜めが1.3倍速）。撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
   lvDmg: 0.02, lvHp: 0.02,   // 機体のレベル1つごとの攻撃力・HPの上昇
   // 機体のレベル：戦闘で得た経験値を「進化」か「レベルアップ」に使う。レベルアップの費用は lvUpBase から少しずつ増える
   lvUpBase: 40, lvUpGrow: 0.2, evoK: 1.15, // evoK：進化に必要な経験値の倍率
@@ -4281,7 +4281,7 @@ function traitDef(B, tgt, src, wcat) {
 }
 function traitCrit(src) { return btTrait(src)?.fx === 'crit' ? 15 : 0; }
 function traitSpeed(e) { const fx = btTrait(e)?.fx; return (fx === 'swift' ? 1.15 : 1) * (e.awk2 ? 1.15 : 1) * (fx === 'helm' && e.kind === 'ship' ? 1.25 : 1); }
-function traitCd(e) { return btTrait(e)?.fx === 'rapid' ? 1.25 : 1; }
+function traitCd(e) { return (btTrait(e)?.fx === 'rapid' ? 1.25 : 1) * (e.T?.rogue ? BAL.rogueFireK : 1); }
 // 被弾のあと：覚醒・根性
 function traitAfterHit(B, tgt, d) {
   const T = btTrait(tgt); if (!T) return d;
@@ -13099,7 +13099,7 @@ function weaponTick(B, e, s, dt) {
     if (e.rt[s] <= 0) { fire(B, e, s); e.rt[s] = w.rate; }
   } else if (w.cat === 'charge' && e.cd[s] <= 0) {
     const before = e.chg[s];
-    e.chg[s] = Math.min(w.charge, e.chg[s] + dt);
+    e.chg[s] = Math.min(w.charge, e.chg[s] + dt * (e.T?.rogue ? BAL.rogueFireK : 1));
     if (before < w.charge && e.chg[s] >= w.charge && e === B.ctrl) SFX.play('select');
   }
 }
