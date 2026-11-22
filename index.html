@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v169</span>
+    <span class="t-ver">v170</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -874,7 +874,7 @@ const BAL = {
   fuse: 0.5,                 // 近接信管が働く距離（爆風半径に対する割合）
   barrierBeam: 0.8,          // 位相バリアが受けるビームダメージの倍率
   evade: { base: 5, per: 6, pil: 3, max: 30 }, // 機動回避：速度が base を超えた分×per%（パイロットの操縦ランク1つにつき+pil%）
-  shootHp: { shell: 3, gren: 2, miss: 2, hom: 2, cluster: 2 }, shootPad: { miss: 6, hom: 6, cluster: 6 }, // 撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
+  shootHp: { shell: 3, gren: 2, miss: 2, hom: 2, cluster: 2 }, shootPad: { miss: 6, hom: 6, cluster: 6 }, missTurnK: 1.15, missHomK: 1.15, // ミサイルの曲がる速さ・誘導が続く時間の倍率 // 撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
   lvDmg: 0.02, lvHp: 0.02,   // 機体のレベル1つごとの攻撃力・HPの上昇
   // 機体のレベル：戦闘で得た経験値を「進化」か「レベルアップ」に使う。レベルアップの費用は lvUpBase から少しずつ増える
   lvUpBase: 40, lvUpGrow: 0.2, evoK: 1.15, // evoK：進化に必要な経験値の倍率
@@ -13162,7 +13162,7 @@ function fire(B, e, s) {
     case 'launcher': shot(B, e, s, a, { r: 6, kind: 'gren', color: '#ffcf6a', shootable: true, blast: w.blast }); SFX.play('missile'); e.cd[s] = w.cd; break;
     case 'missile': {
       const n = w.spread || 1;
-      for (let i = 0; i < n; i++) shot(B, e, s, a + (i - (n - 1) / 2) * 0.35, { r: 4, kind: 'miss', color: '#ff8a5a', shootable: true, blast: w.blast, turnR: w.turnR || 2, homT: w.homT || 1.5, delay: 0.12, tgt });
+      for (let i = 0; i < n; i++) shot(B, e, s, a + (i - (n - 1) / 2) * 0.35, { r: 4, kind: 'miss', color: '#ff8a5a', shootable: true, blast: w.blast, turnR: (w.turnR || 2) * BAL.missTurnK, homT: (w.homT || 1.5) * BAL.missHomK, delay: 0.12, tgt });
       SFX.play('missile'); e.cd[s] = w.cd; break;
     }
     case 'homing': {
