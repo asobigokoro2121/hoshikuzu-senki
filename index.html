@@ -801,7 +801,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v150</span>
+    <span class="t-ver">v151</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -3189,7 +3189,7 @@ async function wandererEvent() {
 
 // ===================== ゼファー覚醒 =====================
 // ゼファーが仲間になったあと、まれに起きる。リベルタスの月輪が呼ぶ「星の影」に、ゼファー1機で挑む（難しい）。勝てばリベルタスが真リベルタスになる
-const AWAKEN = { unit: 'mrc_libertas_x', after: 6, chance: 0.06, gap: [8, 12], tier: 6, hpK: 1.6, lvPlus: 4 };
+const AWAKEN = { stat: 62, unit: 'mrc_libertas_x', after: 6, chance: 0.06, gap: [8, 12], tier: 5, hpK: 1, lvPlus: 1 };
 async function zephyrAwakenEvent() {
   const W = G.wanderer; if (!W || W.st !== 2 || W.awk) return;
   if (W.awkNext == null) W.awkNext = (W.joinT ?? G.turn) + AWAKEN.after;
@@ -3200,7 +3200,7 @@ async function zephyrAwakenEvent() {
   const c = await HOOKS.choice({ title: 'ゼファー覚醒', face: WANDERER.pilot, thumb: AWAKEN.unit, col: '#ffd56a', body: `夜の格納庫で、リベルタスの背の月輪がひとりでに光りはじめた。<br>「……こいつが、俺を呼んでいる」<br>ゼファーが乗り込むと、月輪の光の中に、金色に燃えるもう一機のリベルタス――<b>星の影</b>が現れた。<br><span class="dim">ゼファーのリベルタス1機だけで、星の影と一対一で戦います。とても手ごわい相手です。勝てばリベルタスが本当の姿「${UNITS[AWAKEN.unit].name}」になります。負けても機体とゼファーは失われず、いつかまた月輪が光ります。</span>`, options: ['受けて立つ（ゼファー1機で戦う）', '今はやめておく'] });
   if (c !== 0) { L('【ゼファー覚醒】月輪の光は、静かに消えていった。', 'event'); return; }
   const lv = (u.lv || 1) + AWAKEN.lvPlus, hp = Math.round(UNITS[AWAKEN.unit].hp * AWAKEN.hpK);
-  const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: 70, me: 70, sp: 70, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
+  const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: AWAKEN.stat, me: AWAKEN.stat, sp: AWAKEN.stat, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
   const ctx = { area: capOf(G.player), attacker: 1, aiTier: AWAKEN.tier, sides: [{ f: G.player, sid: null, garrison: null, fort: null, ship: null, cs: [combatant(u.uid)] }, { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [shadow] }], player: true, duel: true,
     duelTitle: 'ゼファー覚醒', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタスと、月輪の光から現れた<b>星の影</b>の一対一です。</p><p class="dim">星の影は真リベルタスの力をすべて使ってきます。撃破されてもゼファーと機体は失われません。時間切れのときは、残りHPの割合が多い方の勝ちです。</p>` };
   const res = await HOOKS.duel(ctx);
@@ -16312,9 +16312,9 @@ async function runShadowTrial() {
   G.pilots[WANDERER.pilot] = { ...PILOT_BASE[WANDERER.pilot], id: WANDERER.pilot, f, origin: f, named: true, lv: 18, exp: 0, alive: true };
   const uid = createUnit(f, WANDERER.unit, { ar: capOf(f) }, WANDERER.pilot), u = G.units[uid]; u.lv = 16;
   const lv = u.lv + AWAKEN.lvPlus, hp = Math.round(UNITS[AWAKEN.unit].hp * AWAKEN.hpK);
-  const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: 70, me: 70, sp: 70, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
+  const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: AWAKEN.stat, me: AWAKEN.stat, sp: AWAKEN.stat, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
   const ctx = { area: 'e_central', attacker: 1, aiTier: AWAKEN.tier, arena: true, sides: [{ f, sid: null, garrison: null, fort: null, ship: null, cs: [combatant(uid)] }, { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [shadow] }], player: true, duel: true,
-    duelTitle: 'お試し：星の影', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタス（機体Lv${u.lv}・パイロットLv18）と、<b>星の影</b>（真リベルタス・Lv${lv}・HP${hp}）の一対一です。</p><p class="dim">本番のゼファー覚醒イベントと同じ強さです。お試しなので、記録や解放には影響しません。</p>` };
+    duelTitle: 'お試し：星の影', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタス（機体Lv${u.lv}・パイロットLv18）と、<b>星の影</b>（真リベルタス・Lv${lv}・HP${hp}・腕前ランク${AWAKEN.tier}）の一対一です。</p><p class="dim">本番のゼファー覚醒イベントと同じ強さです。お試しなので、記録や解放には影響しません。</p>` };
   UI.keepBgm = true;
   const res = await HOOKS.duel(ctx);
   UI.keepBgm = false; G = prevG; show('title');
