@@ -795,7 +795,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <div class="t-row"><button id="btn-help" class="btn">遊び方</button><button id="btn-zukan" class="btn">図鑑</button><button id="btn-rec" class="btn">戦績</button><button id="btn-arena" class="btn">模擬戦</button><button id="btn-mem" class="btn">回想</button><button id="btn-set" class="btn">設定</button></div>
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
-    <span class="t-ver">v131</span>
+    <span class="t-ver">v132</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -2611,7 +2611,7 @@ const SEASONS = {
 const SEASON = { good: 1.12, bad: 0.85, len: 3, gap: [5, 8] };
 function seasonNow() { const S = G?.season; return S && !G.arena && G.turn <= S.until ? S : null; }
 function seasonK(T, terrain) { const S = seasonNow(); if (!S || S.terrain !== terrain || T.rogue) return 1; return T.apt[terrain] === '◎' ? SEASON.good : SEASON.bad; }
-function seasonDesc(S) { const D = SEASONS[S.terrain]; return `${D.desc}${TERRAIN_NAME[S.terrain]}での戦闘では、${TERRAIN_NAME[S.terrain]}が得意（◎）な機体の動きと攻撃が良くなり（+${Math.round((SEASON.good - 1) * 100)}%）、それ以外の機体は鈍ります（-${Math.round((1 - SEASON.bad) * 100)}%）。`; }
+function seasonDesc(S) { const D = SEASONS[S.terrain]; return `${D.desc}${TERRAIN_NAME[S.terrain]}での戦闘では、${TERRAIN_NAME[S.terrain]}が得意（◎）な機体の動きが良くなり（+${Math.round((SEASON.good - 1) * 100)}%）、それ以外の機体は鈍ります（-${Math.round((1 - SEASON.bad) * 100)}%）。`; }
 async function seasonTurn() {
   if (G.seasonNext == null) G.seasonNext = G.turn + randi(...SEASON.gap);
   const S = G.season;
@@ -2635,9 +2635,10 @@ function simulateBattle(ctx) {
       const Q = BAL.qs, ws = T.w.map(w => weaponDps(w, c.pilot, S.f) * (Q.cat[WEAPONS[w].cat] ?? 1));
       const spd = T.spd + (c.part === 'booster' ? 1 : 0);
       const beamFrac = T.w.filter(w => WEAPONS[w].attr === 'beam').length / 3;
-      const eff = aptMult(T, terrain, S.f) * (1 + c.pilot.pil * 0.05) * facCombat(S.f, terrain) * (S.f === 'lun' ? 1 + (BAL.lunBeam - 1) * beamFrac : 1);
+      // 地形の適性は動き（よけやすさ）だけに効く。攻撃力には効かない
+      const mob = aptMult(T, terrain, S.f), eff = (1 + c.pilot.pil * 0.05) * facCombat(S.f, terrain) * (S.f === 'lun' ? 1 + (BAL.lunBeam - 1) * beamFrac : 1);
       const tq = typeof traitQ === 'function' ? traitQ(c.pilot) : { off: 1, def: 1 };
-      ents.push({ s, c, ship: false, hp: c.hp, maxHp: c.maxHp, ab: T.ab, dps: (bondIds.has(c.pilot?.id) ? BOND_K : 1) * tq.off * tq.def * ws.reduce((a, b) => a + b, 0) * 0.4 * (BAL.unitQs[c.t] ?? 1) * (1 + c.lv * BAL.lvDmg) * (1 + (c.mod || 0) * BAL.modDmg) * (T.ab === 'overdrive' ? 1.06 : 1), eff, beamFrac, barrier: T.ab === 'barrier', ev: Math.max(0.3, 1 - Q.ev * (spd - 5)) * (T.ab === 'stealth' ? 0.9 : 1), crit: (c.pilot.sh + c.pilot.me + c.pilot.sp) / 3 + (c.pilot.skill === 'lucky' ? 10 : 0), dmg: 0, kills: 0 });
+      ents.push({ s, c, ship: false, hp: c.hp, maxHp: c.maxHp, ab: T.ab, dps: (bondIds.has(c.pilot?.id) ? BOND_K : 1) * tq.off * tq.def * ws.reduce((a, b) => a + b, 0) * 0.4 * (BAL.unitQs[c.t] ?? 1) * (1 + c.lv * BAL.lvDmg) * (1 + (c.mod || 0) * BAL.modDmg) * (T.ab === 'overdrive' ? 1.06 : 1), eff, mob, beamFrac, barrier: T.ab === 'barrier', ev: Math.max(0.3, 1 - Q.ev * (spd - 5)) * (T.ab === 'stealth' ? 0.9 : 1), crit: (c.pilot.sh + c.pilot.me + c.pilot.sp) / 3 + (c.pilot.skill === 'lucky' ? 10 : 0), dmg: 0, kills: 0 });
     }
     if (S.ship) {
       const SH = SHIPS[S.ship.t];
@@ -2663,7 +2664,7 @@ function simulateBattle(ctx) {
       else if (fort && (!mechs.length || Math.random() < BAL.qs.fortAim)) tg = fort;
       else tg = pick(mechs.length ? mechs : foes);
       const big = tg.ship || tg.fort;
-      let dmg = e.dps * rand(0.5, 1.3) * e.eff / (big ? 0.85 : 0.75 + 0.35 * tg.eff);
+      let dmg = e.dps * rand(0.5, 1.3) * e.eff / (big ? 0.85 : 0.75 + 0.35 * tg.eff * (tg.mob ?? 1));
       if (Math.random() * 100 < e.crit) dmg *= BAL.critMult;
       if (tg.barrier) dmg *= 1 - (1 - BAL.barrierBeam) * e.beamFrac;
       if (tg.ab === 'reactive') dmg *= 1 - 0.25 * (1 - e.beamFrac);
@@ -15837,7 +15838,7 @@ async function openHelp() {
     <h4>放浪者</h4><p>ゲームの終盤近くになると、まれに、どの勢力にも属さない最強のパイロット「放浪者ゼファー」のうわさが届きます。自軍が大きくなると（拠点12以上）、ゼファーがときどき自軍の最強の3機に決闘を挑んできます。決闘は必ず戦闘（オートか手動）で決着をつけます。勝てば、ゼファーと愛機リベルタスが仲間になります（負けても機体は失われず、しばらくするとまた挑んできます）。</p>
     <h4>エースの一騎打ち</h4><p>ときどき敵勢力のエースが、自軍のエースを名指しで一騎打ちに呼び出します。一騎打ちではどちらも捕まらず、機体も失われません。勝つと相手の勢力の士気が下がり、数ターンのあいだ攻撃力が下がります。負けると相手の士気が上がり、断ると自軍の士気が少し下がります。</p>
     <h4>古戦場の残骸</h4><p>ときどき、自軍のまわりのエリアで旧時代の機体の残骸が見つかります（地図に「？」の印）。自軍の部隊（母艦）をそのエリアに入れておくと、ターンの始めに調べます。試作機の部品を3つ集めると、旧時代の試作機が1機組み上がります。しばらくたつと、残骸はほかの勢力に持ち去られます。</p>
-    <h4>天候</h4><p>ときどき、ある地形に数ターンだけ天候の変化（砂嵐・大しけ・濃霧・長雨・太陽風）が起きます。そのあいだ、その地形での戦闘では、その地形が得意（◎）な機体の動きと攻撃が良くなり、それ以外の機体は鈍ります。いま起きている天候は、地図の上の欄に出ます。</p>
+    <h4>天候</h4><p>ときどき、ある地形に数ターンだけ天候の変化（砂嵐・大しけ・濃霧・長雨・太陽風）が起きます。そのあいだ、その地形での戦闘では、その地形が得意（◎）な機体の動きが良くなり、それ以外の機体は鈍ります。いま起きている天候は、地図の上の欄に出ます。</p>
     <h4>パイロットの相性</h4><p>決まった2人のパイロットが同じ戦闘に出ると、2人とも与えるダメージが少し上がり、戦闘の始めに掛け合いをします。見つけた相性は図鑑の「パイロット」に載ります。</p>
     <h4>特殊能力</h4><p>一部の機体は特殊能力を持っています。自己再生（戦闘中にHPが回復）・リアクティブ装甲（実弾に強い）・ステルス（遠くからの射撃をかわす）・オーバードライブ（HPが半分を切ると速く強くなる）・指揮管制（近くの味方の攻撃力アップ）・修理フィールド（近くの味方を回復）などがあります。</p>
     <h4>勢力の強さ</h4><p>どの勢力も、はじめの資金と収入の計算は同じです。勢力ごとの差は資金ではなく、戦い方の特性でつけています。勢力選びの画面で特性を確認できます。</p>
@@ -15850,7 +15851,7 @@ async function openHelp() {
     <h4>弾数</h4><p>実弾・ミサイル・ビームライフルなど多くの武器には弾数があり、ボタンに「残り」が出ます。弾が切れた機体は格闘に切り替えて戦います。格闘武器は無制限です。</p>
     <h4>戦闘中の指示</h4><p>左上の「指示」で、味方機の動き方を選べます（おまかせ・接近戦・射撃戦・回避優先・艦を狙え）。上の段で「全員」を選ぶと全機に、機体の名前を選ぶとその機体だけに指示します。機体ごとの指示はその機体に記録され、次の戦闘でも続きます。戦闘前の出撃画面でも、機体の「指示」を押して決められます。</p>
     <h4>拠点の守り</h4><p>艦に乗っていない機体は「守備隊」としてエリアを守ります。首都・要塞・生産拠点では守備隊が2回まで迎撃します（2回目は1回目に出なかった機体）。守りきれなかったとき、戦わなかった守備隊は隣の自軍エリアへ退きます（首都では捕獲されます）。首都の守備隊が${BAL.capGuard}機より少ないと、毎ターン首都防衛隊が1機配備されます。</p>
-    <h4>地形適性</h4><p>機体ごとに宇宙・平地・山岳・砂漠・海の適性（◎○△×）があり、戦闘中の移動速度が変わります。×の地形ではほとんど動けないので、敵をそこへ誘えば捕獲のチャンスです。</p>
+    <h4>地形適性</h4><p>機体ごとに宇宙・平地・山岳・砂漠・海の適性（◎○△×）があり、戦闘中の移動速度が変わります（攻撃力は変わりません）。×の地形ではほとんど動けないので、敵をそこへ誘えば捕獲のチャンスです。</p>
     <h4>パイロット</h4><p>指揮（艦長の搭載数・隊長の経験値）、操縦（移動速度と回避）、感応（ビットの数。感応者でなくても1基は動かせる）、射撃・格闘・特殊（その系統の武器の直撃率。数字がそのまま％になり、直撃するとダメージ1.5倍）。射撃はライフルやビーム砲、格闘はサーベルや突進、特殊はミサイル・砲弾・ビット・爆弾などの武器に効きます。特殊が30以上で有線ビットが2基、50以上で3基になります。腕前はモブ＜ネームド＜エースの順に高く、判断の速さや狙い、よけ方が上手になります。</p>
     <h4>パイロットの成長</h4><p>戦闘のたびに経験を積み、レベルが上がると能力が伸びます。よく使った系統（射撃・格闘・特殊）ほど伸びやすく、Lv6・12・18で操縦ランク、感応者はLv8・16で感応ランクが上がります。特技のないパイロットはLv10で特技を覚えます。艦長はLv6・12で指揮ランクが上がり、搭載数が増えます。<br>撃破されても、勝った戦闘なら必ず救助されます。負けた戦闘では戻らないこともありますが、レベルが高いほど生き延びやすくなります。</p>
     <h4>鹵獲機の解析</h4><p>捕獲した他勢力の機体を進化かレベルアップさせると解析が終わり、その機体を自軍の工場で生産できるようになります。量産できない高性能機の場合は、その系統の元になった量産機が作れるようになります。</p>
