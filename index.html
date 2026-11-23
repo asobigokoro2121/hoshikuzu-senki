@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v172</span>
+    <span class="t-ver">v173</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -874,7 +874,7 @@ const BAL = {
   fuse: 0.5,                 // 近接信管が働く距離（爆風半径に対する割合）
   barrierBeam: 0.8,          // 位相バリアが受けるビームダメージの倍率
   evade: { base: 5, per: 6, pil: 3, max: 30 }, // 機動回避：速度が base を超えた分×per%（パイロットの操縦ランク1つにつき+pil%）
-  shootHp: { shell: 3, gren: 2, miss: 2, hom: 2, cluster: 2 }, shootPad: { miss: 6, hom: 6, cluster: 6 }, missTurnK: 1.15, missHomK: 1.15, rogueFireK: 1.3, // shootHp：撃ち落とせる弾の耐久／shootPad：当たり判定の上乗せ／missTurnK・missHomK：ミサイルの曲がる速さ・誘導時間の倍率／rogueFireK：巨大兵器の攻撃の速さ（再使用と溜めが1.3倍速）。撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
+  shootHp: { shell: 3, gren: 2, miss: 2, hom: 2, cluster: 2 }, shootPad: { miss: 6, hom: 6, cluster: 6 }, missTurnK: 1.15, missHomK: 1.15, rogueFireK: 1.3, medicRate: 0.015, // medicRate：修理フィールドの回復（毎秒、最大HPに対する割合）。 shootHp：撃ち落とせる弾の耐久／shootPad：当たり判定の上乗せ／missTurnK・missHomK：ミサイルの曲がる速さ・誘導時間の倍率／rogueFireK：巨大兵器の攻撃の速さ（再使用と溜めが1.3倍速）。撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
   lvDmg: 0.02, lvHp: 0.02,   // 機体のレベル1つごとの攻撃力・HPの上昇
   // 機体のレベル：戦闘で得た経験値を「進化」か「レベルアップ」に使う。レベルアップの費用は lvUpBase から少しずつ増える
   lvUpBase: 40, lvUpGrow: 0.2, evoK: 1.15, // evoK：進化に必要な経験値の倍率
@@ -1043,7 +1043,7 @@ const ABILITIES = {
   stealth: { name: 'ステルス', desc: '遠く（180以上）からの射撃を20%の確率でかわす' },
   overdrive: { name: 'オーバードライブ', desc: 'HPが半分を切ると、速度+25%・攻撃力+20%になる' },
   command: { name: '指揮管制', desc: '近くの味方機（自分も含む）の攻撃力+10%' },
-  medic:   { name: '修理フィールド', desc: '近くの味方機のHPを少しずつ回復する' },
+  medic:   { name: '修理フィールド', desc: '近くの味方機のHPを少しずつ回復する（毎秒最大HPの1.5%）' },
 };
 const SKILLS = {
   leader:   { name: '名指揮', desc: '隊長のとき、部隊の獲得経験値+20%' },
@@ -2671,7 +2671,7 @@ function simulateBattle(ctx) {
   let result = null;
   for (let t = 0; t < BAL.qs.time && !result; t++) {
     // 自己再生・修理フィールド
-    for (const x of ents) { if (!alive(x) || x.ship || x.fort) continue; if (x.ab === 'regen') x.hp = Math.min(x.maxHp, x.hp + x.maxHp * regenRate(x.c?.t)); if (x.ab === 'medic') for (const y of ents) if (y !== x && y.s === x.s && alive(y) && !y.ship && !y.fort) y.hp = Math.min(y.maxHp, y.hp + y.maxHp * 0.01); }
+    for (const x of ents) { if (!alive(x) || x.ship || x.fort) continue; if (x.ab === 'regen') x.hp = Math.min(x.maxHp, x.hp + x.maxHp * regenRate(x.c?.t)); if (x.ab === 'medic') for (const y of ents) if (y !== x && y.s === x.s && alive(y) && !y.ship && !y.fort) y.hp = Math.min(y.maxHp, y.hp + y.maxHp * BAL.medicRate * 0.5); }
     for (const e of shuffle([...ents])) {
       if (!alive(e)) continue;
       const foes = ents.filter(x => x.s !== e.s && alive(x));
@@ -13257,7 +13257,7 @@ function abilityTick(B, e, dt) {
   const ab = e.T.ab; if (!ab) return;
   if (ab === 'regen' && e.hp < e.maxHp) { e.hp = Math.min(e.maxHp, e.hp + e.maxHp * regenRate(e.T?.id) * dt); if (Math.random() < dt * 1.5) B.fx.push({ kind: 'heal', x: e.x + rand(-8, 8), y: e.y - 10, t: 0, life: 0.6 }); }
   if (ab === 'overdrive' && !e.od && e.hp < e.maxHp * 0.5) { e.od = true; B.texts.push({ x: e.x, y: e.y - 34, text: 'オーバードライブ！', col: '#ff9a4a', t: 0, life: 1.4, big: true }); B.fx.push({ kind: 'ring', x: e.x, y: e.y, r: 40, t: 0, life: 0.4, col: '#ff9a4a' }); SFX.play('awaken'); }
-  if (ab === 'medic') { e.medT = (e.medT ?? 1) - dt; if (e.medT <= 0) { e.medT = 1; for (const o of B.ents) { if (o === e || !o.alive || o.side !== e.side || o.kind !== 'mech' || o.hp >= o.maxHp) continue; if (Math.hypot(o.x - e.x, o.y - e.y) > 170) continue; o.hp = Math.min(o.maxHp, o.hp + o.maxHp * 0.02); B.fx.push({ kind: 'heal', x: o.x, y: o.y - 12, t: 0, life: 0.7 }); } } }
+  if (ab === 'medic') { e.medT = (e.medT ?? 1) - dt; if (e.medT <= 0) { e.medT = 1; for (const o of B.ents) { if (o === e || !o.alive || o.side !== e.side || o.kind !== 'mech' || o.hp >= o.maxHp) continue; if (Math.hypot(o.x - e.x, o.y - e.y) > 170) continue; o.hp = Math.min(o.maxHp, o.hp + o.maxHp * BAL.medicRate); B.fx.push({ kind: 'heal', x: o.x, y: o.y - 12, t: 0, life: 0.7 }); } } }
 }
 // ビームシールド：張っている機体の正面（左右70度）から来た弾は止まる
 function shieldBlocks(o, fx, fy) { return !!o.shieldOn && Math.abs(angDiff(o.aim, Math.atan2(fy - o.y, fx - o.x))) < 1.25; }
