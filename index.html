@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v179</span>
+    <span class="t-ver">v180</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15764,6 +15764,35 @@ function zukanSync() {
   store('hsk_zukan', JSON.stringify(Z));
   return Z;
 }
+// 図鑑の「？？？」の機体：出し方のヒント（名前は伏せたまま）
+function unitHintHtml(T, seenU, seenP) {
+  const pn = id => `パイロット「${PILOT_BASE[id].name}」`;
+  // 見ていない機体の名前は出さず、種類で言う（例：この勢力の「主力」の機体）
+  const nms = ids => { const cs = [...new Set(ids.filter(id => !seenU(id)).map(id => UNITS[id].cls))]; return [...ids.filter(id => seenU(id)).map(id => `「${UNITS[id].name}」`), ...(cs.length ? [`まだ見ていない${cs.map(c => `「${c}」`).join('か')}の機体`] : [])].join('か、'); };
+  const F = T.f ? FAC[T.f] : null, L = [];
+  const merc = MERCS.find(m => m.unit === T.id);
+  if (T.id === WANDERER.unit) {
+    L.push(`本編で自軍の拠点を${WANDERER.areas}以上にして${WANDERER.from}ターン目をすぎると、ときどき放浪者のうわさが届きます。`, 'うわさのあと、放浪者が決闘を挑んでくることがあります。決闘に勝って仲間にすると手に入ります。負けても、しばらくするとまた挑んできます。');
+  } else if (T.id === AWAKEN.unit) {
+    L.push(`放浪者を仲間にして${AWAKEN.after}ターンたつと、ときどき特別なイベントが起きます。`, 'そこで手ごわい相手に勝つと手に入ります。');
+  } else if (T.id === RELIC.unit) {
+    L.push(`本編の${RELIC.from}ターン目以降、ときどき地図に「古戦場の残骸」が現れます。`, `${RELIC.life}ターンで消えるので、そのうちに自軍の部隊（母艦）を向かわせて調べてください。旧時代の試作機の部品が見つかることがあります。`, `部品を${RELIC.need}つ集めると手に入ります。`);
+  } else if (merc) {
+    L.push(`本編で、戦闘前の画面に「助っ人を雇う」欄が出ることがあります（顔ぶれは毎ターン変わります）。`, `この機体の傭兵を雇って一緒に戦えば図鑑に載ります。費用はおよそ${fmt(merc.price)}です。`, '何度か雇っていると、仲間にならないかという話が来ることもあります。');
+  } else if (F) {
+    const ex = EXCLUSIVE.filter(e => e.to === T.id), from0 = Object.values(UNITS).filter(U => U.to?.includes(T.id) && !U.rogue), from1 = from0.filter(U => U.cls !== '専用機' && U.cost < T.cost), from = (from1.length ? from1 : from0).map(U => U.id); // 素直な進化元（下の段）を優先して示す
+    if (ex.length) {
+      const ps = [...new Set(ex.map(e => e.pilot))], fs = [...new Set(ex.map(e => e.from))];
+      L.push(`${ps.map(pn).join('か')}を、${nms(fs)}に乗せて、経験値を貯めて進化させると手に入ります。`, `${F.name}と戦っていると、そのパイロットがこの機体で出てくることもあります。戦えば図鑑に載ります。`, '敵のパイロットは、母艦を沈めて捕獲すれば仲間にできます。');
+    } else if (T.bt > 0) {
+      L.push(`${F.name}でプレイすれば、生産して手に入れられます。`, `ほかの勢力でプレイしているなら、${F.name}と戦っているうちに出会えます。`);
+    } else {
+      L.push(`${from.length ? nms(from) : 'この勢力の下の段の機体'}を育てて、経験値を貯めて進化させると手に入ります。`, `${F.name}と戦っていると、敵が育てた機体として出てくることもあります。${T.cls === '最上位' ? '最上位機は、ゲームの中盤以降によく現れます。' : ''}`);
+    }
+    if (!ex.length) L.push('捕獲した他勢力の機体を育てて解析すると、その勢力の機体も自軍で作れるようになります。');
+  }
+  return `<p>${F ? `${facBadge(T.f)} ${F.name}の` : '<span class="fb" style="--fc:' + MERC_COL + '">傭兵・その他</span> '}<b>${T.cls}</b></p><ul class="rk-ul">${L.map(x => `<li>${x}</li>`).join('')}</ul><p class="dim small">戦闘で一度でも同じ戦場に出れば「遭遇」、自軍の機体になれば「入手」として図鑑に載ります。</p>`;
+}
 // 系統の段：量産機 → 発展機 → 最上位・専用機
 const tierOf = T => T.bt > 0 ? 0 : (T.cls === '最上位' || T.cls === '専用機') ? 2 : 1;
 // 図鑑の並び：量産機→発展機→最上位→専用機、同じ段は安い順
@@ -15798,7 +15827,7 @@ async function openEncyclopedia(tab = 'unit') {
       <span>機体 ${nu}/${units.length}<i><b style="width:${pct(nu, units.length)}%"></b></i></span><span>母艦 ${ns}/${ships.length}<i><b style="width:${pct(ns, ships.length)}%"></b></i></span>
       <span>パイロット ${np}/${pilots.length}<i><b style="width:${pct(np, pilots.length)}%"></b></i></span><span>武器 ${nw}/${wList.length}<i><b style="width:${pct(nw, wList.length)}%"></b></i></span></div></div>
       <div class="seg zk-tabs">${[['unit', '機体'], ['tree', '系統'], ['ship', '母艦'], ['pilot', 'パイロット'], ['weapon', '武器'], ['world', '世界']].map(([k, n]) => `<button data-act="tab" data-tab="${k}" class="${tab === k ? 'on' : ''}">${n}</button>`).join('')}</div>`;
-    const uCell = T => { const k = seenU(T.id), col = T.f ? FAC[T.f].color : '#c9b98a'; return k ? `<button class="enc ${k === 2 ? 'got' : ''}" data-act="unit" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${col}" data-size="58"></span><span>${T.name}</span></button>` : `<div class="enc unknown"><span class="q">？</span><span>？？？</span></div>`; };
+    const uCell = T => { const k = seenU(T.id), col = T.f ? FAC[T.f].color : '#c9b98a'; return k ? `<button class="enc ${k === 2 ? 'got' : ''}" data-act="unit" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${col}" data-size="58"></span><span>${T.name}</span></button>` : `<button class="enc unknown" data-act="uhint" data-t="${T.id}"><span class="q">？</span><span>？？？</span></button>`; }; // まだ見ていない機体は、押すと出し方のヒント
     if (tab === 'unit') {
       h += '<p class="dim small">戦った機体は「遭遇」、自軍に加えた機体は「入手」（金の枠）として記録されます。記録はゲームをまたいで残ります。</p>';
       for (const F of facs) h += `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${zkSort(units.filter(T => T.f === F.id)).map(uCell).join('')}</div>`;
@@ -15841,6 +15870,7 @@ async function openEncyclopedia(tab = 'unit') {
   };
   const p = openModal({ title: '図鑑', body: render(), cls: 'wide', onAct: async (act, t, M) => {
     if (act === 'tab') { tab = t.dataset.tab; SFX.play('select'); M.refresh(render()); fillThumbs(M.el); return; }
+    if (act === 'uhint') { SFX.play('select'); const q = openModal({ title: '？？？の出し方', body: unitHintHtml(UNITS[t.dataset.t], seenU, seenP), cls: 'small' }); await q; return; }
     if (act === 'unit') {
       const T = UNITS[t.dataset.t], col = T.f ? FAC[T.f].color : '#c9b98a';
       const from = units.filter(x => x.to.includes(T.id)).map(x => seenU(x.id) ? x.name : '？？？');
