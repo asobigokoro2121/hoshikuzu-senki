@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v180</span>
+    <span class="t-ver">v181</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15783,7 +15783,7 @@ function unitHintHtml(T, seenU, seenP) {
     const ex = EXCLUSIVE.filter(e => e.to === T.id), from0 = Object.values(UNITS).filter(U => U.to?.includes(T.id) && !U.rogue), from1 = from0.filter(U => U.cls !== '専用機' && U.cost < T.cost), from = (from1.length ? from1 : from0).map(U => U.id); // 素直な進化元（下の段）を優先して示す
     if (ex.length) {
       const ps = [...new Set(ex.map(e => e.pilot))], fs = [...new Set(ex.map(e => e.from))];
-      L.push(`${ps.map(pn).join('か')}を、${nms(fs)}に乗せて、経験値を貯めて進化させると手に入ります。`, `${F.name}と戦っていると、そのパイロットがこの機体で出てくることもあります。戦えば図鑑に載ります。`, '敵のパイロットは、母艦を沈めて捕獲すれば仲間にできます。');
+      L.push(`${ps.map(pn).join('か')}を、${nms(fs)}に乗せて、経験値を貯めて進化させると手に入ります。`);
     } else if (T.bt > 0) {
       L.push(`${F.name}でプレイすれば、生産して手に入れられます。`, `ほかの勢力でプレイしているなら、${F.name}と戦っているうちに出会えます。`);
     } else {
