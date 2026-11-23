@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v173</span>
+    <span class="t-ver">v174</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1852,7 +1852,7 @@ const WEAPON_DESC = {
   laser: '押している間、光線を当て続ける。', bshield: '押している間、正面の弾を防ぐビームの盾。', plasma: 'ゆっくり進む光球。触れた敵を焼き続け、最後に破裂する。',
   turret: '自動で撃ち続ける小さな砲台を置く。', transform: '別の形態に変形して、使う武器と速さが入れ替わる。もう一度押すと人型に戻る。',
   arc: '電撃を放つ。当たった敵から近くの敵へ2回まで跳ね、少し痺れさせる。', grav: 'ゆっくり進む重力の球。まわりの敵を引き寄せてから破裂する。',
-  z_star: 'リベルタス専用。短い溜めで撃つ細い光の槍。並んだ敵をまとめて貫く。', z_moon: 'リベルタス専用。三日月の形の大刀。正面のほとんどを薙ぎ払い、敵を押し返す。', z_meteor: 'リベルタス専用。星屑のような光弾を4つ放ち、敵を追って降りそそぐ。',
+  z_star: 'リベルタス専用。短い溜めで撃つ細い光の槍。並んだ敵をまとめて貫く。', z_moon: 'リベルタス専用。三日月の形の大刀。正面のほとんどを薙ぎ払い、敵を押し返す。', z_meteor: 'リベルタス専用。星屑のような光弾を4つ扇状に放つ。光弾は敵を追って曲がり、当たると小さく弾ける。機銃などで撃ち落とされることもある。',
   smart: '照準装置つきのビーム銃。1回で3発を素早く撃つ。', katana: '巨大な実体剣。広く重い一撃で敵を吹き飛ばす。',
   mortar: '高く弾を打ち上げ、障害物を越えて敵のいた場所に落とす。',
   pile: '腕の杭を火薬で打ち出す。射程は短いが、当たれば装甲ごと貫いて吹き飛ばす。', bgat: 'ビームの小粒を回転砲身からばらまく。押している間、撃ち続ける。',
@@ -10711,6 +10711,13 @@ function drawShots(c, B) {
       c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.arc(p.x - 1, sy - 1, 1.2 * sc, 0, 7); c.fill();
       c.restore(); continue;
     }
+    if (p.kind === 'hom' && p.orb) { // 光の追尾弾：尾を引く星屑
+      const sp = Math.hypot(p.vx, p.vy) || 1, tx = -p.vx / sp, ty = -p.vy / sp;
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for (let k = 4; k >= 1; k--) glowDot(c, p.x + tx * k * 5, p.y + ty * k * 5, 7 - k, p.color, 0.5 - k * 0.09);
+      glowDot(c, p.x, p.y, 11, p.color, 0.85); c.fillStyle = '#fffbe8'; c.beginPath(); c.arc(p.x, p.y, 2.6, 0, Math.PI * 2); c.fill();
+      c.restore(); continue;
+    }
     if (p.kind === 'miss' || p.kind === 'hom') {
       c.save(); c.translate(p.x, p.y); c.rotate(a);
       c.save(); c.globalCompositeOperation = 'lighter'; flame(c, -6, 0, 15 + Math.sin(B.t * 40 + p.x) * 3, Math.PI, B.t * 3 + p.x, '#ffb36a'); glowDot(c, -7, 0, 10, '#ff9a4a', 0.7); c.restore();
@@ -13166,7 +13173,8 @@ function fire(B, e, s) {
       SFX.play('missile'); e.cd[s] = w.cd; break;
     }
     case 'homing': {
-      for (let i = 0; i < w.count; i++) shot(B, e, s, a + (i ? 0.8 : -0.8), { r: 4, kind: 'hom', color: '#ff7a9a', shootable: true, blast: w.blast, tgt, life: w.life });
+      const n = w.count, orb = w.attr === 'beam'; // ビームの追尾弾は光の玉（扇状に広がって飛ぶ）
+      for (let i = 0; i < n; i++) shot(B, e, s, a + (n === 2 ? (i ? 0.8 : -0.8) : (i - (n - 1) / 2) * (1.8 / (n - 1))), { r: 4, kind: 'hom', color: orb ? '#ffe9a6' : '#ff7a9a', shootable: true, blast: w.blast, tgt, life: w.life, orb });
       SFX.play('missile'); e.cd[s] = w.cd; break;
     }
     case 'reflect': {
@@ -13394,7 +13402,7 @@ function updateShots(B, dt) {
       const tg = p.tgt?.alive ? p.tgt : nearest(B.ents.filter(o => o.alive && o.side !== p.side), p.x, p.y);
       if (tg) { const cur = Math.atan2(p.vy, p.vx), d = angDiff(cur, angTo(p, tg)); const na = cur + clamp(d, -3 * dt, 3 * dt); const sp = Math.hypot(p.vx, p.vy); p.vx = Math.cos(na) * sp; p.vy = Math.sin(na) * sp; }
     }
-    if (p.kind === 'miss' || p.kind === 'hom' || p.kind === 'gren') { p.st = (p.st || 0) - dt; if (p.st <= 0) { p.st = 0.035; B.fx.push({ kind: 'smoke', x: p.x, y: p.y, vx: 0, vy: 0, r0: 1.6, r1: 5.5, a0: 0.3, t: 0, life: 0.45 }); } }
+    if ((p.kind === 'miss' || p.kind === 'hom' || p.kind === 'gren') && !p.orb) { p.st = (p.st || 0) - dt; if (p.st <= 0) { p.st = 0.035; B.fx.push({ kind: 'smoke', x: p.x, y: p.y, vx: 0, vy: 0, r0: 1.6, r1: 5.5, a0: 0.3, t: 0, life: 0.45 }); } }
     const step = Math.hypot(p.vx, p.vy) * dt;
     p.x += p.vx * dt; p.y += p.vy * dt; p.dist += step;
     if (p.kind === 'blade') {
@@ -14345,7 +14353,7 @@ function updateHud(B) {
   renderSwap(B);
   const e = B.ctrl;
   B.dom.btns.forEach((b, s) => {
-    const k = b.querySelector('.b-k'), lab = e && e.w[s] ? (BTN_LABEL[wOf(e, s).cat] || '特殊') : '―';
+    const k = b.querySelector('.b-k'), lab = e && e.w[s] ? (wOf(e, s).cat === 'homing' && wOf(e, s).attr === 'beam' ? '光弾' : BTN_LABEL[wOf(e, s).cat] || '特殊') : '―';
     if (k.textContent !== lab) { k.textContent = lab; k.style.fontSize = lab.length >= 4 ? '13px' : ''; }
     if (!e || !e.w[s]) { b.classList.add('off'); b.querySelector('small').textContent = '―'; return; }
     const w = wOf(e, s), ok = weaponUsable(e, s), am = e.ammo ? e.ammo[s] : Infinity;
