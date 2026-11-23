@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v174</span>
+    <span class="t-ver">v175</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -874,7 +874,7 @@ const BAL = {
   fuse: 0.5,                 // 近接信管が働く距離（爆風半径に対する割合）
   barrierBeam: 0.8,          // 位相バリアが受けるビームダメージの倍率
   evade: { base: 5, per: 6, pil: 3, max: 30 }, // 機動回避：速度が base を超えた分×per%（パイロットの操縦ランク1つにつき+pil%）
-  shootHp: { shell: 3, gren: 2, miss: 2, hom: 2, cluster: 2 }, shootPad: { miss: 6, hom: 6, cluster: 6 }, missTurnK: 1.15, missHomK: 1.15, rogueFireK: 1.3, medicRate: 0.015, // medicRate：修理フィールドの回復（毎秒、最大HPに対する割合）。 shootHp：撃ち落とせる弾の耐久／shootPad：当たり判定の上乗せ／missTurnK・missHomK：ミサイルの曲がる速さ・誘導時間の倍率／rogueFireK：巨大兵器の攻撃の速さ（再使用と溜めが1.3倍速）。撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
+  shootHp: { shell: 3, gren: 2, miss: 2, hom: 2, cluster: 2 }, shootPad: { miss: 6, hom: 6, cluster: 6 }, missTurnK: 1.15, missHomK: 1.15, rogueFireK: 1.3, medicRate: 0.015, orbShootHp: 4, // orbShootHp：ビームの追尾弾（光の玉）の撃ち落とされにくさ。 // medicRate：修理フィールドの回復（毎秒、最大HPに対する割合）。 shootHp：撃ち落とせる弾の耐久／shootPad：当たり判定の上乗せ／missTurnK・missHomK：ミサイルの曲がる速さ・誘導時間の倍率／rogueFireK：巨大兵器の攻撃の速さ（再使用と溜めが1.3倍速）。撃ち落とせる弾の耐久（機銃の弾1発で1、ライフルなどは2減る。ビームの照射やレールガンは一撃）
   lvDmg: 0.02, lvHp: 0.02,   // 機体のレベル1つごとの攻撃力・HPの上昇
   // 機体のレベル：戦闘で得た経験値を「進化」か「レベルアップ」に使う。レベルアップの費用は lvUpBase から少しずつ増える
   lvUpBase: 40, lvUpGrow: 0.2, evoK: 1.15, // evoK：進化に必要な経験値の倍率
@@ -13174,7 +13174,7 @@ function fire(B, e, s) {
     }
     case 'homing': {
       const n = w.count, orb = w.attr === 'beam'; // ビームの追尾弾は光の玉（扇状に広がって飛ぶ）
-      for (let i = 0; i < n; i++) shot(B, e, s, a + (n === 2 ? (i ? 0.8 : -0.8) : (i - (n - 1) / 2) * (1.8 / (n - 1))), { r: 4, kind: 'hom', color: orb ? '#ffe9a6' : '#ff7a9a', shootable: true, blast: w.blast, tgt, life: w.life, orb });
+      for (let i = 0; i < n; i++) shot(B, e, s, a + (n === 2 ? (i ? 0.8 : -0.8) : (i - (n - 1) / 2) * (1.8 / (n - 1))), { r: 4, kind: 'hom', color: orb ? '#ffe9a6' : '#ff7a9a', shootable: true, blast: w.blast, tgt, life: w.life, orb, shp: orb ? BAL.orbShootHp : undefined }); // 光の玉は散らばって撃ち落とされやすいぶん、耐久を高く
       SFX.play('missile'); e.cd[s] = w.cd; break;
     }
     case 'reflect': {
