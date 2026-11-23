@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v178</span>
+    <span class="t-ver">v179</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15484,7 +15484,7 @@ async function preBattle(ctx) {
       ${!SETTINGS.tips.capture ? '' : '<p class="hint">敵の母艦を沈めると、積んでいた機体とパイロットを捕獲できます。</p>'}`;
   };
   await showTip('capture');
-  const buttons = [{ label: '出撃（操作する）', value: 'action', cls: 'primary' }, { label: 'オートで戦う', value: 'auto' }, { label: '即時決着', value: 'quick' }];
+  const buttons = [{ label: '出撃（操作する）', value: 'action', cls: 'primary' }, { label: 'オートで戦う', value: 'auto' }, clearCount() ? { label: '即時決着', value: 'quick' } : { label: '即時決着（一度クリアで解禁）', value: 'quick', disabled: true }]; // 即時決着は、どれかの勢力で一度クリアするまで封印
   if (attacking) buttons.push({ label: 'やめる', value: 'cancel' });
   const title = attacking ? `${AREAS[ctx.area].name}へ攻撃` : `敵襲！ ${AREAS[ctx.area].name}`;
   if (!attacking) SFX.play('alarm');
@@ -15515,7 +15515,7 @@ async function preBattle(ctx) {
   if (merc !== null) { const m = offers[merc]; if (G.fac[G.player].funds >= m.price) { G.fac[G.player].funds -= m.price; mercObj = m; G.mercHire = G.mercHire || {}; G.mercHire[m.pilot] = (G.mercHire[m.pilot] || 0) + 1; G.fac[G.player].mercs = offers.filter((_, i) => i !== merc); } }
   setSortie(me, sel, mercObj);
   ctx.ctrlShip = ctrlShip;
-  return choice || 'quick';
+  return choice || (clearCount() ? 'quick' : 'auto');
 }
 HOOKS.playerBattle = async ctx => {
   let mode = SETTINGS.battleMode;
