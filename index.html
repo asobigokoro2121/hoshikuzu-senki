@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v177</span>
+    <span class="t-ver">v178</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -4501,7 +4501,7 @@ function interludeCheck() {
 
 // ---------- 6) 結末：どう勝ったかで変わる ----------
 // 結末の条件：上から順に見て、最初に当てはまったもの
-const ENDING_RULE = { unity: 5, swift: 25, cost: 3 };
+const ENDING_RULE = { unity: 5, swift: 25, cost: 2 };
 const ENDING_KIND = {
   unity: { name: '共闘の結末', desc: '敵だった者たちと肩を並べて勝った', cond: `ほかの勢力から仲間にした名有りパイロットが${ENDING_RULE.unity}人以上、機体か母艦に乗って生きている` },
   swift: { name: '電撃の結末', desc: '戦火が広がる前に、短期間で決着をつけた', cond: `${ENDING_RULE.swift}ターン以内に統一する` },
@@ -14502,7 +14502,9 @@ function openModal({ title, body, buttons = [], cls = '', onAct, dismiss = true 
     wrap.innerHTML = `<div class="mbox" role="dialog" aria-modal="true"><div class="mhead"><h2>${title}</h2>${dismiss ? '<button class="mx" data-act="close" aria-label="閉じる">×</button>' : ''}</div><div class="mbody">${body}</div>${buttons.length ? `<div class="mfoot">${buttons.map(b => `<button class="btn ${b.cls || ''}" data-act="btn" data-v="${b.value}" ${b.disabled ? 'disabled' : ''}>${b.label}</button>`).join('')}</div>` : ''}</div>`;
     $('#layer').appendChild(wrap);
     queueMicrotask(() => fillThumbs(wrap)); // 呼び出し側が色つきで埋めたあと、残った顔や機体を埋める
-    const M = { el: wrap, close: v => { wrap.remove(); modalStack.splice(modalStack.indexOf(M), 1); resolve(v); }, refresh: (b) => { wrap.querySelector('.mbody').innerHTML = b; queueMicrotask(() => fillThumbs(wrap)); } };
+    const M = { el: wrap, close: v => { wrap.remove(); modalStack.splice(modalStack.indexOf(M), 1); resolve(v); }, refresh: (b) => { // 中身を入れ替えても、スクロール位置はそのまま
+      const sc = [wrap, ...wrap.querySelectorAll('*')].filter(x => x.scrollTop > 0).map(x => [x, x.scrollTop]);
+      wrap.querySelector('.mbody').innerHTML = b; fillThumbs(wrap); for (const [x, y] of sc) x.scrollTop = y; } };
     modalStack.push(M);
     wrap.addEventListener('click', ev => {
       const t = ev.target.closest('[data-act]');
@@ -15152,7 +15154,10 @@ function fillThumbs(root, col) {
   root.querySelectorAll('[data-hero]').forEach(el => { if (el.firstChild) return; const W = Math.max(200, Math.min(520, el.clientWidth || 320)); el.appendChild(heroCanvas(el.dataset.hero, el.dataset.col || col, W, +(el.dataset.h || 210))); });
   const jobs = [];
   root.querySelectorAll('[data-face]').forEach(el => { if (!el.firstChild) jobs.push([el, () => pilotFace(pilotById(el.dataset.face), +(el.dataset.size || 40), { crop: el.dataset.crop || 'head', ex: el.dataset.ex })]); });
-  root.querySelectorAll('[data-thumb]').forEach(el => { if (!el.firstChild) jobs.push([el, () => mechThumb(el.dataset.thumb, el.dataset.col || col, el.dataset.size ? +el.dataset.size : 52)]); });
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  root.querySelectorAll('[data-thumb]').forEach(el => { if (el.firstChild) return; const t = el.dataset.thumb, c2 = el.dataset.col || col, sz = el.dataset.size ? +el.dataset.size : 52;
+    // 一度描いた絵はすぐに出す（選び直しのたびに中身が一瞬縮んで画面がずれないように）
+    if (THUMB_CACHE.has(`${t}|${sz}|${c2 ?? null}|||${dpr}`)) el.appendChild(mechThumb(t, c2, sz)); else jobs.push([el, () => mechThumb(t, c2, sz)]); });
   root.querySelectorAll('[data-sthumb]').forEach(el => { if (!el.firstChild) jobs.push([el, () => shipThumb(el.dataset.sthumb, col, el.dataset.size ? +el.dataset.size : 52)]); });
   for (const j of jobs) { j.push(j[0].isConnected); THUMB_Q.push(j); }
   runThumbQ(45);
@@ -16405,11 +16410,12 @@ async function openArena(pre = [], foe0 = null) {
     ${FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
     ${(() => { const hs = [WANDERER.unit, AWAKEN.unit, RELIC.unit].filter(t => pool.some(T => T.id === t)); return hs.length ? `<h4><span class="fb" style="--fc:${MERC_COL}">隠し</span> 隠し機体</h4><div class="enc-grid">${hs.map(t => `<button class="enc ${sel.includes(t) ? 'got' : ''}" data-act="pick" data-t="${t}"><span class="uthumb" data-thumb="${t}" data-col="${MERC_COL}" data-size="52"></span><span>${UNITS[t].name}</span></button>`).join('')}</div>${hs.some(x => x === WANDERER.unit || x === AWAKEN.unit) ? '<p class="dim small">リベルタスと真リベルタスに乗るのは放浪者ゼファー本人です。ゼファーは1人なので、どちらか一方しか選べません。</p>' : ''}` : ''; })()}
     ${(() => { const us = pool.filter(T => !T.f && T.id !== WANDERER.unit && T.id !== AWAKEN.unit && T.id !== RELIC.unit); return `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵の機体</h4>${us.length ? `<div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${MERC_COL}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''}<p class="dim small">傭兵の機体は、その傭兵を正式に仲間にしてクリアすると選べるようになります（乗るのはその傭兵本人です）。${us.length < MERCS.length ? `あと${MERCS.length - us.length}機。` : ''}</p>`; })()}`;
-  const p = openModal({ title: '模擬戦', body: (shadowOpen() ? `<button class="btn small trial-btn" data-act="trial">星の影と戦う（ゼファー覚醒の再戦）${records().shadowWins ? `<small>　勝利 ${records().shadowWins}回</small>` : ''}</button>` : '') + render(), cls: 'wide', buttons: [{ label: 'やめる', value: 'no' }, { label: '出撃', value: 'go', cls: 'primary' }], onAct: (act, t, M) => {
+  const body = () => (shadowOpen() ? `<button class="btn small trial-btn" data-act="trial">星の影と戦う（ゼファー覚醒の再戦）${records().shadowWins ? `<small>　勝利 ${records().shadowWins}回</small>` : ''}</button>` : '') + render(); // 選び直しても星の影のボタンが消えないように
+  const p = openModal({ title: '模擬戦', body: body(), cls: 'wide', buttons: [{ label: 'やめる', value: 'no' }, { label: '出撃', value: 'go', cls: 'primary' }], onAct: (act, t, M) => {
     if (act === 'trial') { SFX.play('select'); M.close('trial'); return; }
-    if (act === 'pick') { const id = t.dataset.t, ZS = [WANDERER.unit, AWAKEN.unit]; if (sel.includes(id)) sel = sel.filter(x => x !== id); else if (ZS.includes(id) && sel.some(x => ZS.includes(x))) { toast('ゼファーは1人なので、リベルタスと真リベルタスは同時に選べません', 'bad'); SFX.play('bad'); return; } else if (sel.length < 3) sel.push(id); else { toast('3機まで選べます', 'bad'); return; } SFX.play('select'); M.refresh(render()); }
-    if (act === 'rm') { sel.splice(+t.dataset.i, 1); SFX.play('select'); M.refresh(render()); }
-    if (act === 'foe') { foe = t.dataset.k || null; SFX.play('select'); M.refresh(render()); }
+    if (act === 'pick') { const id = t.dataset.t, ZS = [WANDERER.unit, AWAKEN.unit]; if (sel.includes(id)) sel = sel.filter(x => x !== id); else if (ZS.includes(id) && sel.some(x => ZS.includes(x))) { toast('ゼファーは1人なので、リベルタスと真リベルタスは同時に選べません', 'bad'); SFX.play('bad'); return; } else if (sel.length < 3) sel.push(id); else { toast('3機まで選べます', 'bad'); return; } SFX.play('select'); M.refresh(body()); }
+    if (act === 'rm') { sel.splice(+t.dataset.i, 1); SFX.play('select'); M.refresh(body()); }
+    if (act === 'foe') { foe = t.dataset.k || null; SFX.play('select'); M.refresh(body()); }
   } });
   fillThumbs(modalStack[modalStack.length - 1].el);
   const pv = await p;
