@@ -745,7 +745,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
 .secret p { margin: 4px 0; }
 .secret-box { margin: 8px 0 10px; }
 .secret-box summary { cursor: pointer; font-weight: bold; color: var(--gold); padding: 6px 0; }
-.secret-box.locked { border: 1px dashed var(--line); padding: 8px 10px; color: var(--muted); font-size: 13px; }
+.secret-hush { margin: 18px 0 2px; text-align: right; color: var(--muted); opacity: .55; font-size: 10px; letter-spacing: .05em; }
 .help-list { margin: 4px 0 8px; padding-left: 1.3em; }
 .help-list li { margin: 3px 0; }
 .lr-end { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v181</span>
+    <span class="t-ver">v182</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15988,7 +15988,7 @@ async function openHelp() {
     <h4>木星開拓同盟</h4><p>宇宙の東の端、木星圏を治める新しい勢力です。戦闘のあと、生き残った機体のHPが1割ほど回復します（自己修復装甲）。防衛砲台の重力場は、まわりの敵の足を鈍らせます。</p>
     <h4>ストーリーと仲間</h4><p>ゲームが進むと章ごとの場面が入り、勢力の指導者やエースが語ります。途中のターンで新しいパイロットが合流することもあります。ランダムな出来事には、資金を払うかどうかを選ぶものもあります。</p>
     <h4>結末</h4><p>統一すると、戦い方によって4つの結末のどれかになります。上から順に見て、最初に当てはまったものになります。</p><ul class="help-list">${Object.values(ENDING_KIND).map(E => `<li><b>${E.name}</b>：${E.cond}</li>`).join('')}</ul><p>見た結末は「戦績」に記録され、4つすべて見ると勲章がもらえます。</p>
-    <h4>隠しコマンド</h4>${medalCount() >= SECRET_MEDALS ? secretHtml() : `<p>勲章を${SECRET_MEDALS}個集めると、ここに隠しコマンドの説明が出ます（いま${medalCount()}個）。</p>`}
+    ${medalCount() >= SECRET_MEDALS ? `<h4>隠しコマンド</h4>${secretHtml()}` : ''}
     <h4>図鑑・勲章・模擬戦</h4><p>図鑑には戦った機体・母艦・パイロット・武器が記録され、ゲームをまたいで残ります。勲章は条件を満たすとその場で獲得できます。クリアすると評価がつき、難易度「極」とクリア特典が使えるようになります。クリア特典は、クリアした勢力ごとに違う特典（追加の機体・経験値・収入・改造など）が解放され、勢力選択の画面で2つまで選べます。タイトルの「模擬戦」では、好きな3機でだんだん強くなる敵と戦い続け、連勝記録に挑めます。オートを使った戦いでは模擬戦の勲章はもらえません。一度倒した巨大兵器にも、模擬戦でもう一度挑めます。模擬戦の記録は、使った3機と一緒に上位5件まで残ります。<br>勲章を集めると司令官の称号が上がります。<br>勢力選択の画面の「縛り」では、傭兵なし・進化なし・改造なし・資金不足の4つの縛りを好きに組み合わせて遊べます。縛りをつけるほどクリアの評価が上がり、勢力ごとにどの縛りでクリアしたかが記録に残ります。</p>
     <h4>傭兵</h4><p>戦闘前の画面で、1戦闘だけ傭兵を雇えます。同じ傭兵を何度か（3回以上）雇っていると、ターンの始めにまとまった契約金で正式に仲間になると申し出てくることがあります。仲間になった傭兵は、雇い賃なしでいつでも出撃でき、経験も積めます。</p>
     <h4>弾数</h4><p>実弾・ミサイル・ビームライフルなど多くの武器には弾数があり、ボタンに「残り」が出ます。弾が切れた機体は格闘に切り替えて戦います。格闘武器は無制限です。</p>
@@ -16022,7 +16022,7 @@ async function openHelp() {
     <h4>鹵獲機の解析</h4><p>捕獲した他勢力の機体を進化かレベルアップさせると解析が終わり、その機体を自軍の工場で生産できるようになります。量産できない高性能機の場合は、その系統の元になった量産機が作れるようになります。</p>
     <h4>武器の種類</h4><p>ショットガン（近いほど強い散弾）、火炎放射器（押している間、炎を浴びせる）、レールガン（照準のあと壁も機体も貫く弾）、ビームランス・ドリル・ファング（敵へ突進して貫く）、機雷（置いておくと敵が近づいたとき爆発）、ビームブーメラン（行きと帰りで2回当たる）、薙ぎ払いレーザー（扇形に払う光線）、電磁ネット（当たった敵の足を鈍らせる）、クラスターミサイル（目標の手前で子弾をばらまく）、照射レーザー（押している間、光線を当て続ける）、プラズマ砲（ゆっくり進む光球が触れた敵を焼き、最後に破裂）、自律砲台（置くとしばらく自動で撃つ）、ハンマー（当てた敵を吹き飛ばす）、ビームシールド（押している間、正面の弾を防ぐ）など。武器は一度に1つしか使えません。</p>
     <h4>暴走巨大兵器</h4><p>統一が近づくと、まれに巨大兵器が現れます（1回のゲームで1体だけ）。地上を歩く「ギガス」、地上と宇宙を行き来して遠くから撃つ円盤「ハロー」、難易度「極」だけに現れる残骸の群体「レギオン」の3種類です。どれもどの勢力にも属さず、隣の拠点（首都をのぞく）を荒らして、持ち主のいない土地に変えていきます。とても頑丈で、戦闘のあとに1割、ターンが変わるたびに2割回復します。倒さなくてもクリアできますが、撃破すれば資金とパーツが手に入ります。ギガスとの戦いは、時間切れなら守った側の勝ちです。</p>
-    <h4>戦闘のしくみ</h4><p>足の速い機体（速度6以上）や操縦の上手いパイロットは、射撃をときどき「回避」します。爆風と近接攻撃はかわせません。<br>キャノン・バズーカ・ミサイルは敵のそばを通ると炸裂します（近接信管）。ミサイルは敵を追って曲がります。ミサイル・砲弾は、爆発しない弾を当てれば撃ち落とせます（機銃・ビット・散弾は3発ほど、ライフルなどは2発ほど、ビームの照射やレールガンなら1発）。機体は向かってくるミサイルを、機銃などで自分から迎え撃ちます。<br>位相バリアはビームのダメージを2割減らします。</p>`;
+    <h4>戦闘のしくみ</h4><p>足の速い機体（速度6以上）や操縦の上手いパイロットは、射撃をときどき「回避」します。爆風と近接攻撃はかわせません。<br>キャノン・バズーカ・ミサイルは敵のそばを通ると炸裂します（近接信管）。ミサイルは敵を追って曲がります。ミサイル・砲弾は、爆発しない弾を当てれば撃ち落とせます（機銃・ビット・散弾は3発ほど、ライフルなどは2発ほど、ビームの照射やレールガンなら1発）。機体は向かってくるミサイルを、機銃などで自分から迎え撃ちます。<br>位相バリアはビームのダメージを2割減らします。</p>${medalCount() >= SECRET_MEDALS ? '' : `<p class="secret-hush">勲章を${SECRET_MEDALS}個集めると、隠しコマンドが明かされます</p>`}`;
   await openModal({ title: '遊び方', body, cls: 'wide' });
 }
 
@@ -16382,9 +16382,9 @@ async function openMedals() {
   const T = commanderTitle(), RC = R.chal || {};
   const body = `<div class="zk-top"><div class="zk-pct"><b>${n}</b><small>/${MEDALS.length}</small></div><div class="dim small">勲章はゲームをまたいで残ります。条件を満たすと、その場で獲得できます。</div></div>
     <div class="cmd-title"><small>司令官の称号</small><b>${T.name}</b><span class="dim small">${T.next ? `あと勲章${T.next}個で「${T.nextName}」` : '最高の称号です'}</span></div>
-    ${medalCount() >= SECRET_MEDALS ? `<details class="secret-box" open><summary>隠しコマンド（勲章${SECRET_MEDALS}個で解禁）</summary>${secretHtml()}</details>` : `<div class="secret-box locked">勲章を${SECRET_MEDALS}個集めると、隠しコマンドが明かされます（あと${SECRET_MEDALS - medalCount()}個）</div>`}
+    ${medalCount() >= SECRET_MEDALS ? `<details class="secret-box" open><summary>隠しコマンド（勲章${SECRET_MEDALS}個で解禁）</summary>${secretHtml()}</details>` : ''}
     <h4>勢力ごとのクリア記録</h4><div class="rec-grid">${FACTIONS.map(F => { const C = R.clears[F.id]; return `<div class="rec ${C ? 'got' : ''}" style="--fc:${F.color}">${emblemSvg(F.id, 22, F.color)}<b>${F.short}</b>${C ? `<span class="rk r${C.rank}">${C.rank}</span><small>最短 ${C.turn}ターン・${BAL.diff[C.diff]?.label || ''}</small>${(RC[F.id] || []).length ? `<small class="rec-ch">縛り：${RC[F.id].map(id => CHALLENGES.find(c => c.id === id)?.name).filter(Boolean).join('・')}</small>` : ''}` : '<small class="dim">未クリア</small>'}</div>`; }).join('')}</div>
-    <h4>勲章</h4><div class="medal-grid">${MEDALS.map(m => medalHtml(m, false)).join('')}</div>`;
+    <h4>勲章</h4><div class="medal-grid">${MEDALS.map(m => medalHtml(m, false)).join('')}</div>${medalCount() >= SECRET_MEDALS ? '' : `<p class="secret-hush">勲章を${SECRET_MEDALS}個集めると、隠しコマンドが明かされます</p>`}`;
   await openModal({ title: '勲章と記録', body, cls: 'wide' });
 }
 
@@ -16602,8 +16602,8 @@ function careerHtml() {
 function medalsHtml() {
   const n = MEDALS.filter(m => hasMedal(m.id)).length;
   return `<div class="zk-top"><div class="zk-pct"><b>${n}</b><small>/${MEDALS.length}</small></div><div class="dim small">勲章はゲームをまたいで残ります。条件を満たすと、その場で獲得できます。</div></div>
-    ${medalCount() >= SECRET_MEDALS ? `<details class="secret-box" open><summary>隠しコマンド（勲章${SECRET_MEDALS}個で解禁）</summary>${secretHtml()}</details>` : `<div class="secret-box locked">勲章を${SECRET_MEDALS}個集めると、隠しコマンドが明かされます（あと${SECRET_MEDALS - medalCount()}個）</div>`}
-    <div class="medal-grid">${MEDALS.map(m => medalHtml(m, false)).join('')}</div>`;
+    ${medalCount() >= SECRET_MEDALS ? `<details class="secret-box" open><summary>隠しコマンド（勲章${SECRET_MEDALS}個で解禁）</summary>${secretHtml()}</details>` : ''}
+    <div class="medal-grid">${MEDALS.map(m => medalHtml(m, false)).join('')}</div>${medalCount() >= SECRET_MEDALS ? '' : `<p class="secret-hush">勲章を${SECRET_MEDALS}個集めると、隠しコマンドが明かされます</p>`}`;
 }
 const tabsHtml = (tabs, cur) => `<div class="seg-tabs">${tabs.map(([k, l]) => `<button class="${k === cur ? 'on' : ''}" data-act="tab" data-t="${k}">${l}</button>`).join('')}</div>`;
 // 戦績（タイトル）：通算の戦歴と勲章をタブで切り替える
