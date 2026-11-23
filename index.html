@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v176</span>
+    <span class="t-ver">v177</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1688,7 +1688,7 @@ const UNIT_DESC = {
   psy_abyss: '深淵の名を持つ解放戦線のもう1つの最上位機。プラズマ砲とファングで闇から襲う。',
   // ---- 追加の機体 ----
   mrc_libertas: '放浪者ゼファーの愛機。どこの工房の機体かは誰も知らない。夜空色の装甲に金の縁、背には欠けた月の輪、肩には星を散らした外套。スマートガン・斬艦刀・電撃をひとりで使いこなす、地球圏で最強の一機。',
-  mrc_libertas_x: '覚醒したゼファーとともに、本当の姿を取り戻したリベルタス。月輪は金色に燃え、星槍砲スターライン・月輪刀クレセント・流星群メテオレインという、この機体にしかない三つの武器を目覚めさせた。',
+  mrc_libertas_x: '覚醒したゼファーとともに、本当の姿を取り戻したリベルタス。欠けていた月輪は満ちて金色に燃え、背には五枚の光の刃、外套は金の縁取りの夜空色に変わった。そして星槍砲スターライン・月輪刀クレセント・流星群メテオレインという、この機体にしかない三つの武器を目覚めさせた。',
   mrc_arca: '古戦場の残骸から組み上げた、旧時代の試作機。風化した石のような装甲に鈍い古金の縁、背には石柱を削り出したような二枚の刃。擦り切れた前垂れを下げ、琥珀色の目で静かに敵を見据える。貫通ビームとパイルバンカーで正面から押し通り、傷ついた装甲は少しずつひとりでに元へ戻る。',
   ugf_striker: '統合政府の新しい切り込み役。照準器つきのスマートガンで撃ちながら近づき、巨大な斬艦刀で叩き斬る。傷つくほど動きが鋭くなる。',
   ugf_crusader: '統合政府の象徴として作られた白い最上位機。指揮官機として周りの部隊の力を引き出す。',
@@ -8938,6 +8938,24 @@ const LIBERTAS_PRE = (c, P) => {
   // 輪から伸びる光の刃（右上へ三枚）
   for (const [a, L] of [[-1.25, 15], [-0.8, 19], [-0.35, 15]]) { const x = 3 + Math.cos(a) * 30, y = -27 + Math.sin(a) * 30; part(c, pRot([[0, -2.2], [L * 0.5, -3], [L, 0], [L * 0.5, 3], [0, 2.2]], x, y, a), P.b, { d: 0.8 }); eye(c, pRot([[2, -0.7], [L - 3, 0], [2, 0.7]], x, y, a), P.e, { blur: 2.4, line: false }); }
 };
+// 真リベルタス：外套は夜空色に金の縁。月の輪は満ちて一周し、左右五枚の光の刃が広がる
+const LIBERTAS_X_PRE = (c, P) => {
+  const cl = pPoly([[-3, -25], [-17, -24], [-38, -8], [-50, 14], [-42, 10], [-38, 20], [-31, 12], [-25, 21], [-18, 12], [-11, 19], [-4, 12], [-1, -8]], 0.8);
+  part(c, cl, '#16183e', { d: 1.4 });
+  clipBand(c, cl, [[-52, 9], [-42, 5], [-38, 15], [-31, 7], [-25, 16], [-18, 7], [-11, 14], [-4, 7], [-4, 24], [-52, 24]], P.c);
+  clipBand(c, cl, [[-52, 6.4], [-42, 2.4], [-38, 12.4], [-31, 4.4], [-25, 13.4], [-18, 4.4], [-11, 11.4], [-4, 4.4], [-4, 7], [-11, 14], [-18, 7], [-25, 16], [-31, 7], [-38, 15], [-42, 5], [-52, 9]], '#fff2c8');
+  clipBand(c, cl, [[-3, -25], [-17, -24], [-38, -8], [-42, -1], [-14, -18], [-2, -20]], '#2c3172');
+  for (const [x, y, r] of [[-20, -12, 1.2], [-29, -3, 1.5], [-14, -4, 0.9], [-38, 3, 1], [-24, 4, 1.3], [-11, 4, 0.8], [-33, -6, 0.7], [-44, 8, 0.7], [-17, 9, 0.6]]) eye(c, pPoly([[x, y - r * 1.6], [x + r * 0.5, y - r * 0.5], [x + r * 1.6, y], [x + r * 0.5, y + r * 0.5], [x, y + r * 1.6], [x - r * 0.5, y + r * 0.5], [x - r * 1.6, y], [x - r * 0.5, y - r * 0.5]]), '#fff6d0', { blur: 2.4, line: false });
+  // 満ちた月の輪（左側が厚い）
+  const mo = [], N = 40, cx = 3, cy = -27, R = 31;
+  for (let i = 0; i <= N; i++) { const a = Math.PI * 2 * i / N; mo.push([cx + Math.cos(a) * R, cy + Math.sin(a) * R]); }
+  for (let i = N; i >= 0; i--) { const a = Math.PI * 2 * i / N, w = 2.6 + (1 - Math.cos(a)) * 1.9; mo.push([cx + Math.cos(a) * (R - w), cy + Math.sin(a) * (R - w)]); }
+  part(c, pPoly(mo, 0.1), P.c, { d: 1 });
+  const gl = []; for (let i = 0; i <= N; i++) { const a = Math.PI * 2 * i / N, w = 1.3 + (1 - Math.cos(a)) * 0.95; gl.push([cx + Math.cos(a) * (R - w), cy + Math.sin(a) * (R - w)]); }
+  c.save(); c.strokeStyle = P.e; c.globalAlpha = 0.9; c.lineWidth = 0.9 * ART.lwm; c.shadowColor = P.e; c.shadowBlur = 5 * ART.gm; c.beginPath(); gl.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); c.stroke(); c.restore();
+  // 輪から広がる光の刃（左右五枚）
+  for (const [a, L] of [[-2.55, 12], [-2.05, 15], [-1.25, 16], [-0.8, 21], [-0.35, 16]]) { const x = cx + Math.cos(a) * 30, y = cy + Math.sin(a) * 30; part(c, pRot([[0, -2.2], [L * 0.5, -3], [L, 0], [L * 0.5, 3], [0, 2.2]], x, y, a), P.c, { d: 0.8 }); eye(c, pRot([[2, -0.8], [L - 3, 0], [2, 0.8]], x, y, a), '#fff6d0', { blur: 2.8, line: false }); }
+};
 // 旧時代の試作機アルカ：背に二本の古い石柱の刃、頭の後ろに欠けた古い環、擦り切れた外套。色は風化した石と鈍い古金、光は琥珀色
 const ARCA_PRE = (c, P) => {
   const cx = 0, cy = -38, R = 21.5, W = 1.7;
@@ -8973,7 +8991,7 @@ DES.mrc_arca = mech('mrc', { head: 'arca', mid: ARCA_MID, pad: { kind: 'pauldron
   P: { a: '#727368', b: '#2e302d', c: '#9c7a42', d: '#141513', w: '#40423e', e: '#ffb257', beam: '#ffe2b8' } });
 // 真リベルタス：同じ骨組みに、金色に燃える月輪と、まわりを巡る星のかけら。装甲は深い夜の色、縁と光は金
 DES.mrc_libertas_x = mech('mrc', { head: 'libertas', pad: { kind: 'pauldron' }, legs: { w: 0.98, lx: 7.4, flare: 1.25, knee: '#ffd56a' }, torso: { w: 14.4, plate: '#2b2f66' }, hand: 'smart', scale: 1.12, pivot: [18, -11],
-  pre: LIBERTAS_PRE, orbit: { n: 5, rx: 34, ry: 5, cy: -62, col: '#ffe08a', shape: 'blade' }, ace: { front: ['chest', 'belt', 'collar'], mark: 'moon', arm: ['fin', 'elbow'] }, style: { line: true, kneeSpike: true, calfFin: true },
+  pre: LIBERTAS_X_PRE, orbit: { n: 5, rx: 34, ry: 5, cy: -62, col: '#ffe08a', shape: 'blade' }, ace: { front: ['chest', 'belt', 'collar'], mark: 'moon', arm: ['fin', 'elbow'] }, style: { line: true, kneeSpike: true, calfFin: true },
   flameCol: '#fff0b8', P: { a: '#1b1e48', b: '#f6f2e6', c: '#ffd56a', d: '#0e0f1c', w: '#363c66', e: '#ffe9a0', beam: '#fff2c8' } });
 DES.mrc_libertas = mech('mrc', { head: 'libertas', pad: { kind: 'pauldron' }, legs: { w: 0.98, lx: 7.4, flare: 1.25, knee: '#e6b84a' }, torso: { w: 14.4, plate: '#3a4488' }, hand: 'smart', scale: 1.1, pivot: [18, -11],
   pre: LIBERTAS_PRE, ace: { front: ['chest', 'belt', 'collar'], mark: 'moon', arm: ['fin', 'elbow'] }, style: { line: true, kneeSpike: true, calfFin: true },
