@@ -805,7 +805,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v182</span>
+    <span class="t-ver">v183</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -7693,14 +7693,22 @@ function colHelm(c, P, H, o = {}) {
   neckH(c, P);
   const k = o.k || 1, S = ([x, y, r]) => [x * k, (y + 31) * k - 31, r];
   for (const m of [-1, 1]) part(c, pEll(m * 9.6 * k, -29, 2, 3.4), P.d2, { d: 0.6 });
-  const helm = pPoly([[-8.8, -26], [-9.8, -33.4], [-6.8, -39.6], [0, -41.6], [6.8, -39.6], [9.8, -33.4], [8.8, -26], [4.6, -22.8], [-4.6, -22.8]].map(S), 2.6);
+  // 頭の形：dome（丸）／box（角ばった箱形）／pointed（頭頂がとがる）
+  const SH = { dome: [[-8.8, -26], [-9.8, -33.4], [-6.8, -39.6], [0, -41.6], [6.8, -39.6], [9.8, -33.4], [8.8, -26], [4.6, -22.8], [-4.6, -22.8]],
+    box: [[-9.4, -26], [-10.4, -33.6], [-9.6, -39.8], [-4, -40.8], [4, -40.8], [9.6, -39.8], [10.4, -33.6], [9.4, -26], [4.8, -22.6], [-4.8, -22.6]],
+    pointed: [[-8.2, -26], [-9.4, -33.4], [-5.8, -39.2], [0, -44], [5.8, -39.2], [9.4, -33.4], [8.2, -26], [4.2, -22.8], [-4.2, -22.8]] };
+  const helm = pPoly((SH[o.shape] || SH.dome).map(S), o.shape === 'box' ? 1.6 : 2.6);
   part(c, helm, H, { d: 1.6 });
   part(c, pPoly([[-10, -35.4], [-1.2, -33.4], [1.2, -33.4], [10, -35.4], [9.6, -38], [-9.6, -38]].map(S), 0.8), shadeOf(H), { d: 0.6 });
   part(c, pRect(-9 * k, -33.4, 18 * k, 5.6, 2.4), P.d, { d: 0.8 });
-  const g = o.gap || 4.6; for (const i of [-1, 0, 1]) eye(c, pEll(i * g * k, -30.6, i ? 1.6 : 2.1, i ? 1.6 : 2.1), P.e, { blur: 3.4 });
+  // 目：tri（三つ目・移民連合の標準）／twin（つり上がった二つ目）／slit（横一文字のスリット）
+  const g = o.gap || 4.6, ec = o.eyeCol || P.e, ey = o.eyes || 'tri';
+  if (ey === 'slit') { eye(c, pRect(-7.4 * k, -31.6, 14.8 * k, 1.9, 0.8), ec, { blur: 4 }); for (const m of [-1, 1]) eye(c, pEll(m * 5.6 * k, -30.7, 1, 1), '#ffffff', { blur: 2, line: false }); }
+  else if (ey === 'twin') for (const m of [-1, 1]) eye(c, pPoly(mir(m, [[1.4 * k, -30.2], [6.8 * k, -32.4], [7.4 * k, -30.6], [2.2 * k, -29]])), ec, { blur: 3.6 });
+  else for (const i of [-1, 0, 1]) eye(c, pEll(i * g * k, -30.6, i ? 1.6 : 2.1, i ? 1.6 : 2.1), ec, { blur: 3.4 });
   // 眉の装甲：レンズの上を斜めに覆い、目つきを鋭くする
   part(c, pPoly([[-10 * k, -37.6], [10 * k, -37.6], [10 * k, -34.6], [-10 * k, -34.6]], 0.4), mixc(H, '#141236', 0.25), { d: 0.8 });
-  for (const m of [-1, 1]) flat(c, pEll(m * g * k - 0.6, -31, 0.5, 0.5), '#ffffff', false);
+  if (ey === 'tri') for (const m of [-1, 1]) flat(c, pEll(m * g * k - 0.6, -31, 0.5, 0.5), '#ffffff', false);
   chin(c, P, pPoly([[-5, -27.4], [5, -27.4], [3.6, -23.4], [-3.6, -23.4]], 1), P.b, H);
 }
 function lunHelm(c, P, H, o = {}) {
@@ -7784,21 +7792,21 @@ const HEADS = {
   lancer(c, P) { colHelm(c, P, P.a); part(c, pPoly([[0.8, -39.6], [-3, -41.4], [-11.4, -50], [-8.4, -51], [3.4, -41.4]], 1), P.c, { d: 0.8 }); },
   lancer2(c, P) {
     for (const m of [-1, 1]) part(c, pPoly(mir(m, [[6.6, -37.6], [13.4, -44.4], [15.4, -42.4], [9, -34.6]]), 0.6), P.c, { d: 0.6 });
-    colHelm(c, P, P.a); part(c, pPoly([[-1.6, -41.4], [1.6, -41.4], [2.2, -34.6], [-2.2, -34.6]], 0.6), P.b, { d: 0.6 });
+    colHelm(c, P, P.a, { shape: 'box' }); part(c, pPoly([[-1.6, -41.4], [1.6, -41.4], [2.2, -34.6], [-2.2, -34.6]], 0.6), P.b, { d: 0.6 });
   },
   raider(c, P) {
     for (const m of [-1, 1]) part(c, pPoly(mir(m, [[6.4, -38], [18, -48.6], [20.6, -46.4], [9.4, -34.2]]), 0.8), P.b, { d: 0.8 });
-    colHelm(c, P, P.a, { gap: 4.2 });
+    colHelm(c, P, P.a, { shape: 'pointed', gap: 4.2 });
   },
   sniper(c, P) {
-    colHelm(c, P, P.a);
+    colHelm(c, P, P.a, { shape: 'box', eyes: 'twin' });
     part(c, pRect(7.6, -40.6, 7.4, 9, 1.6), P.d, { d: 0.8 });
     part(c, pEll(13.4, -36, 3.4, 3.4), P.w, { d: 0.6 }); eye(c, pEll(13.4, -36, 2, 2), '#ff6a3a', { blur: 4 });
   },
   commander(c, P) {
     part(c, pPoly([[-2, -40], [10, -54.4], [14.6, -53.4], [4.4, -38.6]], 1.2), P.c, { d: 0.9 });
     for (const m of [-1, 1]) part(c, pPoly(mir(m, [[8.6, -33.6], [15.6, -37.6], [13.6, -28.6]]), 0.6), P.b, { d: 0.6 });
-    colHelm(c, P, P.a); ln(c, [[-8, -38.6], [8, -38.6]], P.c, 1);
+    colHelm(c, P, P.b); ln(c, [[-8, -38.6], [8, -38.6]], P.c, 1);
   },
   comet(c, P) {
     // 後ろへ流れる鋭い角
@@ -7806,12 +7814,12 @@ const HEADS = {
       part(c, pPoly(mir(m, [[6, -37], [13, -40.6], [21.4, -46.4], [17.4, -40], [9, -33.4]]), 0.6), P.b, { d: 0.9 });
       part(c, pPoly(mir(m, [[8.6, -36.4], [15, -39.4], [19.4, -44.4], [16.4, -39.6], [10, -34.6]]), 0.4), P.c, { d: 0.5, line: false });
     }
-    colHelm(c, P, P.a, { gap: 4.4 });
+    colHelm(c, P, P.a, { shape: 'pointed', eyes: 'slit' });
     part(c, pPoly([[-1.4, -40.6], [0, -46], [1.4, -40.6]], 0.4), P.c, { d: 0.5 });
   },
   emperor(c, P) {
     for (let i = 0; i < 7; i++) { const a = -Math.PI / 2 + (i - 3) * 0.36; part(c, pRot([[0, -2.2], [14, -1.2], [17, 0], [14, 1.2], [0, 2.2]], Math.cos(a) * 6, -36 + Math.sin(a) * 2.6, a), i === 3 ? P.c : i % 2 ? P.b : P.a, { d: 0.8 }); }
-    colHelm(c, P, P.a, { k: 1.08, gap: 5 });
+    colHelm(c, P, P.b, { k: 1.08, gap: 5, shape: 'box' });
     part(c, pPoly([[-3.6, -44.6], [3.6, -44.6], [2.6, -40], [-2.6, -40]], 0.8), P.c, { d: 0.6 });
   },
   // ---- 月面企業連合 ----
@@ -8002,14 +8010,13 @@ Object.assign(HEADS, {
   // ---- 移民：格闘ハウンド → ベルセルク → ウォーロード ----
   hound(c, P) {
     for (const m of [-1, 1]) part(c, pPoly(mir(m, [[5.6, -38], [10.6, -50], [13.4, -48], [10, -35]]), 0.6), P.a, { d: 0.9 });
-    colHelm(c, P, P.a, { gap: 4 });
+    colHelm(c, P, P.a, { shape: 'pointed', eyes: 'twin', eyeCol: '#ffb04a' });
     chin(c, P, pPoly([[-7.6, -27.6], [7.6, -27.6], [5.6, -21], [-5.6, -21]], 1.2), P.d);
   },
   berserker(c, P) {
     for (const m of [-1, 1]) part(c, pTaper(curvePts(m * 7, -36, m * 17, -38, m * 15, -50, 8), 3.2, 0.6), P.b, { d: 0.8 });
-    colHelm(c, P, P.a, { k: 1.04, gap: 4.4 });
+    colHelm(c, P, P.a, { k: 1.04, shape: 'box', eyes: 'slit', eyeCol: '#ff5a3a' });
     part(c, pPoly([[-10, -37.6], [10, -37.6], [8, -33.6], [-8, -33.6]], 0.4), P.c, { d: 0.6 });
-    eye(c, pRect(-7, -31.6, 14, 1.8, 0.6), '#ff5a3a', { blur: 4 });
   },
   warlord(c, P) {
     for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + (i - 2) * 0.42; part(c, pRot([[0, -2.6], [13, -1.6], [18, 0], [13, 1.6], [0, 2.6]], Math.cos(a) * 5, -38 + Math.sin(a) * 2, a), i === 2 ? P.c : P.b, { d: 0.8 }); }
@@ -8241,7 +8248,7 @@ Object.assign(HEADS, {
     part(c, tail, P.c, { d: 0.8 });
     const tail2 = new Path2D(); tail2.moveTo(6, -35.6); tail2.quadraticCurveTo(18, -33, 22, -24); tail2.quadraticCurveTo(15, -29, 7, -31.6); tail2.closePath(); tail2.bb = [6, -35, 22, -24];
     part(c, tail2, mixc(P.c, '#000000', 0.2), { d: 0.6 });
-    colHelm(c, P, P.a, { gap: 3.6 });
+    colHelm(c, P, P.a, { eyes: 'twin' });
     part(c, pRect(-10, -38.4, 20, 2.6, 0.8), P.c, { d: 0.6 });
   },
   // 月面：ヴォルト（耳から横へ伸びる稲妻形の放電板）
@@ -8486,12 +8493,12 @@ DES.col_drone = {
   pad: null,
 };
 DES.col_lancer = mech('col', { head: 'lancer', back: 'pack', pad: { fin: 'L' } });
-DES.col_raider = mech('col', { off: { blade: true }, head: 'raider', back: 'finpack', legs: { w: 0.9, lx: 7, flare: 1.3 }, torso: { w: 13.6 }, pad: {}, P: { a: '#22c493' } });
-DES.col_lancer2 = mech('col', { head: 'lancer2', back: 'pack', pad: { fin: 'both' }, off: { shield: 'round' }, P: { a: '#24a57e' } });
-DES.col_sniper = mech('col', { head: 'sniper', back: 'pack', pad: {}, P: { a: '#2a8f72', c: '#ff6a3a' } });
-DES.col_commander = mech('col', { head: 'commander', back: 'cannon', pad: { cape: true, fin: 'R' }, P: { a: '#2a8a6c', b: '#efe4c4', c: '#f2b64e' } });
-DES.col_comet = mech('col', { off: { blade: true }, head: 'comet', back: 'comet', legs: { w: 0.92, lx: 7.2, flare: 1.2 }, torso: { w: 14 }, pad: {}, jets: [[-19, -10, 10, Math.PI / 2 + 0.3], [19, -10, 10, Math.PI / 2 - 0.3]], P: { a: '#31c99b', b: '#f2ead2' } });
-DES.col_emperor = mech('col', { head: 'emperor', back: 'crown', legs: { w: 1.34, lx: 9.8, flare: 1.2 }, torso: { w: 19, core: '#ffd27a' }, pad: { big: true, fin: 'both' }, off: { claw: true }, hand: 'claw', scale: 1.12, pivot: [21, -11], P: { a: '#2a9c78', b: '#efe6c8', c: '#e8b84a' } });
+DES.col_raider = mech('col', { off: { blade: true }, head: 'raider', back: 'finpack', legs: { w: 0.9, lx: 7, flare: 1.3, shin: '#1f3d36' }, torso: { w: 13.6 }, pad: { kind: 'slim' }, P: { a: '#46d3a4' } });
+DES.col_lancer2 = mech('col', { head: 'lancer2', back: 'pack', pad: { fin: 'both' }, off: { shield: 'round' }, torso: { chest: '#e7dcc0' }, P: { a: '#24a57e' } });
+DES.col_sniper = mech('col', { head: 'sniper', back: 'pack', pad: { kind: 'heavy' }, legs: { w: 1.14, lx: 8.4 }, torso: { w: 15.2 }, P: { a: '#6f7d4a', b: '#e2d6b2', c: '#ff6a3a' } });
+DES.col_commander = mech('col', { head: 'commander', back: 'cannon', pad: { kind: 'pauldron', col: '#efe4c4', cape: true, fin: 'R' }, torso: { chest: '#efe4c4' }, P: { a: '#2a8a6c', b: '#efe4c4', c: '#f2b64e' } });
+DES.col_comet = mech('col', { off: { blade: true }, head: 'comet', back: 'comet', legs: { w: 0.92, lx: 7.2, flare: 1.2 }, torso: { w: 14 }, pad: { kind: 'slim' }, jets: [[-19, -10, 10, Math.PI / 2 + 0.3], [19, -10, 10, Math.PI / 2 - 0.3]], P: { a: '#ece5cf', b: '#22a37c', c: '#ff7a3a' } });
+DES.col_emperor = mech('col', { head: 'emperor', back: 'crown', legs: { w: 1.34, lx: 9.8, flare: 1.2, shin: '#efe6c8' }, torso: { w: 19, core: '#ffd27a', chest: '#efe6c8' }, pad: { big: true, fin: 'both' }, off: { claw: true }, hand: 'claw', scale: 1.12, pivot: [21, -11], P: { a: '#2a9c78', b: '#efe6c8', c: '#e8b84a' } });
 DES.col_comet_r = mech('col', { off: { blade: true }, head: 'comet', back: 'comet', legs: { w: 0.92, lx: 7.2, flare: 1.2 }, torso: { w: 14 }, pad: {}, jets: [[-19, -10, 10, Math.PI / 2 + 0.3], [19, -10, 10, Math.PI / 2 - 0.3]], flameCol: '#7ffff0', P: { a: '#2b303b', b: '#c9ced9', c: '#3ff0c8', d: '#14171d', e: '#3ff0c8', w: '#3a3f4a', beam: '#9ffff0' } });
 
 // ===================== 月面企業連合 =====================
@@ -8858,9 +8865,9 @@ DES.ugf_sapper = mech('ugf', { head: 'sapper', back: 'pack', pad: { kind: 'heavy
 DES.ugf_bulwark = mech('ugf', { head: 'bulwark', back: 'cannons2', pad: { kind: 'barrier' }, off: { shield: 'tower', big: 1.1 }, legs: { w: 1.32, lx: 9.4 }, torso: { w: 18 }, hand: 'cluster', scale: 1.06, pivot: [20, -11], P: { a: '#3c5a94', b: '#dfe4ee', c: '#f2c14e' } });
 DES.ugf_dreadnought = mech('ugf', { head: 'dreadnought', back: 'bigcannon', pad: { kind: 'pauldron', col: '#f2f4fa' }, off: { shield: 'tower', big: 1.15 }, legs: { w: 1.38, lx: 9.8, shin: '#f2f4fa' }, torso: { w: 19, chest: '#f2f4fa', plate: '#22325e' }, hand: 'rail', scale: 1.12, pivot: [21, -11], P: { a: '#22325e', b: '#eef1f8', c: '#e8b84a', e: '#ffd36a' } });
 // 移民：格闘ハウンド → ベルセルク → ウォーロード
-DES.col_hound = mech('col', { head: 'hound', back: 'finpack', legs: { w: 0.9, lx: 7, flare: 1.3 }, torso: { w: 13.4 }, pad: { fin: 'R' }, off: { claw: true }, melee: { claw: 'claw' }, P: { a: '#1f9a72', c: '#ff8a3a' } });
-DES.col_berserker = mech('col', { head: 'berserker', back: 'comet', pad: { big: true, fin: 'both' }, legs: { w: 1.08, lx: 8, flare: 1.25 }, torso: { w: 15.6 }, P: { a: '#1b6f56', b: '#e7dcc0', c: '#ff6a2a', e: '#ff7a3a', beam: '#ffb46a' } });
-DES.col_warlord = mech('col', { head: 'warlord', back: 'crown', pad: { big: true, cape: true, fin: 'both' }, legs: { w: 1.3, lx: 9.6, flare: 1.25 }, torso: { w: 18.6, core: '#ff8a3a' }, hand: 'cluster', scale: 1.1, pivot: [21, -11], P: { a: '#1e7a5e', b: '#2b2a30', c: '#ffb04a', e: '#ffcf6a' } });
+DES.col_hound = mech('col', { head: 'hound', back: 'finpack', legs: { w: 0.9, lx: 7, flare: 1.3, shin: '#d9692c' }, torso: { w: 13.4 }, pad: { kind: 'slim', fin: 'R' }, off: { claw: true }, melee: { claw: 'claw' }, P: { a: '#17594f', c: '#ff8a3a' } });
+DES.col_berserker = mech('col', { head: 'berserker', back: 'comet', pad: { kind: 'heavy', big: true, fin: 'both' }, legs: { w: 1.08, lx: 8, flare: 1.25, shin: '#b8532a' }, torso: { w: 15.6 }, P: { a: '#1b6f56', b: '#e7dcc0', c: '#ff6a2a', e: '#ff7a3a', beam: '#ffb46a' } });
+DES.col_warlord = mech('col', { head: 'warlord', back: 'crown', pad: { big: true, cape: true, fin: 'both' }, legs: { w: 1.3, lx: 9.6, flare: 1.25, shin: '#2b2a30' }, torso: { w: 18.6, core: '#ff8a3a', chest: '#2b2a30' }, hand: 'cluster', scale: 1.1, pivot: [21, -11], P: { a: '#1e7a5e', b: '#2b2a30', c: '#ffb04a', e: '#ffcf6a' } });
 // 月面：照射型シルフ → アリア → セレスティア
 DES.lun_sylph = mech('lun', { head: 'sylph', back: 'wings', pad: { col: '#c9c4ef' }, legs: { w: 0.88 }, torso: { w: 12.8 }, P: { a: '#f4f6ff', b: '#5fb6e8', c: '#9ff3ff', e: '#b8f6ff', beam: '#bff8ff' } });
 DES.lun_aria = mech('lun', { head: 'aria', back: 'gloria', pad: {}, off: { shield: 'hex' }, P: { a: '#f4f6ff', b: '#4f8fe6', c: '#9ff3ff', e: '#b8f6ff', beam: '#bff8ff' } });
@@ -8913,7 +8920,7 @@ DES.orb_vanguard_o = mech('orb', { head: 'vanguard', back: 'solar', pad: { kind:
 // ===================== 追加の機体 =====================
 DES.ugf_striker = mech('ugf', { head: 'striker', back: 'pack2', pad: { kind: 'pauldron' }, legs: { w: 0.96, lx: 7.4 }, torso: { w: 14.2 }, P: { a: '#34507e', b: '#c9d0de', c: '#f2a03a', e: '#9ff6ff' } });
 DES.ugf_crusader = mech('ugf', { head: 'crusader', back: 'cape', pad: { kind: 'pauldron', col: '#f2f4fa' }, helm: '#f2f4fa', torso: { chest: '#f2f4fa', plate: '#2a4fa8' }, legs: { shin: '#f2f4fa', knee: '#2a4fa8' }, scale: 1.06, pivot: [19, -11], P: { a: '#2a4fa8', b: '#eef1f8', c: '#e8b84a', e: '#9ff6ff' } });
-DES.col_slasher = mech('col', { head: 'slasher', back: 'finpack', pad: { fin: 'R' }, legs: { w: 0.94, lx: 7.2, flare: 1.25 }, torso: { w: 14 }, P: { a: '#178a66', b: '#e7dcc0', c: '#ff6a3a', e: '#ffb46a', beam: '#ffd27a' } });
+DES.col_slasher = mech('col', { head: 'slasher', back: 'finpack', pad: { kind: 'slim', fin: 'R' }, legs: { w: 0.94, lx: 7.2, flare: 1.25, shin: '#1d3a33' }, torso: { w: 14, chest: '#e7dcc0' }, P: { a: '#178a66', b: '#e7dcc0', c: '#ff6a3a', e: '#ffb46a', beam: '#ffd27a' } });
 DES.lun_volt = mech('lun', { head: 'volt', back: 'wings', pad: { col: '#c9c4ef' }, legs: { w: 0.92 }, torso: { w: 13.4 }, P: { a: '#f4f6ff', b: '#7b6ad8', c: '#ffe36a', e: '#fff3a6', beam: '#fff0a6' } });
 DES.ast_howitzer = mech('ast', { head: 'howitzer', back: 'cannons2', pad: { big: true }, legs: { w: 1.3, lx: 9.4 }, torso: { w: 17.8, label: 'HW-9' }, hand: 'mortar', scale: 1.05, pivot: [20, -11], P: { a: '#d8862a', b: '#4a4b54' } });
 DES.sea_eel = mech('sea', { head: 'eel', back: 'fin', pad: { fin: 'both' }, legs: { w: 0.88, lx: 6.8, flare: 1.25 }, torso: { w: 13.2 }, P: { a: '#1b6f80', b: '#e9f5f6', c: '#7cf0d0', e: '#cfe4ff', beam: '#cfe4ff' } });
