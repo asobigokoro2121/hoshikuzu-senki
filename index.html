@@ -807,7 +807,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v192</span>
+    <span class="t-ver">v193</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -7996,10 +7996,10 @@ const HEADS = {
   },
   // ---- 月面企業連合 ----
   frame(c, P) { for (const m of [-1, 1]) part(c, pPoly(mir(m, [[7.6, -35], [12.6, -38.6], [10.2, -30.6]]), 0.4), P.b, { d: 0.6 }); lunHelm(c, P, P.a); },
-  frame2(c, P) { for (const m of [-1, 1]) part(c, pPoly(mir(m, [[7.4, -36], [17.6, -45], [18.6, -42.6], [9.6, -31.4]]), 0.4), P.b, { d: 0.6 }); lunHelm(c, P, P.a); },
+  frame2(c, P) { for (const m of [-1, 1]) part(c, pPoly(mir(m, [[7.4, -36], [17.6, -45], [18.6, -42.6], [9.6, -31.4]]), 0.4), P.b, { d: 0.6 }); lunHelm(c, P, P.a, { eyes: 'twin' }); },
   arbalest(c, P) {
     for (const m of [-1, 1]) part(c, pTaper(curvePts(m * 6, -38, m * 15, -42, m * 11, -53, 8), 3, 0.8), P.b, { d: 0.6 });
-    lunHelm(c, P, P.a); part(c, pRect(6.6, -38, 4.4, 4.4, 1.2), P.d, { d: 0.5 }); eye(c, pEll(8.8, -35.8, 1.3, 1.3), P.c, { blur: 3 });
+    lunHelm(c, P, P.a, { eyes: 'slit' }); part(c, pRect(6.6, -38, 4.4, 4.4, 1.2), P.d, { d: 0.5 }); eye(c, pEll(8.8, -35.8, 1.3, 1.3), P.c, { blur: 3 });
   },
   mirage(c, P) {
     lunHelm(c, P, P.a);
@@ -8009,7 +8009,7 @@ const HEADS = {
   halberd(c, P) {
     part(c, pPoly([[-1.6, -41], [0, -56], [1.6, -41]], 0.3), P.b, { d: 0.6 });
     for (const m of [-1, 1]) part(c, pPoly(mir(m, [[7.6, -33], [12, -34], [11.4, -24], [7.6, -23]]), 1), P.a, { d: 0.8 });
-    lunHelm(c, P, P.a);
+    lunHelm(c, P, P.a, { eyes: 'slit' });
   },
   seraph(c, P) {
     eye(c, pRing(0, -45, 7.6, 2.6, 1.1), P.c, { blur: 5 });
@@ -8204,7 +8204,7 @@ Object.assign(HEADS, {
   aria(c, P) {
     eye(c, pRing(0, -44.4, 8.6, 2.4, 1), P.c, { blur: 5 });
     for (const m of [-1, 1]) part(c, pPoly(mir(m, [[7.4, -34], [14, -40], [17.4, -34], [10, -29]]), 0.6), P.b, { d: 0.7 });
-    lunHelm(c, P, P.a);
+    lunHelm(c, P, P.a, { eyes: 'twin' });
     part(c, pPoly([[-6.8, -36], [6.8, -36], [6, -33.6], [-6, -33.6]], 0.4), P.b, { d: 0.5 });
   },
   celestia(c, P) {
@@ -8426,7 +8426,7 @@ Object.assign(HEADS, {
   // 月面：ヴォルト（耳から横へ伸びる稲妻形の放電板）
   volt(c, P) {
     for (const m of [-1, 1]) part(c, pPoly(mir(m, [[8, -34], [14, -36.4], [13, -33.6], [20, -35.6], [15, -31.4], [16, -33.4], [8.6, -30.6]]), 0.3), P.c, { d: 0.7 });
-    lunHelm(c, P, P.a);
+    lunHelm(c, P, P.a, { eyes: 'twin' });
     eye(c, pEll(0, -38.6, 1.1, 1.3), P.c, { blur: 4, line: false });
   },
   // 公社：ハウイッツァー（潜望鏡と、厚い防弾の額）
@@ -8675,10 +8675,10 @@ DES.col_comet_r = mech('col', { off: { blade: true }, head: 'comet', back: 'come
 
 // ===================== 月面企業連合 =====================
 DES.lun_frame = mech('lun', { head: 'frame', back: 'frame', pad: {}, torso: { mark: '01' } });
-DES.lun_frame2 = mech('lun', { head: 'frame2', back: 'frame', pad: {}, off: { shield: 'hex' }, torso: { mark: '02' } });
-DES.lun_arbalest = mech('lun', { head: 'arbalest', back: 'bow', pad: { big: true }, legs: { w: 1.15, lx: 7.8 }, torso: { w: 14.6 } });
+DES.lun_frame2 = mech('lun', { head: 'frame2', back: 'frame', off: { shield: 'hex' }, torso: { mark: '02', chest: '#8f80e0' }, legs: { shin: '#8f80e0' }, pad: { col: '#8f80e0' } });
+DES.lun_arbalest = mech('lun', { head: 'arbalest', back: 'bow', pad: { kind: 'heavy' }, legs: { w: 1.15, lx: 7.8 }, torso: { w: 14.6 }, P: { a: '#6a6f96', b: '#d8d2ff' } });
 DES.lun_mirage = mech('lun', { off: { gun2: true }, head: 'mirage', back: 'incom', pad: { col: '#c9c4ef' }, legs: { w: 0.9 }, P: { a: '#e6e8f6', b: '#7f72de' } });
-DES.lun_halberd = mech('lun', { head: 'halberd', back: 'frame', pad: { big: true }, off: { shield: 'hex', big: 1.2 }, legs: { w: 1.25, lx: 8.4 }, torso: { w: 15 }, melee: { twin: 'halberd' }, scale: 1.05 });
+DES.lun_halberd = mech('lun', { head: 'halberd', back: 'frame', pad: { kind: 'barrier' }, P: { a: '#4b4190', b: '#e3dcff' }, off: { shield: 'hex', big: 1.2 }, legs: { w: 1.25, lx: 8.4 }, torso: { w: 15 }, melee: { twin: 'halberd' }, scale: 1.05 });
 DES.lun_seraph = mech('lun', { head: 'seraph', back: 'wings', pad: {}, orbit: { n: 4, rx: 30, ry: 6, cy: -40, col: '#e0bcff', shape: 'blade', body: '#f1effb', speed: 1.1 } });
 DES.lun_gloria = mech('lun', { head: 'gloria', back: 'gloria', pad: { big: true, line: '#ffd36a' }, torso: { core: '#ffd36a' }, scale: 1.06, orbit: { n: 6, rx: 34, ry: 7, cy: -44, col: '#ffe9a6', shape: 'blade', body: '#f1effb', speed: 0.9 }, P: { c: '#ffd36a', e: '#ffe9a6' } });
 DES.lun_seraph_y = mech('lun', { head: 'seraph', back: 'wings', pad: {}, orbit: { n: 4, rx: 30, ry: 6, cy: -40, col: '#9fe0ff', shape: 'blade', body: '#ffffff', speed: 1.2 }, melee: { twin: 'twin' }, P: { a: '#ffffff', b: '#4f8fe6', c: '#ffd36a', e: '#9fe0ff' } });
@@ -8701,7 +8701,7 @@ DES.ast_wasp = {
     for (const m of [-1, 1]) { glassPart(c, pEll(14.4, m * 3.2, 2.8, 2.2), P.g); ln(c, [[17, m * 2], [25, m * 7.6]], OL, 1); }
   },
 };
-DES.ast_guard = mech('ast', { head: 'guard', back: 'exhaust', off: { shield: 'riot' }, pad: {}, torso: { label: 'SEC-4' }, P: { a: '#f2a524' } });
+DES.ast_guard = mech('ast', { head: 'guard', back: 'exhaust', off: { shield: 'riot' }, pad: { kind: 'square' }, torso: { label: 'SEC-4' }, P: { a: '#45597c', b: '#e3e6ee', c: '#f2c14e' } });
 DES.ast_digger = mech('ast', { head: 'digger', back: 'cannons2', off: { drill: true }, legs: { w: 1.25, lx: 9.2 }, torso: { w: 17.4, label: 'DG-7' }, pad: {}, hand: 'drill', scale: 1.04, pivot: [19.6, -11] });
 DES.ast_merc = mech('ast', { head: 'merc', back: 'pods', pad: {}, padR: { col: '#8a8f99' }, P: { a: '#d98c2a' },
   pre(c, P) { part(c, pPoly([[-8, -20], [-28, -16], [-38, -4], [-34, -2], [-24, -10], [-6, -14]], 2), P.c); },
@@ -8822,7 +8822,7 @@ DES.sea_gull = {
     part(c, pRect(-6, -2.4, 8, 4.8, 1), P.d, { d: 0.6 });
   },
 };
-DES.sea_shark = mech('sea', { head: 'shark', back: 'tanks', off: { claw: true }, pad: {}, melee: { claw: 'claw' }, P: { a: '#2f7fae', b: '#eef6f7', c: '#ffcd45' } });
+DES.sea_shark = mech('sea', { head: 'shark', back: 'tanks', off: { claw: true }, pad: {}, melee: { claw: 'claw' }, P: { a: '#6d8696', b: '#eef6f7', c: '#ff7a4a' } });
 // クラーケン：深海作業艇を武装した大型機。潜水鐘のような装甲ドームから、関節でつながった機械の触手を伸ばす
 function krakenArm(c, P, pts, w0, w1, claw = true) {
   const n = pts.length, dir = i => { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)]; return Math.atan2(b[1] - a[1], b[0] - a[0]); };
@@ -8935,9 +8935,9 @@ DES.sea_orca_m = mech('sea', { head: 'orca', back: 'fin', pad: {}, melee: { twin
 // ===================== 可変機（変形すると武器が入れ替わる） =====================
 DES.lun_harrier = mech('lun', { head: 'sylph', back: 'wings', legs: { w: 0.86, lx: 6.6 }, torso: { w: 12.4 }, pad: { kind: 'slim' }, jet: JET.harrier, P: { a: '#eef0fb', b: '#8a72e6' } });
 DES.lun_strix = mech('lun', { head: 'mirage', back: 'bigwings', legs: { w: 0.88, lx: 6.8 }, torso: { w: 12.8 }, pad: { kind: 'slim', col: '#c9c4ef' }, jet: JET.strix, craftJets: [[-29, -3.4], [-29, 3.4]], P: { a: '#3b3470', b: '#e8e6f8', c: '#b8f0ff', beam: '#e8ccff' } });
-DES.orb_skylark = mech('orb', { head: 'glider', back: 'wings', legs: { w: 0.9, lx: 7, flare: 1.15 }, torso: { w: 13 }, pad: { kind: 'slim' }, jet: JET.skylark, P: { b: '#d8dde6' } });
-DES.sea_manta = mech('sea', { head: 'ray', back: 'fin', pad: {}, legs: { w: 0.9, lx: 7, flare: 1.2 }, torso: { w: 13.6 }, jet: JET.manta, craftJets: [[-18, -4], [-18, 4]], P: { a: '#2a5f8e', b: '#e9f5f6', c: '#ffcd45' } });
-DES.jup_rover = mech('jup', { head: 'hopper', back: 'finpack', pad: { kind: 'heavy' }, legs: { w: 1.1, lx: 8.4 }, torso: { w: 15 }, jet: JET.rover, craftJets: [], P: { a: '#6a6250' } });
+DES.orb_skylark = mech('orb', { head: 'glider', back: 'wings', legs: { w: 0.9, lx: 7, flare: 1.15 }, torso: { w: 13 }, pad: { kind: 'slim' }, jet: JET.skylark, P: { a: '#5fa8e8', b: '#eef2f8' } });
+DES.sea_manta = mech('sea', { head: 'ray', back: 'fin', pad: {}, legs: { w: 0.9, lx: 7, flare: 1.2 }, torso: { w: 13.6 }, jet: JET.manta, craftJets: [[-18, -4], [-18, 4]], P: { a: '#18706a', b: '#e9f5f6', c: '#ff9a3a' } });
+DES.jup_rover = mech('jup', { head: 'hopper', back: 'finpack', pad: { kind: 'heavy', col: '#b49a66' }, legs: { w: 1.1, lx: 8.4, shin: '#b49a66' }, torso: { w: 15, chest: '#b49a66' }, jet: JET.rover, craftJets: [], P: { a: '#a8946a' } });
 
 // ===================== 感応者解放戦線 =====================
 const PSY_GUN = { scatter: 'scepter', mega: 'scepter' };
@@ -9034,33 +9034,33 @@ for (const [id, k] of Object.entries(SIZE_ADJ)) if (DES[id]) DES[id].scale = (DE
 // ===================== 新系統 =====================
 // 統合：工兵サッパー → 重装ブルワーク → ドレッドノート
 DES.ugf_sapper = mech('ugf', { head: 'sapper', back: 'pack', pad: { kind: 'heavy' }, legs: { w: 1.1, lx: 8 }, torso: { w: 15.4 }, off: { drill: true }, P: { a: '#4a6aa8', c: '#f2c14e' } });
-DES.ugf_bulwark = mech('ugf', { head: 'bulwark', back: 'cannons2', pad: { kind: 'barrier' }, off: { shield: 'tower', big: 1.1 }, legs: { w: 1.32, lx: 9.4 }, torso: { w: 18 }, hand: 'cluster', scale: 1.06, pivot: [20, -11], P: { a: '#3c5a94', b: '#dfe4ee', c: '#f2c14e' } });
+DES.ugf_bulwark = mech('ugf', { head: 'bulwark', back: 'cannons2', pad: { kind: 'barrier' }, off: { shield: 'tower', big: 1.1 }, legs: { w: 1.32, lx: 9.4 }, torso: { w: 18 }, hand: 'cluster', scale: 1.06, pivot: [20, -11], P: { a: '#5a6f8e', b: '#dfe4ee', c: '#f2c14e' } });
 DES.ugf_dreadnought = mech('ugf', { head: 'dreadnought', back: 'bigcannon', pad: { kind: 'pauldron', col: '#f2f4fa' }, off: { shield: 'tower', big: 1.15 }, legs: { w: 1.38, lx: 9.8, shin: '#f2f4fa' }, torso: { w: 19, chest: '#f2f4fa', plate: '#22325e' }, hand: 'rail', scale: 1.12, pivot: [21, -11], P: { a: '#22325e', b: '#eef1f8', c: '#e8b84a', e: '#ffd36a' } });
 // 移民：格闘ハウンド → ベルセルク → ウォーロード
 DES.col_hound = mech('col', { head: 'hound', back: 'finpack', legs: { w: 0.9, lx: 7, flare: 1.3, shin: '#d9692c' }, torso: { w: 13.4 }, pad: { kind: 'slim', fin: 'R' }, off: { claw: true }, melee: { claw: 'claw' }, P: { a: '#17594f', c: '#ff8a3a' } });
 DES.col_berserker = mech('col', { head: 'berserker', back: 'comet', pad: { kind: 'heavy', big: true, fin: 'both' }, legs: { w: 1.08, lx: 8, flare: 1.25, shin: '#b8532a' }, torso: { w: 15.6 }, P: { a: '#1b6f56', b: '#e7dcc0', c: '#ff6a2a', e: '#ff7a3a', beam: '#ffb46a' } });
 DES.col_warlord = mech('col', { head: 'warlord', back: 'crown', pad: { big: true, cape: true, fin: 'both' }, legs: { w: 1.3, lx: 9.6, flare: 1.25, shin: '#2b2a30' }, torso: { w: 18.6, core: '#ff8a3a', chest: '#2b2a30' }, hand: 'cluster', scale: 1.1, pivot: [21, -11], P: { a: '#1e7a5e', b: '#2b2a30', c: '#ffb04a', e: '#ffcf6a' } });
 // 月面：照射型シルフ → アリア → セレスティア
-DES.lun_sylph = mech('lun', { head: 'sylph', back: 'wings', pad: { col: '#c9c4ef' }, legs: { w: 0.88 }, torso: { w: 12.8 }, P: { a: '#f4f6ff', b: '#5fb6e8', c: '#9ff3ff', e: '#b8f6ff', beam: '#bff8ff' } });
-DES.lun_aria = mech('lun', { head: 'aria', back: 'gloria', pad: {}, off: { shield: 'hex' }, P: { a: '#f4f6ff', b: '#4f8fe6', c: '#9ff3ff', e: '#b8f6ff', beam: '#bff8ff' } });
+DES.lun_sylph = mech('lun', { head: 'sylph', back: 'wings', pad: { kind: 'slim', col: '#c9f2ee' }, legs: { w: 0.88, shin: '#2fa8a8' }, torso: { w: 12.8 }, P: { a: '#eefaf8', b: '#2fa8a8', c: '#9ff3e0', e: '#b8fff0', beam: '#bffff0' } });
+DES.lun_aria = mech('lun', { head: 'aria', back: 'gloria', pad: { kind: 'pauldron' }, off: { shield: 'hex' }, torso: { chest: '#4f8fe6' }, P: { a: '#f4f6ff', b: '#4f8fe6', c: '#9ff3ff', e: '#b8f6ff', beam: '#bff8ff' } });
 DES.lun_celestia = mech('lun', { head: 'celestia', back: 'gloria', pad: { big: true, line: '#9ff3ff' }, torso: { core: '#9ff3ff' }, scale: 1.08, pivot: [19, -11], P: { a: '#f4f6ff', b: '#3f6fd6', c: '#ffe9a6', e: '#bff8ff', beam: '#d6fbff' } });
 // 公社：タグボート → ブレイカー → マグネイト
-DES.ast_tug = mech('ast', { head: 'tug', back: 'exhaust2', off: { claw: true }, legs: { w: 1.12 }, torso: { w: 15.8 }, pad: {}, P: { a: '#f0c23a' } });
-DES.ast_breaker = mech('ast', { head: 'breaker', back: 'cannons2', pad: { big: true }, legs: { w: 1.32, lx: 9.4 }, torso: { w: 18 }, hand: 'cluster', scale: 1.06, pivot: [20, -11], P: { a: '#e8962a', b: '#3a3b42' } });
+DES.ast_tug = mech('ast', { head: 'tug', back: 'exhaust2', off: { claw: true }, legs: { w: 1.12, shin: '#2e2f36' }, torso: { w: 15.8 }, pad: {}, P: { a: '#e0632a', b: '#efe6d2' } });
+DES.ast_breaker = mech('ast', { head: 'breaker', back: 'cannons2', pad: { big: true }, legs: { w: 1.32, lx: 9.4 }, torso: { w: 18 }, hand: 'cluster', scale: 1.06, pivot: [20, -11], P: { a: '#5a5c66', b: '#e8962a', c: '#ffcf4a' } });
 DES.ast_magnate = mech('ast', { head: 'magnate', back: 'cape', pad: { col: '#e7b53a', big: true }, legs: { w: 1.3, lx: 9.4, shin: '#e7b53a' }, torso: { w: 18.4, chest: '#2a2a30' }, hand: 'rail', scale: 1.12, pivot: [21, -11], P: { a: '#3a3b42', b: '#e7b53a', c: '#ff4a4a', e: '#ffd36a' } });
 // 海洋：レイ → マーリン → テンペスト
-DES.sea_ray = mech('sea', { head: 'ray', back: 'fin', pad: {}, legs: { w: 0.9, lx: 7, flare: 1.2 }, torso: { w: 13.6 }, P: { a: '#2a8fb8', b: '#e9f5f6', c: '#ffcd45' } });
-DES.sea_marlin = mech('sea', { head: 'marlin', back: 'tanks', pad: { fin: 'both' }, P: { a: '#1d5d9e', b: '#eef6f7', c: '#ffcd45', e: '#9ff3ff' } });
+DES.sea_ray = mech('sea', { head: 'ray', back: 'fin', pad: { kind: 'slim' }, legs: { w: 0.9, lx: 7, flare: 1.2 }, torso: { w: 13.6 }, P: { a: '#3fb0d6', b: '#e9f5f6', c: '#ffcd45' } });
+DES.sea_marlin = mech('sea', { head: 'marlin', back: 'tanks', pad: { kind: 'pauldron', fin: 'both' }, torso: { chest: '#eef6f7' }, P: { a: '#1d5d9e', b: '#eef6f7', c: '#ffcd45', e: '#9ff3ff' } });
 DES.sea_tempest = mech('sea', { head: 'tempest', back: 'fin', pad: { big: true }, legs: { w: 1.2, lx: 8.6 }, torso: { w: 17, core: '#ffe75a' }, hand: 'rail', scale: 1.1, pivot: [20, -11], P: { a: '#163a66', b: '#eef6f7', c: '#ffe75a', d: '#0c1a2c', e: '#ffe75a' } });
 // 解放：カントル → プロフェット → アビス
-DES.psy_cantor = mech('psy', { head: 'cantor', back: 'tatter', pad: {}, P: { a: '#9a2a52', b: '#2a1a30', c: '#e5c26a' } });
-DES.psy_prophet = mech('psy', { head: 'prophet', back: 'mandorla', pad: {}, orbit: { n: 4, rx: 26, ry: 7, cy: -22, col: '#ff9be0', speed: 1 }, P: { a: '#b02a52' } });
+DES.psy_cantor = mech('psy', { head: 'cantor', back: 'tatter', pad: {}, P: { a: '#e6dcc8', b: '#7a1a34', c: '#c4303e' } });
+DES.psy_prophet = mech('psy', { head: 'prophet', back: 'mandorla', pad: {}, orbit: { n: 4, rx: 26, ry: 7, cy: -22, col: '#9bd0ff', speed: 1 }, P: { a: '#3a3488', b: '#1a1630', c: '#e5c26a', e: '#9bd0ff' } });
 DES.psy_abyss = mech('psy', { head: 'abyss', back: 'specter', legs: { kind: 'armor' }, pad: { big: true }, scale: 1.1, pivot: [19, -11], orbit: { n: 5, rx: 30, ry: 8, cy: -24, col: '#b06aff', speed: 1.2 }, P: { a: '#2a1a3a', b: '#120a1a', c: '#b06aff', e: '#c48aff', beam: '#d8b0ff', bone: '#d8d0e6' } });
 
 // ===================== 木星開拓同盟 =====================
 DES.jup_hopper = mech('jup', { head: 'hopper', back: 'orbs', pad: { kind: 'heavy' }, P: {} });
-DES.jup_pike = mech('jup', { head: 'pike', back: 'finpack', legs: { w: 0.9, lx: 7, flare: 1.2 }, torso: { w: 13.6 }, pad: { kind: 'slim' }, P: { a: '#4e5864' } });
-DES.jup_ranger = mech('jup', { head: 'ranger', back: 'cannons2', pad: { kind: 'heavy' }, P: { a: '#66707c' } });
+DES.jup_pike = mech('jup', { head: 'pike', back: 'finpack', legs: { w: 0.9, lx: 7, flare: 1.2, shin: '#3a4f72' }, torso: { w: 13.6, chest: '#3a4f72' }, pad: { kind: 'slim', col: '#3a4f72' }, P: { a: '#3a4f72', c: '#ff9a3a' } });
+DES.jup_ranger = mech('jup', { head: 'ranger', back: 'cannons2', pad: { kind: 'heavy', col: '#5f7048' }, torso: { chest: '#5f7048' }, legs: { shin: '#5f7048' }, P: { a: '#5a6a48' } });
 DES.jup_bastion = mech('jup', { head: 'bastion', back: 'orbs', pad: { kind: 'barrier' }, off: { shield: 'tower', big: 1.1 }, legs: { w: 1.34, lx: 9.6 }, torso: { w: 18.4 }, hand: 'cannon2', scale: 1.07, pivot: [20, -11] });
 DES.jup_storm = mech('jup', { head: 'storm', back: 'ring', pad: { kind: 'pauldron' }, legs: { w: 1.06, lx: 8 }, torso: { w: 15.6 }, P: { a: '#4a5562', b: '#ece6d6' } });
 DES.jup_raptor = mech('jup', { head: 'raptor', back: 'bigwings', legs: { w: 0.9, lx: 7, flare: 1.25 }, torso: { w: 13.8 }, pad: { kind: 'slim' }, P: { a: '#3e4854' } });
@@ -9079,7 +9079,7 @@ DES.psy_prophet_n = mech('psy', { head: 'prophet', back: 'mandorla', pad: {}, or
 
 // ===================== 天柱同盟 =====================
 DES.orb_rigger = mech('orb', { head: 'rigger', back: 'lifepack', pad: { kind: 'square', num: '02' }, legs: { w: 1.08 }, torso: { w: 15.4 }, off: { claw: true }, P: { a: '#e2e6ee' } });
-DES.orb_astro = mech('orb', { head: 'astro', back: 'lifepack', pad: { kind: 'square', num: '07' } });
+DES.orb_astro = mech('orb', { head: 'astro', back: 'lifepack', pad: { kind: 'square', num: '07' }, torso: { chest: '#eef1f6' }, P: { a: '#e0742e' } });
 DES.orb_glider = mech('orb', { head: 'glider', back: 'wings', legs: { w: 0.9, lx: 7, flare: 1.15 }, torso: { w: 13.4 }, pad: { kind: 'slim' }, P: { b: '#2f5f9a' } });
 DES.orb_tether = mech('orb', { head: 'tether', back: 'cannons2', pad: { kind: 'heavy' }, legs: { w: 1.2, lx: 8.6 }, torso: { w: 16.6 }, hand: 'rail', scale: 1.04, pivot: [19.6, -11] });
 DES.orb_vanguard = mech('orb', { head: 'vanguard', back: 'solar', pad: { kind: 'pauldron' }, off: { shield: 'round' } });
@@ -9090,15 +9090,15 @@ DES.orb_stella_m = mech('orb', { head: 'stella', back: 'solar', legs: { w: 0.92,
 DES.orb_vanguard_o = mech('orb', { head: 'vanguard', back: 'solar', pad: { kind: 'pauldron' }, off: { shield: 'round' }, hand: 'shotgun', P: { a: '#f2c14e', b: '#3a3a44', c: '#ff5a3a', e: '#ffe27a' } });
 
 // ===================== 追加の機体 =====================
-DES.ugf_striker = mech('ugf', { head: 'striker', back: 'pack2', pad: { kind: 'pauldron' }, legs: { w: 0.96, lx: 7.4 }, torso: { w: 14.2 }, P: { a: '#34507e', b: '#c9d0de', c: '#f2a03a', e: '#9ff6ff' } });
+DES.ugf_striker = mech('ugf', { head: 'striker', back: 'pack2', pad: { kind: 'pauldron' }, legs: { w: 0.96, lx: 7.4, shin: '#c9d0de' }, torso: { w: 14.2, chest: '#c9d0de' }, P: { a: '#34507e', b: '#c9d0de', c: '#f2a03a', e: '#9ff6ff' } });
 DES.ugf_crusader = mech('ugf', { head: 'crusader', back: 'cape', pad: { kind: 'pauldron', col: '#f2f4fa' }, helm: '#f2f4fa', torso: { chest: '#f2f4fa', plate: '#2a4fa8' }, legs: { shin: '#f2f4fa', knee: '#2a4fa8' }, scale: 1.06, pivot: [19, -11], P: { a: '#2a4fa8', b: '#eef1f8', c: '#e8b84a', e: '#9ff6ff' } });
 DES.col_slasher = mech('col', { head: 'slasher', back: 'finpack', pad: { kind: 'slim', fin: 'R' }, legs: { w: 0.94, lx: 7.2, flare: 1.25, shin: '#1d3a33' }, torso: { w: 14, chest: '#e7dcc0' }, P: { a: '#178a66', b: '#e7dcc0', c: '#ff6a3a', e: '#ffb46a', beam: '#ffd27a' } });
 DES.lun_volt = mech('lun', { head: 'volt', back: 'wings', pad: { col: '#c9c4ef' }, legs: { w: 0.92 }, torso: { w: 13.4 }, P: { a: '#f4f6ff', b: '#7b6ad8', c: '#ffe36a', e: '#fff3a6', beam: '#fff0a6' } });
-DES.ast_howitzer = mech('ast', { head: 'howitzer', back: 'cannons2', pad: { big: true }, legs: { w: 1.3, lx: 9.4 }, torso: { w: 17.8, label: 'HW-9' }, hand: 'mortar', scale: 1.05, pivot: [20, -11], P: { a: '#d8862a', b: '#4a4b54' } });
+DES.ast_howitzer = mech('ast', { head: 'howitzer', back: 'cannons2', pad: { big: true }, legs: { w: 1.3, lx: 9.4 }, torso: { w: 17.8, label: 'HW-9' }, hand: 'mortar', scale: 1.05, pivot: [20, -11], P: { a: '#8f8452', b: '#3e3f46', c: '#e8962a' } });
 DES.sea_eel = mech('sea', { head: 'eel', back: 'fin', pad: { fin: 'both' }, legs: { w: 0.88, lx: 6.8, flare: 1.25 }, torso: { w: 13.2 }, P: { a: '#1b6f80', b: '#e9f5f6', c: '#7cf0d0', e: '#cfe4ff', beam: '#cfe4ff' } });
-DES.psy_eclipse = mech('psy', { head: 'eclipse', back: 'mandorla', pad: {}, gunArt: PSY_GUN, orbit: { n: 6, rx: 30, ry: 9, cy: -22, col: '#b48aff', speed: 0.8 }, scale: 1.08, pivot: [18, -11], P: { a: '#2a1a3a', c: '#b48aff', e: '#e0bcff' } });
-DES.orb_beacon = mech('orb', { head: 'beacon', back: 'solar', pad: { kind: 'square', num: '09' }, legs: { w: 1.04 }, torso: { w: 15 }, P: { a: '#e8ecf4', c: '#7cf0a0' } });
-DES.jup_tremor = mech('jup', { head: 'tremor', back: 'orbs', pad: { kind: 'heavy' }, legs: { w: 1.34, lx: 9.6 }, torso: { w: 18.2 }, hand: 'mortar', scale: 1.07, pivot: [20, -11], P: { a: '#5a6470', b: '#e2dccb', c: '#c47a3a' } });
+DES.psy_eclipse = mech('psy', { head: 'eclipse', back: 'mandorla', pad: {}, gunArt: PSY_GUN, orbit: { n: 6, rx: 30, ry: 9, cy: -22, col: '#b48aff', speed: 0.8 }, scale: 1.08, pivot: [18, -11], P: { a: '#1c1c26', b: '#c8c8d8', c: '#b48aff', e: '#e0bcff' } });
+DES.orb_beacon = mech('orb', { head: 'beacon', back: 'solar', pad: { kind: 'square', num: '09' }, legs: { w: 1.04 }, torso: { w: 15 }, P: { a: '#2f7a5a', b: '#e8ecf4', c: '#7cf0a0' } });
+DES.jup_tremor = mech('jup', { head: 'tremor', back: 'orbs', pad: { kind: 'heavy', col: '#8a5a3e' }, legs: { w: 1.34, lx: 9.6, shin: '#8a5a3e' }, torso: { w: 18.2, chest: '#8a5a3e' }, hand: 'mortar', scale: 1.07, pivot: [20, -11], P: { a: '#6e5442', b: '#e2dccb', c: '#e8a050' } });
 // 放浪者の機体：夜空色の装甲に金の縁。欠けた月の輪を背負い、星を散らした片掛けの外套をなびかせる
 const LIBERTAS_PRE = (c, P) => {
   // 外套（左肩から後ろへ）
@@ -16319,6 +16319,7 @@ const MEDALS = [
   { id: 'merc_all', name: '傭兵団', desc: '1回のゲームで4人の傭兵すべてを仲間にする', icon: 'hand' },
   { id: 'no_fallen', name: '誰も死なせない', desc: '名有りパイロットを一人も失わずにクリアする', icon: 'star' },
   { id: 'clear_s3', name: '常勝', desc: '3つの勢力で評価Sを取る', icon: 'crown' },
+  { id: 'clear_s_all', name: '全軍の覇者', desc: 'すべての勢力で評価Sを取る（8勢力）', icon: 'crown' },
   { id: 'scen1', name: '乱世を往く', desc: '戦況を選んでクリアする', icon: 'flag' },
   { id: 'scen_all', name: '三つの戦況', desc: '3つの戦況すべてでクリアする（勢力はばらばらでよい）', icon: 'flag' },
   { id: 'endings4', name: '四つの結末', desc: '共闘・電撃・犠牲・覇道の4つの結末をすべて見る', icon: 'book' },
@@ -16513,6 +16514,7 @@ async function showEnding() {
     if (G.relocated) awardMedal('comeback');
     if (BASE_FACTIONS.every(F => records().clears[F.id])) awardMedal('clear_all');
     if (BASE_FACTIONS.filter(F => records().clears[F.id]?.rank === 'S').length >= 3) awardMedal('clear_s3');
+    if (BASE_FACTIONS.every(F => records().clears[F.id]?.rank === 'S')) awardMedal('clear_s_all');
     if (!Object.values(G.pilots).some(p => p.named && p.f === f && p.alive === false)) awardMedal('no_fallen');
     if (G.scen) { const RS = records().scen = records().scen || {}; RS[f] = [...new Set([...(RS[f] || []), G.scen])]; saveRecords(); awardMedal('scen1'); }
     if (SCENARIOS.every(s => Object.values(records().scen || {}).some(l => l.includes(s.id)))) awardMedal('scen_all');
