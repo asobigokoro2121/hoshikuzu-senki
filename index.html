@@ -806,7 +806,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v188</span>
+    <span class="t-ver">v189</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -16299,7 +16299,7 @@ const CLEAR_REWARDS = [
   { f: 'col', name: '彗星の教え', desc: 'はじめにいる全機体の経験値 +80', run: f => FX.expAll(f, 80) },
   { f: 'lun', name: '月の先行投資', desc: '最初の8ターン、収入 +25%', run: f => FX.inc(f, 0.25, 8) },
   { f: 'ast', name: '公社の倉庫', desc: '改造パーツを3つ', run: f => FX.parts(f, 3) },
-  { f: 'sea', name: '海の盟約', desc: 'となりの中立エリアが1つ、はじめから味方に', run: f => FX.flip(f, undefined, true) || FX.gold(f, 400) }, // はじめの領土が毎回変わらないよう、選ぶエリアは固定
+  { f: 'sea', name: '海の盟約', desc: 'となりの中立エリアが1つ、はじめから味方に（自由傭兵団では使えない）', noMrc: true, run: f => FX.flip(f, undefined, true) || FX.gold(f, 400) }, // はじめの領土が毎回変わらないよう、選ぶエリアは固定
   { f: 'psy', name: '導きの声', desc: '名のあるパイロット全員の経験 +40', run: f => FX.growAll(f, 40) },
   { f: 'orb', name: '天柱の交易', desc: '他勢力の機体を1機、首都に配備', run: f => FX.foreign(f) },
   { f: 'jup', name: '開拓者の工具', desc: '強い順に2機を改造+1', run: f => FX.mod(f, 2) },
@@ -16315,7 +16315,8 @@ function bonusLabel() { const B = clearBonus(); if (!B) return ''; return [...bo
 function applyClearBonus() {
   const B = clearBonus(); if (!B) return;
   const f = G.player;
-  for (const id of bonusPicks()) { const r = CLEAR_REWARDS.find(x => x.f === id); let t = ''; try { t = r.run(f) || ''; } catch (e) { console.error(e); } L(`【クリア特典】${r.name}：${t || r.desc}`, 'good'); }
+  for (const id of bonusPicks()) { const r = CLEAR_REWARDS.find(x => x.f === id); let t = '';
+    if (f === 'mrc' && r.noMrc) { L(`【クリア特典】${r.name}は、自由傭兵団では使えない（はじめの領土は自由都市リベラだけ）`, 'sys'); continue; } try { t = r.run(f) || ''; } catch (e) { console.error(e); } L(`【クリア特典】${r.name}：${t || r.desc}`, 'good'); }
 }
 // 勢力選択の画面から開く：特典を使うかどうかと、どの2つを使うか
 async function openBonusPick() {
