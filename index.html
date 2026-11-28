@@ -806,7 +806,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v184</span>
+    <span class="t-ver">v185</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -1540,12 +1540,12 @@ LINKS.trim().split(/\s+/).forEach(pair => {
 // ===================== 初期配置 =====================
 const START = {
   // 戦況「傭兵団の独立」専用
-  mrc: { funds: 1800,
+  mrc: { funds: 0,
     squads: [
-      { area: 'n_libera', ship: 'orb_shuttle', units: [['mrc_ronin', 'm_jin'], ['mrc_ghost', 'm_saya']] },
-      { area: 'n_mid', ship: 'ugf_land', units: [['mrc_titan', 'm_boros'], ['mrc_hydra', 'm_hydra']] },
+      { area: 'n_libera', ship: 'orb_shuttle', units: [['mrc_libertas', 'm_zephyr'], ['mrc_ronin', 'm_jin'], ['mrc_ghost', 'm_saya']] },
+      { area: 'n_libera', ship: 'ugf_land', units: [['mrc_titan', 'm_boros'], ['mrc_hydra', 'm_hydra']] },
     ],
-    garrison: { n_libera: ['ugf_trooper', 'col_lancer'], n_mid: ['lun_frame'], n_northsea: ['ugf_trooper'], n_canyon: ['col_lancer', 'ugf_tank'] } },
+    garrison: { n_libera: ['ugf_trooper', 'col_lancer'] } },
   ugf: { funds: 2000,
     squads: [
       { area: 'e_central', ship: 'ugf_ark', cap: 'p_gordon', units: [['ugf_trooper2', 'p_kaito'], ['ugf_gunner', 'p_erin'], ['ugf_trooper', 'p_dorr']] },
@@ -2235,7 +2235,7 @@ function newGame(player, diff, scen = null) {
   for (const a of Object.values(AREAS)) G.areas[a.id] = { owner: a.owner0, q: [] };
   if (scen === 'mercs') for (const a of Object.keys(START.mrc.garrison)) G.areas[a].owner = 'mrc';
   for (const p of Object.values(PILOT_BASE)) {
-    if (p.f === 'mrc' && !(scen === 'mercs' && MERCS.some(m => m.pilot === p.id))) continue;
+    if (p.f === 'mrc' && !(scen === 'mercs' && (MERCS.some(m => m.pilot === p.id) || p.id === WANDERER.pilot))) continue; // 傭兵団の独立：傭兵4人とゼファーは自由傭兵団にいる
     G.pilots[p.id] = { ...p, origin: p.f, named: true, lv: 1, exp: 0, alive: true };
   }
   for (const f of FACTIONS) {
@@ -2259,6 +2259,7 @@ function newGame(player, diff, scen = null) {
   for (const u of Object.values(G.units)) if (u.f === player) G.enc.units[u.t] = 1;
   for (const p of Object.values(G.pilots)) if (p.f === player && p.named && !p.joinT) G.enc.pilots[p.id] = 1;
   if (scen === 'hegemon') scenHegemon();
+  if (scen === 'mercs') G.wanderer = player === 'mrc' ? { st: 2, joinT: 1, own: true } : { st: 9 }; // ゼファーは傭兵団の一員（放浪者のイベントは起きない。傭兵団で遊ぶときは覚醒イベントが起こりうる）
   refreshMercs();
   L(`${FAC[player].name}の司令官として着任した。`, 'sys');
   if (scen) L(`【戦況】${SCENARIOS.find(s => s.id === scen).name}：${scenNote()}`, 'event');
@@ -2268,7 +2269,7 @@ function newGame(player, diff, scen = null) {
 const SCENARIOS = [
   { id: 'hegemon', name: '巨大勢力の台頭', desc: 'ゲーム開始の時点で、どこか一つの勢力がまわりの土地を呑み込み、大きくなっている。' },
   { id: 'giants', name: '巨大兵器の時代', desc: '巨大兵器が序盤から現れる。倒すか、しばらく暴れて眠りにつくと次の一体が目を覚まし、ギガス・ハロー・レギオンの順に三体すべてが現れる。' },
-  { id: 'mercs', name: '傭兵団の独立', desc: '傭兵たちが自由都市リベラで旗を揚げ、9つめの勢力「自由傭兵団」になっている。傭兵は雇えない。' },
+  { id: 'mercs', name: '傭兵団の独立', desc: '傭兵たちとゼファーが自由都市リベラで旗を揚げ、9つめの勢力「自由傭兵団」になっている。傭兵は雇えない。この戦況では自由傭兵団で遊ぶこともできる。' },
 ];
 const SCEN = { hegemonTake: 8, giantsFrom: 8, giantsChance: 0.14, giantsGap: 4, giantsStay: 12 }; // giantsStay：倒されないまま、このターン数がたつと眠りにつく
 function scenNote() {
@@ -3900,6 +3901,7 @@ const BRIEFING = {
   psy: '迫害を逃れた感応者たちは、山あいのホロウ要塞に集った。数は少なく、資金も乏しい。\nだが感応者の操るビットは、どの勢力の兵より鋭い。一人ひとりを大切に育て、少数精鋭で道を切り開け。',
   orb: '天柱同盟は、地上と宇宙を結ぶ軌道エレベーター「天の柱」を守ってきた。どの勢力にも属さず、橋として中立を貫いてきたが、戦火はついに柱のふもとまで迫った。\nこの勢力の母艦は、地上と宇宙のどちらにも入れる。ふたつの戦場をつないで戦え。',
   jup: '地球圏から最も遠い木星で、開拓者たちは重力と嵐に耐えて生きてきた。地球の争いは、もはや他人事ではない。\n領土は小さいが、機体は戦うたびに自ら傷を癒やす。外縁の資源を固め、月と小惑星帯へ打って出よ。',
+  mrc: '金で戦い、金で裏切る――それが傭兵だと誰もが言う。だが自由都市リベラに集まった者たちは、初めて誰にも雇われずに旗を揚げた。\n領土はリベラひとつ、資金もない。自前の工場はなく、他勢力の量産機と母艦を買い集めて戦う。腕利きの傭兵たちと放浪者ゼファーの腕で、地球圏を勝ち取れ。',
 };
 const EPILOGUE = {
   ugf: { win: '統合政府の旗のもと、地球圏はふたたびひとつになった。だが、宇宙へ渡った人々の声を聞くことも、これからの統治者の務めだ。', lose: '首都セントラルは陥落した。地上の秩序は崩れ、新たな時代が始まろうとしている。' },
@@ -3910,6 +3912,7 @@ const EPILOGUE = {
   psy: { win: '感応者たちは迫害の時代を終わらせた。心で通じ合う新しい人類の時代が始まる。', lose: 'ホロウ要塞は陥落した。感応者たちは散り散りになり、ふたたび息をひそめる。' },
   orb: { win: '天の柱は、ふたたび人類すべての橋となった。地上と宇宙は、もう争う必要のない、ひとつの世界だ。', lose: '天の柱は折れた。地上と宇宙を結ぶ橋を失い、ふたつの世界はまた遠く離れていく。' },
   jup: { win: '辺境と呼ばれた木星から来た者たちが、地球圏の新たな中心となった。重力に鍛えられた意志が、これからの時代を支えていく。', lose: 'イオ・シタデルの灯は消えた。木星の嵐だけが、開拓者たちの夢を覚えている。' },
+  mrc: { win: '雇われ者と呼ばれた傭兵たちが、地球圏の新しい秩序をつくった。自由都市リベラの旗の下では、誰もが自分の剣の主人だ。', lose: '自由都市リベラの旗は降ろされた。傭兵たちはまた散り散りになり、どこかの戦場で誰かに雇われている。' },
 };
 
 function gstats() {
@@ -4068,6 +4071,7 @@ const STORY_CAST = {
   psy: { lead: 'p_celes', ace: 'p_sion', sub: 'p_lyra' },
   orb: { lead: 'p_halden', ace: 'p_mika', sub: 'p_otto' },
   jup: { lead: 'p_magnus', ace: 'p_vera', sub: 'p_axel' },
+  mrc: { lead: 'm_boros', ace: 'm_zephyr', sub: 'm_saya' },
 };
 const STORY = {
   // 第二章：6ターン目
@@ -4080,6 +4084,7 @@ const STORY = {
     psy: [['narr', '感応者狩りのうわさが広がり、解放戦線へ逃れてくる者が増えていた。'], ['lead', '恐れないで。私たちは、互いの心を感じられるのだから。'], ['ace', '…みんなの声が聞こえる。もう誰も、ひとりにはさせない。']],
     orb: [['narr', '天の柱をめぐって、地上と宇宙の勢力がにらみ合っている。'], ['lead', '柱は誰のものでもない。だが、柱を壊そうとする者からは守らねばならん。'], ['ace', '地上も宇宙も、私の空です。どっちも守ってみせます！']],
     jup: [['narr', '木星から地球圏までは遠い。補給線を守れるかが、勝負の分かれ目だ。'], ['lead', '開拓の時代と同じだ。一歩ずつ、確実に進め。'], ['ace', '道は私が開く。ついてこられる者だけ、ついてきなさい。']],
+    mrc: [['narr', '自由都市リベラには、各地から腕に覚えのある流れ者が集まり続けていた。'], ['lead', '金庫は空っぽだが、腕だけはある。稼ぎながら戦うしかねえな。'], ['sub', '…誰かの命令で引き金を引くより、ずっといい。']],
   },
   // 第三章：どこかの勢力が初めて滅んだとき
   ch3: {
@@ -4091,6 +4096,7 @@ const STORY = {
     psy: [['lead', '悲しみの声が、またひとつ増えた…。'], ['sub', '…星が泣いている。']],
     orb: [['lead', 'またひとつ、橋の向こう側が消えたか…。'], ['ace', '悲しんでいる暇はない。柱を守り抜かないと。']],
     jup: [['lead', '地球圏の連中は脆いな。我らは嵐の中で生きてきた。'], ['ace', '油断はしない。次に消えるのが私たちでないように。']],
+    mrc: [['lead', 'ひとつ潰れたか。…あそこにも、昔の雇い主がいたんだがな。'], ['ace', '旗が倒れても、人は残る。次に誰につくかは、その人が決めることだ。']],
   },
   // 第四章：残る敵が3つ以下になったとき
   ch4: {
@@ -4102,6 +4108,7 @@ const STORY = {
     psy: [['narr', '戦火は地球圏の隅々にまで広がり、残る勢力はわずかとなった。'], ['sub', '…星が、ざわめいている。'], ['lead', '最後の戦いが近いのね。'], ['ace', '必ず、みんなで生きて帰ろう。']],
     orb: [['narr', '戦火は地球圏の隅々にまで広がり、残る勢力はわずかとなった。'], ['sub', '総帥、全機の整備、終わってますぜ！'], ['lead', '地上と宇宙、両方から攻める。我々にしかできない戦い方だ。'], ['ace', 'ふたつの空を、ひとつにします！']],
     jup: [['narr', '戦火は地球圏の隅々にまで広がり、残る勢力はわずかとなった。'], ['sub', 'ハンマーの手入れは済んでるぜ、総司令！'], ['lead', '開拓者の意地を見せてやれ。'], ['ace', '木星の名にかけて。']],
+    mrc: [['narr', '戦火は地球圏の隅々にまで広がり、残る勢力はわずかとなった。'], ['sub', '団長、全員そろってる。逃げた者はいない。'], ['lead', '傭兵が最後まで残るなんざ、笑い話だ。…だが悪くねえ。']],
   },
   // 最終章：残る敵がひとつになったとき（敵の指導者の言葉のあとに続く）
   ch5: {
@@ -4113,22 +4120,26 @@ const STORY = {
     psy: [['lead', 'みんなの心を、ひとつに。'], ['ace', '…見える。勝利への道が！']],
     orb: [['lead', '全機、出撃。天の柱の名にかけて！'], ['ace', '地上からも、宇宙からも…いっけえ！']],
     jup: [['lead', '全軍、突撃！ 開拓者の誇りを示せ！'], ['ace', '道は私が開く！']],
+    mrc: [['lead', '報酬は自由だ。全員、取り立てに行くぞ！'], ['ace', '…行こう。誰のものでもない空へ。']],
   },
 };
 // 敵の指導者：最後の1勢力になったとき
 const STORY_RIVAL = {
   ugf: 'ここが最後の砦だ。地球の秩序、たやすく渡しはせん！', col: '我らの独立の夢、最後まで見届けてもらうぞ！', lun: '計算外だな…だが、最後の数字はまだ決まっていない。',
   ast: '私の全財産を賭けてあげる。高くつくわよ！', sea: '海の底まで、あなたたちを引きずり込んであげる！', psy: 'あなたたちの心にも、届くといいのだけれど…。', jup: '木星の嵐を越えてきた我らを、甘く見るな！', orb: '天の柱は、決して折れはしない！',
+  mrc: '俺たちを雇えなかったのが、あんたらの運の尽きだ！',
 };
 // 初めて戦う勢力のエース
 const STORY_MEET = {
   ugf: ['p_kaito', 'ここから先へは行かせない！'], col: ['p_ren', '…遅い。その程度で俺を止められると思うな。'], lun: ['p_klaus', '月の技術の結晶、その身で味わってもらおう。'],
   ast: ['p_ivy', '悪いけど、これも仕事なのよね。'], sea: ['p_mio', '海の上で、あたしたちに勝てると思ってるの？'], psy: ['p_vex', 'ははっ、獲物が自分から来やがった！'], jup: ['p_vera', '木星の赤い翼、知らないとは言わせない。'], orb: ['p_mika', '天の柱には、指一本触れさせない！'],
+  mrc: ['m_jin', '悪いな、今日は誰にも雇われてねえ。好きにやらせてもらうぜ！'],
 };
 // 滅亡する勢力の指導者の最期の言葉
 const STORY_FALL = {
   ugf: '…地球を、頼んだぞ…。', col: 'コロニーの灯は…消えはしない…。', lun: '計算違い…か。いや、これもひとつの答えだ…。', ast: '高い授業料だったわね…。',
   sea: '海よ…私たちの子らを、守って…。', psy: 'どうか…憎しみを、終わらせて…。', jup: '木星の嵐よ…我らを、迎えてくれ…。', orb: '柱よ…人類の橋で、あり続けてくれ…。',
+  mrc: '…まあいい。傭兵は、どこでだって生きていける…。',
 };
 const CH_TITLE = { ch2: '第二章　動き出す星々', ch3: '第三章　崩れる均衡', ch4: '第四章　決戦前夜', ch5: '最終章　星屑の果てに' };
 
@@ -4589,6 +4600,7 @@ const ENDING_LINES = {
   psy: { unity: ['lead', '敵だった人たちの心の声が、今はこんなにも近い。…これが、私たちの望んだ世界です。'], swift: ['lead', '悲しみの声が広がる前に、終わらせることができました。'], cost: ['lead', '蓮の花びらが、たくさん散りました。…でも、泥の中からまた咲きます。'], conquest: ['lead', '力で開いた扉は、また力で閉じられるかもしれない。…だから、心で開け続けましょう。'] },
   orb: { unity: ['lead', '橋の両側から来た者たちが、今は同じ駅で弁当を食っている。設計どおりだ。'], swift: ['lead', '柱が揺れる前に終わった。構造計算に、狂いはなかった。'], cost: ['lead', '柱は折れなかった。…折れずに済むよう、支えてくれた者たちがいた。'], conquest: ['lead', '橋の向こう側が、全部こちら側になった。次は、二本目の柱だ。'] },
   jup: { unity: ['lead', '忘れられた者と、忘れた者が、同じ畑を耕している。…嵐は、去ったのかもしれん。'], swift: ['lead', '開拓と同じだ。一歩ずつ、確実に。…思ったより、早く着いたがな。'], cost: ['lead', '嵐は、多くの仲間を連れていった。…その嵐の名を、我らは忘れない。'], conquest: ['lead', '木星の名は、もう誰にも忘れさせん。…さあ、次の開拓だ。'] },
+  mrc: { unity: ['lead', '敵も味方も、元をたどりゃみんな雇われ者だ。…今は、同じ旗の下で飯を食ってる。'], swift: ['lead', '傭兵の仕事は、早く片付けるに限る。…報酬は、全員で山分けだ。'], cost: ['lead', '帰ってこなかった連中の分まで、取り分は残しておく。…それが傭兵の流儀だ。'], conquest: ['lead', '雇い主はもういない。これからは、俺たちが決める。'] },
 };
 function endingScene() {
   const f = G.player, k = endingKind(), K = ENDING_KIND[k], L0 = ENDING_LINES[f]?.[k];
@@ -12707,6 +12719,8 @@ const EMBLEM = {
   orb: { d: 'M10.6 1.6h2.8v20.8h-2.8ZM12 7.4c5.6 0 10 1.5 10 3.4s-4.4 3.4-10 3.4S2 12.7 2 10.8s4.4-3.4 10-3.4Zm0 1.8c-4.4 0-7.6 .8-7.6 1.6s3.2 1.6 7.6 1.6 7.6-.8 7.6-1.6-3.2-1.6-7.6-1.6ZM7 20h10v2.4H7Z', rule: 'evenodd' },
   jup: { d: 'M11 4.4a7.6 7.6 0 1 1 0 15.2 7.6 7.6 0 0 1 0-15.2ZM3.8 9.4h14.4v1.6H3.8ZM3.6 13.2h14.8v1.6H3.6ZM12.4 16.6a1.7 1.1 0 1 0 3.4 0 1.7 1.1 0 1 0-3.4 0ZM20 2.4a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6Z', rule: 'evenodd' },
   neutral: { d: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18Zm0 3a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z', rule: 'evenodd' },
+  // 自由傭兵団：交差する二本の剣
+  mrc: { d: 'M4 3l7 7-1.6 1.6L3 5Zm16 0-7 7 1.6 1.6L21 5ZM7.4 12.6l4.6 4.6-1.4 1.4-1.6-1.6L6.2 19.8 4.2 17.8 7.4 14.6 5.8 13 7.2 11.6Zm9.2 0 1.4 1.4-1.6 1.6 3.2 3.2-2 2-3.2-3.2-1.6 1.6-1.4-1.4ZM12 10.6l1.4 1.4L12 13.4 10.6 12Z', rule: 'nonzero' },
 };
 const KIND_ICON = {
   capital: { d: 'M4 17.5 2.8 7.2l5.3 4L12 4.2l3.9 7 5.3-4L20 17.5ZM4 19h16v2.2H4Z', rule: 'nonzero' },
@@ -14639,11 +14653,12 @@ function renderTitle() {
 
 // ===================== 勢力選択 =====================
 function renderFaction() {
-  const list = $('#fac-list');
-  list.innerHTML = BASE_FACTIONS.map(F => {
+  const list = $('#fac-list'), mrcOk = clearCount() > 0 && scenPick() === 'mercs'; // 自由傭兵団は、戦況「傭兵団の独立」を選んだときだけ遊べる
+  if (UI.pickFaction === 'mrc' && !mrcOk) UI.pickFaction = null;
+  list.innerHTML = [...BASE_FACTIONS, ...(mrcOk ? [MRC_FAC] : [])].map(F => {
     const S = START[F.id];
-    const areas = Object.values(AREAS).filter(a => a.owner0 === F.id).length;
-    const flag = Object.values(UNITS).find(T => T.f === F.id && T.cls === '最上位');
+    const areas = F.id === 'mrc' ? Object.keys(S.garrison).length : Object.values(AREAS).filter(a => a.owner0 === F.id).length;
+    const flag = F.id === 'mrc' ? UNITS[WANDERER.unit] : Object.values(UNITS).find(T => T.f === F.id && T.cls === '最上位');
     return `<button class="fcard ${UI.pickFaction === F.id ? 'on' : ''}" data-f="${F.id}" style="--fc:${F.color}">
       <span class="fwm">${emblemSvg(F.id, 132, F.color)}</span>
       <span class="fthumb" data-thumb="${flag.id}" data-col="${F.color}"></span>
@@ -16103,8 +16118,8 @@ function newGameStart() {
   UI.tab = AREAS[capOf(G.player)].map; UI.sel = capOf(G.player); UI.moveSq = null; UI.busy = false; UI.cam = null;
   show('map'); autosave();
   (async () => {
-    const capId = START[G.player].squads[0].cap;
-    const bp = openModal({ title: '作戦開始', cls: 'small brief', buttons: [{ label: '出撃する', value: 'ok', cls: 'primary' }], body: `<div class="brief-h">${emblemSvg(G.player, 40, FAC[G.player].color)}<b style="color:${FAC[G.player].color}">${FAC[G.player].name}</b></div><div class="brief-sp">${faceHtml(capId, 64, 'b')}<span><small>艦隊司令</small>${PILOT_BASE[capId].name}</span></div>${BRIEFING[G.player].split('\n').map(l => `<p>${l}</p>`).join('')}${G.scen ? `<p class="brief-scen"><b>戦況「${SCENARIOS.find(s => s.id === G.scen).name}」</b><br>${scenNote()}</p>` : ''}` }); fillThumbs(modalStack[modalStack.length - 1].el); await bp;
+    const capId = START[G.player].squads[0].cap || STORY_CAST[G.player].lead;
+    const bp = openModal({ title: '作戦開始', cls: 'small brief', buttons: [{ label: '出撃する', value: 'ok', cls: 'primary' }], body: `<div class="brief-h">${emblemSvg(G.player, 40, FAC[G.player].color)}<b style="color:${FAC[G.player].color}">${FAC[G.player].name}</b></div><div class="brief-sp">${faceHtml(capId, 64, 'b')}<span><small>${G.player === 'mrc' ? '団長' : '艦隊司令'}</small>${PILOT_BASE[capId].name}</span></div>${BRIEFING[G.player].split('\n').map(l => `<p>${l}</p>`).join('')}${G.scen ? `<p class="brief-scen"><b>戦況「${SCENARIOS.find(s => s.id === G.scen).name}」</b><br>${scenNote()}</p>` : ''}` }); fillThumbs(modalStack[modalStack.length - 1].el); await bp;
     await showTip('welcome'); await showTip('map');
   })();
 }
@@ -16274,7 +16289,7 @@ const clearCount = () => Object.keys(records().clears).length;
 // クリア特典：クリアした勢力の数に応じた資金とパーツに加えて、クリアした勢力ごとの特典から2つまで選べる
 const BONUS_SLOTS = 2;
 const CLEAR_REWARDS = [
-  { f: 'ugf', name: '統合軍の払い下げ', desc: '量産機を2機、首都に追加で配備', run: f => { const T = Object.values(UNITS).filter(T => T.f === f && T.bt > 0 && T.cost <= 400).sort((a, b) => b.cost - a.cost)[0] || Object.values(UNITS).filter(T => T.f === f && T.bt > 0).sort((a, b) => a.cost - b.cost)[0]; return FX.unit(f, T.id, 2); } },
+  { f: 'ugf', name: '統合軍の払い下げ', desc: '量産機を2機、首都に追加で配備', run: f => { const own = T => (T.f === f || G.fac[f]?.lic?.[T.id]) && T.bt > 0, T = Object.values(UNITS).filter(T => own(T) && T.cost <= 400).sort((a, b) => b.cost - a.cost)[0] || Object.values(UNITS).filter(own).sort((a, b) => a.cost - b.cost)[0]; return FX.unit(f, T.id, 2); } },
   { f: 'col', name: '彗星の教え', desc: 'はじめにいる全機体の経験値 +80', run: f => FX.expAll(f, 80) },
   { f: 'lun', name: '月の先行投資', desc: '最初の8ターン、収入 +25%', run: f => FX.inc(f, 0.25, 8) },
   { f: 'ast', name: '公社の倉庫', desc: '改造パーツを3つ', run: f => FX.parts(f, 3) },
@@ -16328,12 +16343,12 @@ function checkMedals() {
   if (mine.some(u => (u.mod || 0) >= BAL.modMax)) awardMedal('mod_max');
   if (areasOf(f).length >= 20) awardMedal('territory20');
   if (S.mDone >= 10) awardMedal('mission10');
-  if (G.wanderer?.st === 2) awardMedal('wanderer');
+  if (G.wanderer?.st === 2 && !G.wanderer.own) awardMedal('wanderer');
   const z = zukanPct(); if (z >= 50) awardMedal('zukan50'); if (z >= 100) awardMedal('zukan100');
   if (S.kills >= 100) awardMedal('kills100');
   if (mine.some(u => u.lv >= BAL.maxLv)) awardMedal('lv_max');
   const mj = MERCS.filter(m => G.pilots[m.pilot]?.f === f && G.pilots[m.pilot].alive !== false).length;
-  if (mj >= 1) awardMedal('merc_join'); if (mj >= MERCS.length) awardMedal('merc_all');
+  if (G.scen !== 'mercs') { if (mj >= 1) awardMedal('merc_join'); if (mj >= MERCS.length) awardMedal('merc_all'); }
 }
 // 評価：早さ・損害・戦果・難しさ
 function gameRank() {
@@ -16350,6 +16365,7 @@ const EPILOGUE_SCENE = {
   psy: [['narr', '感応者が迫害されない時代が、ついに訪れた。'], ['lead', 'ありがとう。あなたたちの心が、未来を変えたのよ。'], ['ace', '…聞こえる。みんなの、笑い声が。']],
   orb: [['narr', '天の柱のもとで、地上と宇宙の和平が結ばれた。'], ['lead', '橋は、渡る者がいてこそ橋だ。これからは誰もが自由に行き来できる。'], ['ace', '地上の空も、宇宙の空も…やっと、ひとつになりました。']],
   jup: [['narr', '辺境と呼ばれた木星が、地球圏の中心となった。'], ['lead', '開拓は終わらん。次は、この地球圏そのものを耕すのだ。'], ['ace', '…木星の空が、少し近く見えるわね。']],
+  mrc: [['narr', 'どこにも雇われない者たちが、地球圏を手にした。'], ['lead', '退職金の使い道としちゃ、上出来だったな。'], ['ace', '…自由とは、案外重いものだな。']],
 };
 // エースのその後：パイロットごとの物語（PILOT_LORE）。名のないパイロットは撃墜数と生死で変わる
 function aceAfter(p, i) {
@@ -16441,7 +16457,7 @@ async function openMedals() {
   const body = `<div class="zk-top"><div class="zk-pct"><b>${n}</b><small>/${MEDALS.length}</small></div><div class="dim small">勲章はゲームをまたいで残ります。条件を満たすと、その場で獲得できます。</div></div>
     <div class="cmd-title"><small>司令官の称号</small><b>${T.name}</b><span class="dim small">${T.next ? `あと勲章${T.next}個で「${T.nextName}」` : '最高の称号です'}</span></div>
     ${medalCount() >= SECRET_MEDALS ? `<details class="secret-box" open><summary>隠しコマンド（勲章${SECRET_MEDALS}個で解禁）</summary>${secretHtml()}</details>` : ''}
-    <h4>勢力ごとのクリア記録</h4><div class="rec-grid">${BASE_FACTIONS.map(F => { const C = R.clears[F.id]; return `<div class="rec ${C ? 'got' : ''}" style="--fc:${F.color}">${emblemSvg(F.id, 22, F.color)}<b>${F.short}</b>${C ? `<span class="rk r${C.rank}">${C.rank}</span><small>最短 ${C.turn}ターン・${BAL.diff[C.diff]?.label || ''}</small>${(RC[F.id] || []).length ? `<small class="rec-ch">戦況：${RC[F.id].map(id => SCENARIOS.find(c => c.id === id)?.name).filter(Boolean).join('・')}</small>` : ''}` : '<small class="dim">未クリア</small>'}</div>`; }).join('')}</div>
+    <h4>勢力ごとのクリア記録</h4><div class="rec-grid">${[...BASE_FACTIONS, ...(R.clears.mrc ? [MRC_FAC] : [])].map(F => { const C = R.clears[F.id]; return `<div class="rec ${C ? 'got' : ''}" style="--fc:${F.color}">${emblemSvg(F.id, 22, F.color)}<b>${F.short}</b>${C ? `<span class="rk r${C.rank}">${C.rank}</span><small>最短 ${C.turn}ターン・${BAL.diff[C.diff]?.label || ''}</small>${(RC[F.id] || []).length ? `<small class="rec-ch">戦況：${RC[F.id].map(id => SCENARIOS.find(c => c.id === id)?.name).filter(Boolean).join('・')}</small>` : ''}` : '<small class="dim">未クリア</small>'}</div>`; }).join('')}</div>
     <h4>勲章</h4><div class="medal-grid">${MEDALS.map(m => medalHtml(m, false)).join('')}</div>${medalCount() >= SECRET_MEDALS ? '' : `<p class="secret-hush">勲章を${SECRET_MEDALS}個集めると、隠しコマンドが明かされます</p>`}`;
   await openModal({ title: '勲章と記録', body, cls: 'wide' });
 }
@@ -16650,7 +16666,7 @@ function careerHtml() {
       ${stat('連携攻撃', L.combos, '回')}${stat('経過ターン', L.turns)}</div>
     ${L.ace ? `<div class="lr-ace" style="--fc:${FAC[L.ace.f]?.color || '#f2c14e'}">${PILOT_BASE[L.ace.pid] ? faceHtml(L.ace.pid, 48, 'b') : ''}<div><small>歴代最多撃墜</small><b>${L.ace.name}</b><span>撃墜 ${L.ace.kills}</span></div></div>` : ''}
     <h4>勢力ごとの記録</h4>
-    <div class="lr-fac">${BASE_FACTIONS.map(F => { const C = R.clears[F.id], ch = (RC[F.id] || []).map(id => SCENARIOS.find(c => c.id === id)?.name).filter(Boolean);
+    <div class="lr-fac">${[...BASE_FACTIONS, ...(R.clears.mrc || P.mrc ? [MRC_FAC] : [])].map(F => { const C = R.clears[F.id], ch = (RC[F.id] || []).map(id => SCENARIOS.find(c => c.id === id)?.name).filter(Boolean);
       return `<div class="lr-f ${C ? 'got' : ''}" style="--fc:${F.color}">${emblemSvg(F.id, 22, F.color)}<div><b>${F.name}</b><small>${P[F.id] ? `${P[F.id]}回遊んだ` : 'まだ遊んでいない'}${C ? `　最短 ${C.turn}ターン　${BAL.diff[C.diff]?.label || ''}` : ''}${ch.length ? `<br>戦況：${ch.join('・')}` : ''}</small></div>${C ? `<span class="rk r${C.rank}">${C.rank}</span>` : '<span class="lr-no">未クリア</span>'}</div>`; }).join('')}</div>
     <h4>見た結末</h4>
     <div class="lr-end">${Object.entries(ENDING_KIND).map(([k, E]) => `<div class="${RE[k] ? 'got' : ''}"><b>${E.name}${RE[k] ? '' : '<span class="dim">（未達成）</span>'}</b><small>${RE[k] ? E.desc + '<br>' : ''}条件：${E.cond}</small></div>`).join('')}</div><p class="dim small">結末は上から順に見て、最初に当てはまったものになります。</p>
