@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}.rk-tbl{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0 8px}.rk-tbl th,.rk-tbl td{border:1px solid rgba(255,255,255,.15);padding:3px 6px;text-align:left}.rk-tbl th{background:rgba(255,255,255,.07)}.rk-tbl td:first-child,.rk-tbl th:first-child{text-align:center;width:3em}.rk-ul{margin:4px 0 8px 1.2em;padding:0}.rk-ul li{margin:2px 0}
+.brief-scen{margin-top:10px;padding:8px 10px;border:1px solid var(--gold);border-radius:8px;color:var(--text);font-size:13px}.brief-scen b{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -805,7 +806,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v183</span>
+    <span class="t-ver">v184</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -927,7 +928,13 @@ const FACTIONS = [
   { id: 'jup', name: '木星開拓同盟', short: '木星', color: '#b4e04a', capital: 'j_io', diff: 3,
     trait: '自己修復装甲：戦闘のあと、生き残った機体のHPが1割ほど回復する', desc: '木星圏の開拓者たちの同盟。重力に鍛えられた頑丈な機体で、外縁から地球圏をうかがう。' },
 ];
-const FAC = Object.fromEntries(FACTIONS.map(f => [f.id, f]));
+// 戦況「傭兵団の独立」のときだけ加わる9つめの勢力（遊ぶ勢力には選べない）
+const MRC_FAC = { id: 'mrc', name: '自由傭兵団', short: '傭兵', color: '#c9b98a', capital: 'n_libera', diff: 3, extra: true,
+  trait: '寄せ集め：他勢力の量産機と母艦を買い集めて戦う', desc: '各地の傭兵が自由都市リベラに集まり、どこにも雇われない一つの勢力として旗を揚げた。' };
+const BASE_FACTIONS = FACTIONS.slice(); // 遊べる8勢力（記録・図鑑・勢力選びはこちら）
+const FAC = Object.fromEntries([...FACTIONS, MRC_FAC].map(f => [f.id, f]));
+// ゲーム中の勢力一覧：傭兵団の独立のときだけ傭兵団を加える
+function syncFactions(scen) { const i = FACTIONS.indexOf(MRC_FAC); if (scen === 'mercs' && i < 0) FACTIONS.push(MRC_FAC); if (scen !== 'mercs' && i >= 0) FACTIONS.splice(i, 1); }
 
 // ===================== 武器 =====================
 // cat: melee/rapid/rifle/shell/charge/launcher/missile/homing/bit/reflect/bomb/transform
@@ -1532,6 +1539,13 @@ LINKS.trim().split(/\s+/).forEach(pair => {
 
 // ===================== 初期配置 =====================
 const START = {
+  // 戦況「傭兵団の独立」専用
+  mrc: { funds: 1800,
+    squads: [
+      { area: 'n_libera', ship: 'orb_shuttle', units: [['mrc_ronin', 'm_jin'], ['mrc_ghost', 'm_saya']] },
+      { area: 'n_mid', ship: 'ugf_land', units: [['mrc_titan', 'm_boros'], ['mrc_hydra', 'm_hydra']] },
+    ],
+    garrison: { n_libera: ['ugf_trooper', 'col_lancer'], n_mid: ['lun_frame'], n_northsea: ['ugf_trooper'], n_canyon: ['col_lancer', 'ugf_tank'] } },
   ugf: { funds: 2000,
     squads: [
       { area: 'e_central', ship: 'ugf_ark', cap: 'p_gordon', units: [['ugf_trooper2', 'p_kaito'], ['ugf_gunner', 'p_erin'], ['ugf_trooper', 'p_dorr']] },
@@ -2214,16 +2228,23 @@ function nid(p) { G.nextId = (G.nextId || 1) + 1; return p + G.nextId; }
 function L(msg, kind = 'info') { G.log.unshift({ t: G.turn, msg, kind }); if (G.log.length > 120) G.log.length = 120; HOOKS.log(msg, kind); }
 
 // ===================== 生成 =====================
-function newGame(player, diff) {
-  G = { v: 2, turn: 1, player, diff, nextId: 1, fac: {}, areas: {}, units: {}, squads: {}, pilots: {}, enc: { units: {}, pilots: {} }, seen: {}, log: [], over: null };
+function newGame(player, diff, scen = null) {
+  if (!SCENARIOS.some(s => s.id === scen)) scen = null;
+  syncFactions(scen);
+  G = { v: 2, turn: 1, player, diff, scen, nextId: 1, fac: {}, areas: {}, units: {}, squads: {}, pilots: {}, enc: { units: {}, pilots: {} }, seen: {}, log: [], over: null };
   for (const a of Object.values(AREAS)) G.areas[a.id] = { owner: a.owner0, q: [] };
+  if (scen === 'mercs') for (const a of Object.keys(START.mrc.garrison)) G.areas[a].owner = 'mrc';
   for (const p of Object.values(PILOT_BASE)) {
-    if (p.f === 'mrc') continue;
+    if (p.f === 'mrc' && !(scen === 'mercs' && MERCS.some(m => m.pilot === p.id))) continue;
     G.pilots[p.id] = { ...p, origin: p.f, named: true, lv: 1, exp: 0, alive: true };
   }
   for (const f of FACTIONS) {
     const S = START[f.id];
     G.fac[f.id] = { funds: S.funds, alive: true, free: [], parts: {}, mercs: [] };
+    if (f.id === 'mrc') { // 寄せ集め：他勢力の安い量産機と母艦を作れる
+      G.fac.mrc.lic = Object.fromEntries(Object.values(UNITS).filter(T => T.f && T.f !== 'mrc' && T.bt > 0 && T.cost <= 800).map(T => [T.id, 1]));
+      G.fac.mrc.slic = { orb_shuttle: 1, ugf_land: 1, col_noa: 1, ast_rock: 1, sea_trident: 1 };
+    }
     for (const sq of S.squads) {
       const sid = createSquad(f.id, sq.area, sq.ship, sq.cap || null);
       for (const [t, pid] of sq.units) {
@@ -2237,9 +2258,45 @@ function newGame(player, diff) {
   for (const p of Object.values(G.pilots)) if (p.named && !pilotAssigned(p.id)) { if (PILOT_JOIN[p.id] > 1) p.joinT = PILOT_JOIN[p.id]; else G.fac[p.f].free.push(p.id); }
   for (const u of Object.values(G.units)) if (u.f === player) G.enc.units[u.t] = 1;
   for (const p of Object.values(G.pilots)) if (p.f === player && p.named && !p.joinT) G.enc.pilots[p.id] = 1;
+  if (scen === 'hegemon') scenHegemon();
   refreshMercs();
   L(`${FAC[player].name}の司令官として着任した。`, 'sys');
+  if (scen) L(`【戦況】${SCENARIOS.find(s => s.id === scen).name}：${scenNote()}`, 'event');
   return G;
+}
+// ===================== 戦況（一度クリアすると選べる、遊び方が変わる条件） =====================
+const SCENARIOS = [
+  { id: 'hegemon', name: '巨大勢力の台頭', desc: 'ゲーム開始の時点で、どこか一つの勢力がまわりの土地を呑み込み、大きくなっている。' },
+  { id: 'giants', name: '巨大兵器の時代', desc: '巨大兵器が序盤から現れる。倒すか、しばらく暴れて眠りにつくと次の一体が目を覚まし、ギガス・ハロー・レギオンの順に三体すべてが現れる。' },
+  { id: 'mercs', name: '傭兵団の独立', desc: '傭兵たちが自由都市リベラで旗を揚げ、9つめの勢力「自由傭兵団」になっている。傭兵は雇えない。' },
+];
+const SCEN = { hegemonTake: 8, giantsFrom: 8, giantsChance: 0.14, giantsGap: 4, giantsStay: 12 }; // giantsStay：倒されないまま、このターン数がたつと眠りにつく
+function scenNote() {
+  if (G.scen === 'hegemon') return `${FAC[G.hegemon]?.name || ''}が大きく勢力を広げている。`;
+  if (G.scen === 'giants') return '各地で旧時代の巨大兵器が目を覚まそうとしている。';
+  if (G.scen === 'mercs') return '自由傭兵団が自由都市リベラを首都に独立した。';
+  return '';
+}
+// 巨大勢力の台頭：プレイヤー以外の一勢力が、首都から近い土地を呑み込む（首都・プレイヤーの土地・母艦のいる土地は除く）
+function scenHegemon() {
+  const cand = FACTIONS.filter(F => F.id !== G.player && !F.extra).map(F => F.id), H = pick(cand); G.hegemon = H;
+  const seen = new Set([capOf(H)]), q = [capOf(H)], take = [];
+  while (q.length && take.length < SCEN.hegemonTake) {
+    const a = q.shift();
+    for (const b of shuffle(AREAS[a].links.slice())) {
+      if (seen.has(b)) continue; seen.add(b);
+      const o = G.areas[b].owner;
+      if (o === G.player || AREAS[b].kind === 'capital' || squadsAt(b).length) continue;
+      q.push(b); if (o !== H && take.length < SCEN.hegemonTake) take.push(b);
+    }
+  }
+  const cheap = Object.values(UNITS).filter(T => T.f === H && T.bt > 0).sort((x, y) => x.cost - y.cost);
+  for (const a of take) {
+    for (const u of unitsAt(a)) { const pl = G.pilots[u.pil]; if (pl?.named && G.fac[u.f]) G.fac[u.f].free.push(pl.id); else delete G.pilots[u.pil]; delete G.units[u.uid]; }
+    G.areas[a].owner = H;
+    const ok = cheap.filter(T => AREAS[a].map === 'space' ? T.apt.space !== '×' : T.apt.plain !== '×');
+    for (let i = 0; i < 2 && ok.length; i++) createUnit(H, ok[Math.min(i, ok.length - 1)].id, { ar: a });
+  }
 }
 function pilotAssigned(pid) {
   return Object.values(G.units).some(u => u.pil === pid) || Object.values(G.squads).some(s => s.ship.cap === pid);
@@ -2318,7 +2375,7 @@ function buildList(f, area) {
   const map = AREAS[area].map;
   const lic = G.fac[f]?.lic || {};
   const units = Object.values(UNITS).filter(T => (T.f === f || lic[T.id]) && T.bt > 0).map(T => ({ kind: 'unit', t: T.id, cost: unitCost(f, T.id), bt: T.bt, lic: T.f !== f, ok: map === 'space' ? T.apt.space !== '×' : T.apt.plain !== '×' || T.apt.sea !== '×' }));
-  const ships = Object.entries(SHIPS).filter(([, S]) => S.f === f && S.bt > 0).map(([t, S]) => ({ kind: 'ship', t, cost: S.cost, bt: S.bt, ok: S.terrain === 'both' || (S.terrain === 'space') === (map === 'space') }));
+  const ships = Object.entries(SHIPS).filter(([t, S]) => (S.f === f || G.fac[f]?.slic?.[t]) && S.bt > 0).map(([t, S]) => ({ kind: 'ship', t, cost: S.cost, bt: S.bt, ok: S.terrain === 'both' || (S.terrain === 'space') === (map === 'space') }));
   return [...units, ...ships];
 }
 function orderProduction(f, area, kind, t) {
@@ -2352,10 +2409,8 @@ function moveTargets(sq) {
 
 // ===================== パイロット・進化・スクラップ =====================
 function evoReq(u) { const e = UT(u).evo; return Math.round(e * BAL.evoK * (u.f === 'lun' ? 0.8 : 1) / 5) * 5; }
-// 縛り（やり込みの条件）。プレイヤーの勢力にだけ効く
-function chal(id, f = G?.player) { return !!(G?.chal?.includes(id) && f === G.player); }
 function evoOptions(u) {
-  if (u.exp < evoReq(u) || chal('noevo', u.f)) return [];
+  if (u.exp < evoReq(u)) return [];
   const opts = UT(u).to.map(t => ({ t, ex: false }));
   for (const e of EXCLUSIVE) if (e.from === u.t && e.pilot === u.pil && !opts.some(o => o.t === e.to)) opts.unshift({ t: e.to, ex: true });
   return opts;
@@ -2494,7 +2549,6 @@ function scrapShip(sid) {
 function modCost(u) { const T = UT(u); return Math.round((BAL.modCostBase + T.cost * BAL.modCostRate) * ((u.mod || 0) + 1) / 10) * 10; }
 function modUnit(uid) {
   const u = G.units[uid], F = G.fac[u.f];
-  if (chal('nomod', u.f)) return '縛り「無改造」で遊んでいるため改造できません';
   if ((u.mod || 0) >= BAL.modMax) return '改造は最大です';
   const cost = modCost(u);
   if (F.funds < cost) return '資金が足りません';
@@ -2994,13 +3048,12 @@ async function executeMove(sid, to) {
 function incomeOf(f) {
   let inc = areasOf(f).reduce((a, id) => { const k = kindOf(id); return a + (BAL.income[k] || 0); }, 0);
   inc *= BAL.facIncome[f] ?? 1;
-  if (chal('poor', f)) inc *= 0.8;
   if (typeof fevIncomeK === 'function') inc *= fevIncomeK(f); // 出来事による一時的な増減
   if (f !== G.player) inc *= BAL.diff[G.diff].income;
   return Math.round(inc);
 }
 function refreshMercs() {
-  if (chal('nomerc')) { G.fac[G.player].mercs = []; return; }
+  if (G.scen === 'mercs') { G.fac[G.player].mercs = []; return; } // 傭兵団の独立：傭兵は雇えない
   G.fac[G.player].mercs = shuffle(MERCS.filter(m => !G.pilots[m.pilot] || G.pilots[m.pilot].f !== G.player)).slice(0, 3).map(m => ({ ...m, price: Math.round(m.price * rand(0.85, 1.2) / 10) * 10 }));
 }
 async function endTurn() {
@@ -3109,7 +3162,7 @@ function bulkRepair(f) {
 }
 // まとめてLv上げ：経験値の続くかぎり上げる。進化できる機体は、進化に要る経験値を残しておく
 const noEvoPath = u => !UT(u).to.length && !EXCLUSIVE.some(e => e.from === u.t && e.pilot === u.pil);
-const canBulkLv = u => canLvUp(u) && (noEvoPath(u) || chal('noevo', u.f) || u.exp - lvUpCost(u) >= evoReq(u));
+const canBulkLv = u => canLvUp(u) && (noEvoPath(u) || u.exp - lvUpCost(u) >= evoReq(u));
 function bulkLvList(f) { return unitsOf(f).filter(canBulkLv); }
 function bulkLvUp(f) {
   let n = 0, ups = 0; const tech = [];
@@ -3133,7 +3186,7 @@ function payRepairSquad(sid) {
 const MERC_JOIN = { hires: 3, chance: 0.35, price: 3.2, wait: [6, 9] };
 function mercJoinPrice(m) { return Math.round(m.price * MERC_JOIN.price / 100) * 100; }
 async function mercJoinEvent() {
-  if (chal('nomerc')) return;
+  if (G.scen === 'mercs') return;
   const f = G.player, H = G.mercHire || {}, A = G.mercAsk = G.mercAsk || {};
   if (G.evT === G.turn) return; // 同じターンに出来事が重なりすぎないように
   const m = shuffle(MERCS.filter(m => (H[m.pilot] || 0) >= MERC_JOIN.hires && !(G.pilots[m.pilot]?.f === f) && G.turn >= (A[m.pilot] || 0)))[0];
@@ -3155,7 +3208,6 @@ const MERC_LINES2 = { m_jin: '「今日から、ここが俺の帰る場所だ�
 const WANDERER = { unit: 'mrc_libertas', pilot: 'm_zephyr', from: 24, areas: 12, rumor: 0.11, challenge: 0.36, lv: 23, hpK: 1.4 }; // 決闘のゼファーはレベル23・体力1.4倍
 function wandererSide() { return { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [combatant('wanderer', WANDERER)] }; }
 async function wandererEvent() {
-  if (chal('nomerc')) return;
   const W = G.wanderer = G.wanderer || { st: 0, next: WANDERER.from, duels: 0 };
   if (W.st >= 2 || G.turn < W.next) return;
   const f = G.player, P = PILOT_BASE[WANDERER.pilot];
@@ -3629,6 +3681,7 @@ async function cpuPhase(f) {
 function serialize() { return JSON.stringify(G); }
 function deserialize(s) {
   G = JSON.parse(s);
+  syncFactions(G.scen);
   for (const a of Object.values(AREAS)) if (!G.areas[a.id]) G.areas[a.id] = { owner: null, q: [] }; // 広がった地図：前のセーブにないエリアは中立
   for (const id of Object.keys(G.areas)) { if (!AREAS[id]) delete G.areas[id]; else queueOf(id); }
   for (const p of Object.values(PILOT_BASE)) if (p.f !== 'mrc' && !G.pilots[p.id]) G.pilots[p.id] = { ...p, origin: p.f, named: true, lv: 1, exp: 0, alive: true, joinT: Math.max(G.turn + 1, PILOT_JOIN[p.id] || 0) }; // 新しく増えたパイロット
@@ -3701,7 +3754,15 @@ function nearUnify() { return rogueLeader().share >= ROGUE.share || FACTIONS.fil
 // ターンの始め：回復と、出現の判定
 async function rogueTurn() {
   const R = G.rogue;
+  if (R?.st === 1 && G.scen === 'giants' && G.turn - R.born >= SCEN.giantsStay) { // 巨大兵器の時代：長く暴れた巨大兵器は眠りにつき、次の一体が目を覚ます
+    R.st = 3; R.downT = G.turn; L(`【巨大兵器】${rogueName()}は動きを止め、${AREAS[R.area].name}の大地に沈んでいった。`, 'event'); return;
+  }
   if (R?.st === 1) { R.hp = Math.min(rogueMaxHp(), R.hp + Math.round(rogueMaxHp() * ROGUE.healTurn)); return; }
+  if (G.scen === 'giants') { // 巨大兵器の時代：序盤から現れ、倒されると次の一体が目を覚ます（三体すべて）
+    const left = ['gigas', 'ufo', 'legion'].filter(k => !(G.rogueSeen || []).includes(k)); // ギガス → ハロー → レギオンの順にだんだん強く
+    if (!left.length || (R && R.st === 1) || G.turn < SCEN.giantsFrom || (R && G.turn - (R.downT || 0) < SCEN.giantsGap) || Math.random() > SCEN.giantsChance) return;
+    await rogueSpawn(left[0]); return;
+  }
   if (R || G.turn < ROGUE.from || !nearUnify() || Math.random() > ROGUE.chance) return;
   await rogueSpawn();
 }
@@ -3715,7 +3776,7 @@ async function rogueSpawn(k, at) {
   if (!a) { const lead = rogueLeader().f, c = Object.keys(AREAS).filter(ok); a = pick(c.filter(x => G.areas[x].owner === lead)) || pick(c); }
   if (!a) return;
   const prev = G.areas[a].owner;
-  G.rogue = { st: 1, k, area: a, hp: UNITS[T.unit].hp, born: G.turn };
+  G.rogue = { st: 1, k, area: a, hp: UNITS[T.unit].hp, born: G.turn }; (G.rogueSeen = G.rogueSeen || []).push(k);
   if (prev) rogueRuin(a, prev, true);
   const ev = { title: T.title, thumb: T.unit, col: T.col,
     body: `${T.awake(a)}<br><span class="dim">倒さなくても統一はできます。戦闘のあとに1割、ターンが変わるたびに2割回復するので、倒すなら続けて攻めましょう。撃破すれば、多くの資源が手に入ります。</span>` };
@@ -3749,7 +3810,8 @@ async function rogueDown(by) {
     F.funds += T.reward;
     const got = [pick(Object.keys(PARTS)), pick(Object.keys(PARTS)), pick(Object.keys(PARTS))];
     for (const pk of got) F.parts[pk] = (F.parts[pk] || 0) + 1;
-    if (typeof awardMedal === 'function') { awardMedal('giant'); if (R.k !== 'gigas') awardMedal('giant_' + R.k); }
+    G.giantKills = (G.giantKills || 0) + 1;
+    if (typeof awardMedal === 'function') { awardMedal('giant'); if (R.k !== 'gigas') awardMedal('giant_' + R.k); if (G.giantKills >= 3) awardMedal('giant3'); }
     if (typeof records === 'function') { const RR = records(); RR.giants = RR.giants || {}; RR.giants[R.k] = (RR.giants[R.k] || 0) + 1; saveRecords(); } // 図鑑に載せる
     const ev = { title: '巨大兵器の撃破', thumb: T.unit, col: T.col, body: `${T.down}<br>残骸から資金 <b>${typeof fmt === "function" ? fmt(T.reward) : T.reward}</b> 相当の資源と、パーツ「${got.map(k => PARTS[k].name).join('」「')}」を回収した。` };
     L(`【${ev.title}】${rogueName()}を撃破した。資金 +${T.reward}`, 'good');
@@ -14542,7 +14604,7 @@ let titleRaf = 0;
 function renderTitle() {
   const has = !!(load('hsk_auto') || [1, 2, 3].some(i => load('hsk_slot' + i)));
   $('#btn-continue').disabled = !has;
-  const te = $('#t-embs'); if (te && !te.firstChild) te.innerHTML = FACTIONS.map(F => `<span title="${F.name}" style="--fc:${F.color}">${emblemSvg(F.id, 20, F.color)}</span>`).join('');
+  const te = $('#t-embs'); if (te && !te.firstChild) te.innerHTML = BASE_FACTIONS.map(F => `<span title="${F.name}" style="--fc:${F.color}">${emblemSvg(F.id, 20, F.color)}</span>`).join('');
   const cv = $('#title-cv');
   cancelAnimationFrame(titleRaf);
   const stars = Array.from({ length: 90 }, () => [Math.random(), Math.random(), Math.random()]);
@@ -14578,7 +14640,7 @@ function renderTitle() {
 // ===================== 勢力選択 =====================
 function renderFaction() {
   const list = $('#fac-list');
-  list.innerHTML = FACTIONS.map(F => {
+  list.innerHTML = BASE_FACTIONS.map(F => {
     const S = START[F.id];
     const areas = Object.values(AREAS).filter(a => a.owner0 === F.id).length;
     const flag = Object.values(UNITS).find(T => T.f === F.id && T.cls === '最上位');
@@ -14596,7 +14658,7 @@ function renderFaction() {
   if (ex) ex.hidden = !cleared;
   if (!cleared && UI.pickDiff === 'extreme') UI.pickDiff = 'hard';
   $('#diff-seg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.d === UI.pickDiff));
-  const ct = $('#chal-tg'), cp = chalPicks(); if (ct) ct.innerHTML = `<span class="chk ${cp.length ? 'on' : ''}"></span><span class="bt-l">縛り${cp.length ? `：${cp.map(id => CHALLENGES.find(c => c.id === id).name).join('・')}` : '（なし）'}</span><small>▸ 選ぶ</small>`;
+  const ct = $('#chal-tg'), sp = SCENARIOS.find(s => s.id === scenPick()); if (ct) { ct.hidden = !cleared; ct.innerHTML = `<span class="chk ${sp ? 'on' : ''}"></span><span class="bt-l">戦況${sp ? `：${sp.name}` : '（ふつう）'}</span><small>▸ 選ぶ</small>`; } // 戦況は一度クリアすると選べる
   const B = clearBonus(), bt = $('#bonus-tg');
   bt.hidden = !B; if (B) bt.innerHTML = `<span class="chk ${bonusPicks().length ? 'on' : ''}"></span><span class="bt-l">クリア特典${bonusPicks().length ? `：${bonusLabel()}` : '（なし）'}</span><small>▸ 選ぶ</small>`;
   $('#btn-start').disabled = !UI.pickFaction;
@@ -14992,7 +15054,7 @@ function renderSheet() {
     return;
   }
   const A = AREAS[id], S = G.areas[id], o = S.owner, mine = o === G.player;
-  let h = `<div class="sh-head"><div><h3>${kindSvg(kindOf(id), 18)}${A.name}</h3><p>${facBadge(o)} ${KIND_NAME[kindOf(id)]}${kindOf(id) !== A.kind ? '（遷都）' : ''}・${TERRAIN_NAME[A.terrain]}・収入 ${BAL.income[kindOf(id)]}${fortHp(id) ? `・防衛砲台 HP${fortNow(id) < fortHp(id) ? `<b class="warn">${hpn(fortNow(id))}</b>/` : ''}${hpn(fortHp(id))}` : ''}${garWaves(id) > 1 ? '・守備隊は2回迎撃' : ''}</p></div>`;
+  let h = `<div class="sh-head"><div><h3>${kindSvg(kindOf(id), 18)}${A.name}</h3><p>${facBadge(o)} ${KIND_NAME[kindOf(id)]}${kindOf(id) !== A.kind && !(o === 'mrc' && id === MRC_FAC.capital) ? '（遷都）' : ''}・${TERRAIN_NAME[A.terrain]}・収入 ${BAL.income[kindOf(id)]}${fortHp(id) ? `・防衛砲台 HP${fortNow(id) < fortHp(id) ? `<b class="warn">${hpn(fortNow(id))}</b>/` : ''}${hpn(fortHp(id))}` : ''}${garWaves(id) > 1 ? '・守備隊は2回迎撃' : ''}</p></div>`;
   if (o && !mine && areaHasForces(id, o)) h += `<div class="pow">敵戦力<b>${fmt(areaDefense(id, o))}</b></div>`;
   h += `</div>`;
   if (AREA_DESC[id]) h += `<p class="dim pad area-desc">${AREA_DESC[id]}</p>`;
@@ -15182,7 +15244,7 @@ function runThumbQ(budget) {
 }
 function unitBtns(u, extra = '') {
   const can = evoOptions(u).length > 0, up = canLvUp(u), lmax = u.lv >= BAL.maxLv;
-  const mm = (u.mod || 0) >= BAL.modMax || chal('nomod', u.f);
+  const mm = (u.mod || 0) >= BAL.modMax;
   return `${can ? `<button class="btn small gold" data-act="u-evo" data-uid="${u.uid}">進化</button>` : ''}<button class="btn small ${up ? 'gold' : ''}" data-act="u-lvup" data-uid="${u.uid}" ${up ? '' : 'disabled'} title="経験値を使ってHP・攻撃力を${Math.round(BAL.lvHp * 100)}%上げる">${lmax ? 'Lv最大' : `Lv上げ ${lvUpCost(u)}EXP`}</button><button class="btn small" data-act="u-mod" data-uid="${u.uid}" ${mm ? 'disabled' : ''} title="HP+${Math.round(BAL.modHp * 100)}%・攻撃+${Math.round(BAL.modDmg * 100)}%">${chal('nomod', u.f) ? '改造不可' : mm ? '改造MAX' : `改造 ${fmt(modCost(u))}`}</button>${repairCostUnit(u) ? `<button class="btn small" data-act="u-repair" data-uid="${u.uid}" ${canPayRepair(u.f, unitArea(u)) && G.fac[u.f].funds >= repairCostUnit(u) ? '' : 'disabled'} title="${canPayRepair(u.f, unitArea(u)) ? 'HPを全回復する' : '自軍のエリアにいるときだけ修理できます'}">修理 ${fmt(repairCostUnit(u))}</button>` : ''}<button class="btn small" data-act="u-pilot" data-uid="${u.uid}">搭乗者</button><button class="btn small" data-act="u-part" data-uid="${u.uid}">パーツ</button>${extra}<button class="btn small danger" data-act="u-scrap" data-uid="${u.uid}">解体</button>`;
 }
 async function handleUnitAct(act, t, M, rerender) {
@@ -15822,7 +15884,7 @@ function giantsBeaten() {
 async function openEncyclopedia(tab = 'unit') {
   const Z = zukanSync();
   const units = Object.values(UNITS).filter(T => !T.rogue), ships = Object.keys(SHIPS), pilots = Object.keys(PILOT_BASE); // 暴走兵器は図鑑に載せない
-  const facs = [...(G ? [FAC[G.player]] : []), ...FACTIONS.filter(x => !G || x.id !== G.player)];
+  const facs = [...(G ? [FAC[G.player]] : []), ...BASE_FACTIONS.filter(x => !G || x.id !== G.player)];
   const seenU = id => Z.u[id] || 0, seenS = id => Z.s[id] || 0, seenP = id => Z.p[id] || 0;
   const wList = Object.keys(WEAPON_DESC).filter(w => WEAPONS[w] && units.some(T => T.wAll.includes(w))); // どの機体も持たない武器は載せない（埋められないため）
   const seenW = w => units.some(T => T.wAll.includes(w) && seenU(T.id));
@@ -15862,7 +15924,7 @@ async function openEncyclopedia(tab = 'unit') {
       h += `<h4>相性</h4><p class="dim small">決まった2人が同じ戦闘に出ると、2人とも与えるダメージが少し上がり、掛け合いをします。一緒に出撃すると見つかります（${BONDS.filter(o => BF[o.key]).length} / ${BONDS.length}）。</p><div class="zk-bonds">${BONDS.map(o => BF[o.key] ? `<div class="zk-bond"><span class="bf">${faceHtml(o.a, 40, 'head')}${faceHtml(o.b, 40, 'head')}</span><span><b>${o.name}</b><small>${PILOT_BASE[o.a].name}・${PILOT_BASE[o.b].name}</small></span></div>` : `<div class="zk-bond unknown"><span class="bf"><span class="q">？</span></span><span><b>？？？</b></span></div>`).join('')}</div>`;
     } else if (tab === 'world') {
       h += `<div class="zk-world"><p class="u-desc">${WORLD_INTRO}</p><h4>年表</h4><div class="zk-time">${WORLD_TIMELINE.map(([y, t]) => `<div><b>${y}</b><span>${t}</span></div>`).join('')}</div>
-        <h4>勢力</h4>${FACTIONS.map(F => { const W = FACTION_LORE[F.id], lead = STORY_CAST?.[F.id]?.lead; return `<div class="zk-fac" style="--fc:${F.color}"><div class="zk-fh">${emblemSvg(F.id, 22, F.color)}<b>${F.name}</b><i>「${W.motto}」</i></div>${lead ? `<div class="zk-lead">${faceHtml(lead, 40, 'head')}<span>指導者：${PILOT_BASE[lead].name}<br><small>首都：${AREAS[F.capital].name}</small></span></div>` : ''}<p>${W.text}</p><p class="dim small">${W.rel}</p></div>`; }).join('')}
+        <h4>勢力</h4>${BASE_FACTIONS.map(F => { const W = FACTION_LORE[F.id], lead = STORY_CAST?.[F.id]?.lead; return `<div class="zk-fac" style="--fc:${F.color}"><div class="zk-fh">${emblemSvg(F.id, 22, F.color)}<b>${F.name}</b><i>「${W.motto}」</i></div>${lead ? `<div class="zk-lead">${faceHtml(lead, 40, 'head')}<span>指導者：${PILOT_BASE[lead].name}<br><small>首都：${AREAS[F.capital].name}</small></span></div>` : ''}<p>${W.text}</p><p class="dim small">${W.rel}</p></div>`; }).join('')}
         <div class="zk-fac" style="--fc:${MERC_COL}"><div class="zk-fh"><b>傭兵・放浪者</b><i>「${MERC_LORE.motto}」</i></div><p>${MERC_LORE.text}</p><p class="dim small">${MERC_LORE.rel}${seenP(WANDERER.pilot) || seenU(WANDERER.unit) ? MERC_LORE.wander : ''}</p>${(() => { const ps = pilots.filter(id => PILOT_BASE[id].f === 'mrc' && seenP(id)); return ps.length ? `<div class="enc-grid">${ps.map(id => `<button class="enc pe ${seenP(id) === 2 ? 'got' : ''}" data-act="pilot" data-t="${id}">${faceHtml(id, 58, 'head', '', true)}<span>${PILOT_BASE[id].name}</span></button>`).join('')}</div>` : ''; })()}</div>
         <h4>用語</h4><dl class="zk-terms">${WORLD_TERMS.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
     } else {
@@ -15996,7 +16058,7 @@ async function openHelp() {
     <h4>ストーリーと仲間</h4><p>ゲームが進むと章ごとの場面が入り、勢力の指導者やエースが語ります。途中のターンで新しいパイロットが合流することもあります。ランダムな出来事には、資金を払うかどうかを選ぶものもあります。</p>
     <h4>結末</h4><p>統一すると、戦い方によって4つの結末のどれかになります。上から順に見て、最初に当てはまったものになります。</p><ul class="help-list">${Object.values(ENDING_KIND).map(E => `<li><b>${E.name}</b>：${E.cond}</li>`).join('')}</ul><p>見た結末は「戦績」に記録され、4つすべて見ると勲章がもらえます。</p>
     ${medalCount() >= SECRET_MEDALS ? `<h4>隠しコマンド</h4>${secretHtml()}` : ''}
-    <h4>図鑑・勲章・模擬戦</h4><p>図鑑には戦った機体・母艦・パイロット・武器が記録され、ゲームをまたいで残ります。勲章は条件を満たすとその場で獲得できます。クリアすると評価がつき、難易度「極」とクリア特典が使えるようになります。クリア特典は、クリアした勢力ごとに違う特典（追加の機体・経験値・収入・改造など）が解放され、勢力選択の画面で2つまで選べます。タイトルの「模擬戦」では、好きな3機でだんだん強くなる敵と戦い続け、連勝記録に挑めます。オートを使った戦いでは模擬戦の勲章はもらえません。一度倒した巨大兵器にも、模擬戦でもう一度挑めます。模擬戦の記録は、使った3機と一緒に上位5件まで残ります。<br>勲章を集めると司令官の称号が上がります。<br>勢力選択の画面の「縛り」では、傭兵なし・進化なし・改造なし・資金不足の4つの縛りを好きに組み合わせて遊べます。縛りをつけるほどクリアの評価が上がり、勢力ごとにどの縛りでクリアしたかが記録に残ります。</p>
+    <h4>図鑑・勲章・模擬戦</h4><p>図鑑には戦った機体・母艦・パイロット・武器が記録され、ゲームをまたいで残ります。勲章は条件を満たすとその場で獲得できます。クリアすると評価がつき、難易度「極」とクリア特典が使えるようになります。クリア特典は、クリアした勢力ごとに違う特典（追加の機体・経験値・収入・改造など）が解放され、勢力選択の画面で2つまで選べます。タイトルの「模擬戦」では、好きな3機でだんだん強くなる敵と戦い続け、連勝記録に挑めます。オートを使った戦いでは模擬戦の勲章はもらえません。一度倒した巨大兵器にも、模擬戦でもう一度挑めます。模擬戦の記録は、使った3機と一緒に上位5件まで残ります。<br>勲章を集めると司令官の称号が上がります。<br>一度クリアすると、勢力選択の画面で「戦況」を選べるようになります。巨大勢力の台頭・巨大兵器の時代・傭兵団の独立の3つから一つ選ぶと、いつもとちがう状況からゲームが始まります。</p>
     <h4>傭兵</h4><p>戦闘前の画面で、1戦闘だけ傭兵を雇えます。同じ傭兵を何度か（3回以上）雇っていると、ターンの始めにまとまった契約金で正式に仲間になると申し出てくることがあります。仲間になった傭兵は、雇い賃なしでいつでも出撃でき、経験も積めます。</p>
     <h4>弾数</h4><p>実弾・ミサイル・ビームライフルなど多くの武器には弾数があり、ボタンに「残り」が出ます。弾が切れた機体は格闘に切り替えて戦います。格闘武器は無制限です。</p>
     <h4>戦闘中の指示</h4><p>左上の「指示」で、味方機の動き方を選べます（おまかせ・接近戦・射撃戦・回避優先・艦を狙え）。上の段で「全員」を選ぶと全機に、機体の名前を選ぶとその機体だけに指示します。機体ごとの指示はその機体に記録され、次の戦闘でも続きます。戦闘前の出撃画面でも、機体の「指示」を押して決められます。</p>
@@ -16035,18 +16097,14 @@ async function openHelp() {
 
 // ===================== 起動 =====================
 function newGameStart() {
-  newGame(UI.pickFaction, UI.pickDiff);
-  G.chal = chalPicks();
+  newGame(UI.pickFaction, UI.pickDiff, clearCount() ? scenPick() : null);
   try { lifePlayed(G.player); } catch (e) {}
-  if (chal('poor')) G.fac[G.player].funds = Math.round(G.fac[G.player].funds / 2 / 10) * 10;
-  if (chal('nomerc')) G.fac[G.player].mercs = [];
   applyClearBonus();
-  if (G.chal.length) L(`【縛り】${G.chal.map(id => CHALLENGES.find(c => c.id === id).name).join('・')}で遊びます。`, 'event');
   UI.tab = AREAS[capOf(G.player)].map; UI.sel = capOf(G.player); UI.moveSq = null; UI.busy = false; UI.cam = null;
   show('map'); autosave();
   (async () => {
     const capId = START[G.player].squads[0].cap;
-    const bp = openModal({ title: '作戦開始', cls: 'small brief', buttons: [{ label: '出撃する', value: 'ok', cls: 'primary' }], body: `<div class="brief-h">${emblemSvg(G.player, 40, FAC[G.player].color)}<b style="color:${FAC[G.player].color}">${FAC[G.player].name}</b></div><div class="brief-sp">${faceHtml(capId, 64, 'b')}<span><small>艦隊司令</small>${PILOT_BASE[capId].name}</span></div>${BRIEFING[G.player].split('\n').map(l => `<p>${l}</p>`).join('')}` }); fillThumbs(modalStack[modalStack.length - 1].el); await bp;
+    const bp = openModal({ title: '作戦開始', cls: 'small brief', buttons: [{ label: '出撃する', value: 'ok', cls: 'primary' }], body: `<div class="brief-h">${emblemSvg(G.player, 40, FAC[G.player].color)}<b style="color:${FAC[G.player].color}">${FAC[G.player].name}</b></div><div class="brief-sp">${faceHtml(capId, 64, 'b')}<span><small>艦隊司令</small>${PILOT_BASE[capId].name}</span></div>${BRIEFING[G.player].split('\n').map(l => `<p>${l}</p>`).join('')}${G.scen ? `<p class="brief-scen"><b>戦況「${SCENARIOS.find(s => s.id === G.scen).name}」</b><br>${scenNote()}</p>` : ''}` }); fillThumbs(modalStack[modalStack.length - 1].el); await bp;
     await showTip('welcome'); await showTip('map');
   })();
 }
@@ -16066,7 +16124,7 @@ function boot(data) {
     if (R.zephyr) { SFX.play('select'); toast('真リベルタスは模擬戦で使えます'); return; }
     R.zephyr = 1; saveRecords(); SFX.play('capture'); toast('隠し要素：模擬戦で真リベルタスが使えるようになった', 'good'); renderTitleSecret();
   }); }
-  $('#chal-tg').addEventListener('click', async () => { SFX.play('select'); await openChalPick(); renderFaction(); });
+  $('#chal-tg').addEventListener('click', async () => { SFX.play('select'); await openScenPick(); renderFaction(); });
   $('#bonus-tg').addEventListener('click', async () => { SFX.play('select'); await openBonusPick(); renderFaction(); });
   $('#btn-set').addEventListener('click', () => { SFX.init(); openSettings(true); });
   $('#btn-rec').addEventListener('click', () => { SFX.init(); openCareer(); });
@@ -16138,27 +16196,21 @@ const MEDALS = [
   { id: 'merc_all', name: '傭兵団', desc: '1回のゲームで4人の傭兵すべてを仲間にする', icon: 'hand' },
   { id: 'no_fallen', name: '誰も死なせない', desc: '名有りパイロットを一人も失わずにクリアする', icon: 'star' },
   { id: 'clear_s3', name: '常勝', desc: '3つの勢力で評価Sを取る', icon: 'crown' },
-  { id: 'chal1', name: '縛りの道', desc: '縛りを1つ以上つけてクリアする', icon: 'flag' },
-  { id: 'chal_each', name: '縛りの達人', desc: '4種類の縛りを、それぞれ一度はつけてクリアする', icon: 'flag' },
+  { id: 'scen1', name: '乱世を往く', desc: '戦況を選んでクリアする', icon: 'flag' },
+  { id: 'scen_all', name: '三つの戦況', desc: '3つの戦況すべてでクリアする（勢力はばらばらでよい）', icon: 'flag' },
   { id: 'endings4', name: '四つの結末', desc: '共闘・電撃・犠牲・覇道の4つの結末をすべて見る', icon: 'book' },
   { id: 'combo10', name: '息の合った二人', desc: '1回のゲームで連携攻撃を10回決める', icon: 'bolt' },
-  { id: 'chal_all', name: '修羅の道', desc: '4種類の縛りをすべて同時につけてクリアする', icon: 'crown' },
+  { id: 'giant3', name: '巨神の時代を越えて', desc: '1回のゲームで巨大兵器を3体倒す', icon: 'crown' },
 ];
-// やり込み：縛り（ゲーム開始時に選ぶ。クリアすると勢力ごとに記録が残り、評価にも加点）
-const CHALLENGES = [
-  { id: 'nomerc', name: '孤高の軍', desc: '傭兵を雇えない。放浪者も傭兵も仲間にならない' },
-  { id: 'noevo', name: '原型主義', desc: '機体を進化させられない（専用機・最上位機にもならない）' },
-  { id: 'nomod', name: '無改造', desc: '機体を改造できない' },
-  { id: 'poor', name: '貧乏所帯', desc: 'はじめの資金が半分、収入が −20%' },
-];
-function chalPicks() { const ids = CHALLENGES.map(c => c.id); return Array.isArray(SETTINGS.chal) ? SETTINGS.chal.filter(id => ids.includes(id)) : []; }
-async function openChalPick() {
-  const render = () => { const sel = chalPicks(), R = records().chal || {};
-    return `<p class="dim small">好きな縛りをつけて遊べます。つけた数だけクリア時の評価が上がり、勢力ごとに「どの縛りでクリアしたか」が記録に残ります。</p><div class="rw-list">${CHALLENGES.map(c => { const on = sel.includes(c.id), done = FACTIONS.filter(F => (R[F.id] || []).includes(c.id));
-      return `<button class="rw ${on ? 'on' : ''}" data-act="ch" data-c="${c.id}"><span class="chk ${on ? 'on' : ''}"></span><span><b>${c.name}</b><small>${c.desc}${done.length ? `<br>クリア済み：${done.map(F => F.short).join('・')}` : ''}</small></span></button>`; }).join('')}</div>`; };
-  await openModal({ title: '縛り', cls: 'small', body: render(), buttons: [{ label: '決定', value: 'ok', cls: 'primary' }], onAct: (act, t, M) => {
-    if (act !== 'ch') return; const sel = chalPicks(), id = t.dataset.c, i = sel.indexOf(id); if (i >= 0) sel.splice(i, 1); else sel.push(id);
-    SETTINGS.chal = sel; saveSettings(); SFX.play('select'); M.refresh(render());
+// 戦況の選択（一度クリアすると、ゲーム開始時に一つ選べる）
+function scenPick() { return SCENARIOS.some(s => s.id === SETTINGS.scen) ? SETTINGS.scen : null; }
+async function openScenPick() {
+  const render = () => { const sel = scenPick(), R = records().scen || {};
+    const row = (id, name, desc) => { const on = sel === id, done = id ? BASE_FACTIONS.filter(F => (R[F.id] || []).includes(id)) : [];
+      return `<button class="rw ${on ? 'on' : ''}" data-act="sc" data-c="${id || ''}"><span class="chk ${on ? 'on' : ''}"></span><span><b>${name}</b><small>${desc}${done.length ? `<br>クリア済み：${done.map(F => F.short).join('・')}` : ''}</small></span></button>`; };
+    return `<p class="dim small">戦況を一つ選ぶと、いつもとちがう状況からゲームが始まります。</p><div class="rw-list">${row(null, 'ふつう', 'いつもの状況で始める')}${SCENARIOS.map(s => row(s.id, s.name, s.desc)).join('')}</div>`; };
+  await openModal({ title: '戦況', cls: 'small', body: render(), buttons: [{ label: '決定', value: 'ok', cls: 'primary' }], onAct: (act, t, M) => {
+    if (act !== 'sc') return; SETTINGS.scen = t.dataset.c || null; saveSettings(); SFX.play('select'); M.refresh(render());
   } });
 }
 // 勲章の数で上がる司令官の称号
@@ -16286,7 +16338,7 @@ function checkMedals() {
 // 評価：早さ・損害・戦果・難しさ
 function gameRank() {
   const S = gstats(), d = { easy: -15, normal: 0, hard: 15, extreme: 30 }[G.diff] || 0;
-  const score = 60 + clamp(80 - G.turn, -40, 40) + Math.min(20, S.captured) + Math.min(20, S.kills / 5) - Math.min(30, S.lost / 2) + d + (G.chal || []).length * 6; // 縛り1つにつき+6
+  const score = 60 + clamp(80 - G.turn, -40, 40) + Math.min(20, S.captured) + Math.min(20, S.kills / 5) - Math.min(30, S.lost / 2) + d;
   return { score: Math.round(score), rank: score >= 115 ? 'S' : score >= 95 ? 'A' : score >= 75 ? 'B' : score >= 55 ? 'C' : 'D' };
 }
 const EPILOGUE_SCENE = {
@@ -16335,12 +16387,11 @@ async function showEnding() {
     if (G.turn <= 15) awardMedal('clear_fastest');
     if (R.rank === 'S') awardMedal('clear_s');
     if (G.relocated) awardMedal('comeback');
-    if (FACTIONS.every(F => records().clears[F.id])) awardMedal('clear_all');
-    if (FACTIONS.filter(F => records().clears[F.id]?.rank === 'S').length >= 3) awardMedal('clear_s3');
+    if (BASE_FACTIONS.every(F => records().clears[F.id])) awardMedal('clear_all');
+    if (BASE_FACTIONS.filter(F => records().clears[F.id]?.rank === 'S').length >= 3) awardMedal('clear_s3');
     if (!Object.values(G.pilots).some(p => p.named && p.f === f && p.alive === false)) awardMedal('no_fallen');
-    const CH = G.chal || []; if (CH.length) { const RC = records().chal = records().chal || {}; RC[f] = [...new Set([...(RC[f] || []), ...CH])]; saveRecords(); awardMedal('chal1'); }
-    if (CHALLENGES.every(c => CH.includes(c.id))) awardMedal('chal_all');
-    if (CHALLENGES.every(c => Object.values(records().chal || {}).some(l => l.includes(c.id)))) awardMedal('chal_each');
+    if (G.scen) { const RS = records().scen = records().scen || {}; RS[f] = [...new Set([...(RS[f] || []), G.scen])]; saveRecords(); awardMedal('scen1'); }
+    if (SCENARIOS.every(s => Object.values(records().scen || {}).some(l => l.includes(s.id)))) awardMedal('scen_all');
     checkMedals();
     const E = EPILOGUE[f], A = aces(5), got = (G.newMedals || []).map(id => MEDALS.find(m => m.id === id)).filter(Boolean);
     const credits = [
@@ -16386,11 +16437,11 @@ function medalHtml(m, got) {
 }
 async function openMedals() {
   const n = MEDALS.filter(m => hasMedal(m.id)).length, R = records();
-  const T = commanderTitle(), RC = R.chal || {};
+  const T = commanderTitle(), RC = R.scen || {};
   const body = `<div class="zk-top"><div class="zk-pct"><b>${n}</b><small>/${MEDALS.length}</small></div><div class="dim small">勲章はゲームをまたいで残ります。条件を満たすと、その場で獲得できます。</div></div>
     <div class="cmd-title"><small>司令官の称号</small><b>${T.name}</b><span class="dim small">${T.next ? `あと勲章${T.next}個で「${T.nextName}」` : '最高の称号です'}</span></div>
     ${medalCount() >= SECRET_MEDALS ? `<details class="secret-box" open><summary>隠しコマンド（勲章${SECRET_MEDALS}個で解禁）</summary>${secretHtml()}</details>` : ''}
-    <h4>勢力ごとのクリア記録</h4><div class="rec-grid">${FACTIONS.map(F => { const C = R.clears[F.id]; return `<div class="rec ${C ? 'got' : ''}" style="--fc:${F.color}">${emblemSvg(F.id, 22, F.color)}<b>${F.short}</b>${C ? `<span class="rk r${C.rank}">${C.rank}</span><small>最短 ${C.turn}ターン・${BAL.diff[C.diff]?.label || ''}</small>${(RC[F.id] || []).length ? `<small class="rec-ch">縛り：${RC[F.id].map(id => CHALLENGES.find(c => c.id === id)?.name).filter(Boolean).join('・')}</small>` : ''}` : '<small class="dim">未クリア</small>'}</div>`; }).join('')}</div>
+    <h4>勢力ごとのクリア記録</h4><div class="rec-grid">${BASE_FACTIONS.map(F => { const C = R.clears[F.id]; return `<div class="rec ${C ? 'got' : ''}" style="--fc:${F.color}">${emblemSvg(F.id, 22, F.color)}<b>${F.short}</b>${C ? `<span class="rk r${C.rank}">${C.rank}</span><small>最短 ${C.turn}ターン・${BAL.diff[C.diff]?.label || ''}</small>${(RC[F.id] || []).length ? `<small class="rec-ch">戦況：${RC[F.id].map(id => SCENARIOS.find(c => c.id === id)?.name).filter(Boolean).join('・')}</small>` : ''}` : '<small class="dim">未クリア</small>'}</div>`; }).join('')}</div>
     <h4>勲章</h4><div class="medal-grid">${MEDALS.map(m => medalHtml(m, false)).join('')}</div>${medalCount() >= SECRET_MEDALS ? '' : `<p class="secret-hush">勲章を${SECRET_MEDALS}個集めると、隠しコマンドが明かされます</p>`}`;
   await openModal({ title: '勲章と記録', body, cls: 'wide' });
 }
@@ -16444,7 +16495,7 @@ async function openArena(pre = [], foe0 = null) {
     ${foe ? `<div class="ar-giant"><span class="uthumb" data-thumb="${ROGUE_TYPES[foe].unit}" data-col="${ROGUE_TYPES[foe].col}" data-size="88"></span><div><p><b>${UNITS[ROGUE_TYPES[foe].unit].name}</b>に挑みます。</p><p class="dim">自軍はレベル${ARENA_GIANT_LV}・毎回全快で出撃し、倒すまで何度でも挑めます。巨大兵器は回復しません。少ない出撃回数で倒すほど良い記録です。</p><p>最高記録：<b class="gold">${GA[foe] ? `${GA[foe]}回で撃破` : 'なし'}</b></p></div></div>${arenaTopHtml('g_' + foe, v => `${v}回で撃破`)}` : `<p class="dim">好きな3機で、次々に現れる敵と戦い続けます。選べるのは量産機と、図鑑で「入手」した機体です。勝つたびに機体のレベルが上がり、HPが最大の33%ぶん回復します。撃破された機体も、次の戦闘ではHP33%で復活します。</p>
     <p>最高記録：<b class="gold">${best}連勝</b></p>${arenaTopHtml('waves', v => `${v}連勝`)}`}
     <div class="ar-sel">${[0, 1, 2].map(i => sel[i] ? `<button class="enc got" data-act="rm" data-i="${i}"><span class="uthumb" data-thumb="${sel[i]}" data-col="${unitCol(sel[i])}" data-size="58"></span><span>${UNITS[sel[i]].name}</span></button>` : `<div class="enc unknown"><span class="q">${i + 1}</span><span>未選択</span></div>`).join('')}</div>
-    ${FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
+    ${BASE_FACTIONS.map(F => { const us = pool.filter(T => T.f === F.id); return us.length ? `<h4>${facBadge(F.id)} ${F.name}</h4><div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${F.color}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''; }).join('')}
     ${(() => { const hs = [WANDERER.unit, AWAKEN.unit, RELIC.unit].filter(t => pool.some(T => T.id === t)); return hs.length ? `<h4><span class="fb" style="--fc:${MERC_COL}">隠し</span> 隠し機体</h4><div class="enc-grid">${hs.map(t => `<button class="enc ${sel.includes(t) ? 'got' : ''}" data-act="pick" data-t="${t}"><span class="uthumb" data-thumb="${t}" data-col="${MERC_COL}" data-size="52"></span><span>${UNITS[t].name}</span></button>`).join('')}</div>${hs.some(x => x === WANDERER.unit || x === AWAKEN.unit) ? '<p class="dim small">リベルタスと真リベルタスに乗るのは放浪者ゼファー本人です。ゼファーは1人なので、どちらか一方しか選べません。</p>' : ''}` : ''; })()}
     ${(() => { const us = pool.filter(T => !T.f && T.id !== WANDERER.unit && T.id !== AWAKEN.unit && T.id !== RELIC.unit); return `<h4><span class="fb" style="--fc:${MERC_COL}">傭兵</span> 傭兵の機体</h4>${us.length ? `<div class="enc-grid">${us.map(T => `<button class="enc ${sel.includes(T.id) ? 'got' : ''}" data-act="pick" data-t="${T.id}"><span class="uthumb" data-thumb="${T.id}" data-col="${MERC_COL}" data-size="52"></span><span>${T.name}</span></button>`).join('')}</div>` : ''}<p class="dim small">傭兵の機体は、その傭兵を正式に仲間にしてクリアすると選べるようになります（乗るのはその傭兵本人です）。${us.length < MERCS.length ? `あと${MERCS.length - us.length}機。` : ''}</p>`; })()}`;
   const body = () => (shadowOpen() ? `<button class="btn small trial-btn" data-act="trial">星の影と戦う（ゼファー覚醒の再戦）${records().shadowWins ? `<small>　勝利 ${records().shadowWins}回</small>` : ''}</button>` : '') + render(); // 選び直しても星の影のボタンが消えないように
@@ -16526,7 +16577,7 @@ function arenaTierW(w) {
 }
 function arenaFoes(w) {
   const all = Object.values(UNITS).filter(T => T.f && !T.rogue);
-  const f = pick(FACTIONS).id, W = arenaTierW(w);
+  const f = pick(BASE_FACTIONS).id, W = arenaTierW(w);
   const ts = [0, 1, 2].map(() => {
     let r = Math.random(), tier = 0; while (tier < 2 && r >= W[tier]) { r -= W[tier]; tier++; }
     const tf = T => (T.bt > 0 ? 0 : (T.cls === '最上位' || T.cls === '専用機') ? 2 : 1) === tier;
@@ -16588,7 +16639,7 @@ function lifeAdd(o) { const L = lifeStats(); for (const k in o) L[k] = (L[k] || 
 function lifeAce(p) { if (!p || !p.kills) return; const L = lifeStats(); if (!L.ace || p.kills > L.ace.kills) { L.ace = { name: p.name, kills: p.kills, f: p.origin || p.f, pid: p.id }; saveRecords(); } }
 function lifePlayed(f) { const R = records(); R.played = R.played || {}; R.played[f] = (R.played[f] || 0) + 1; lifeAdd({ games: 1 }); }
 function careerHtml() {
-  const R = records(), L = lifeStats(), T = commanderTitle(), n = MEDALS.filter(m => hasMedal(m.id)).length, RE = R.endings || {}, P = R.played || {}, RC = R.chal || {};
+  const R = records(), L = lifeStats(), T = commanderTitle(), n = MEDALS.filter(m => hasMedal(m.id)).length, RE = R.endings || {}, P = R.played || {}, RC = R.scen || {};
   const rate = L.battles ? Math.round(L.wins / L.battles * 100) : 0;
   const stat = (label, v, unit = '') => `<div class="lr-s"><small>${label}</small><b>${v}<i>${unit}</i></b></div>`;
   const body = `<div class="cmd-title"><small>司令官の称号</small><b>${T.name}</b><span class="dim small">勲章 ${n} / ${MEDALS.length}　図鑑 ${zukanPct()}%　模擬戦の最高 ${R.arena || 0}連勝</span></div>
@@ -16599,8 +16650,8 @@ function careerHtml() {
       ${stat('連携攻撃', L.combos, '回')}${stat('経過ターン', L.turns)}</div>
     ${L.ace ? `<div class="lr-ace" style="--fc:${FAC[L.ace.f]?.color || '#f2c14e'}">${PILOT_BASE[L.ace.pid] ? faceHtml(L.ace.pid, 48, 'b') : ''}<div><small>歴代最多撃墜</small><b>${L.ace.name}</b><span>撃墜 ${L.ace.kills}</span></div></div>` : ''}
     <h4>勢力ごとの記録</h4>
-    <div class="lr-fac">${FACTIONS.map(F => { const C = R.clears[F.id], ch = (RC[F.id] || []).map(id => CHALLENGES.find(c => c.id === id)?.name).filter(Boolean);
-      return `<div class="lr-f ${C ? 'got' : ''}" style="--fc:${F.color}">${emblemSvg(F.id, 22, F.color)}<div><b>${F.name}</b><small>${P[F.id] ? `${P[F.id]}回遊んだ` : 'まだ遊んでいない'}${C ? `　最短 ${C.turn}ターン　${BAL.diff[C.diff]?.label || ''}` : ''}${ch.length ? `<br>縛り：${ch.join('・')}` : ''}</small></div>${C ? `<span class="rk r${C.rank}">${C.rank}</span>` : '<span class="lr-no">未クリア</span>'}</div>`; }).join('')}</div>
+    <div class="lr-fac">${BASE_FACTIONS.map(F => { const C = R.clears[F.id], ch = (RC[F.id] || []).map(id => SCENARIOS.find(c => c.id === id)?.name).filter(Boolean);
+      return `<div class="lr-f ${C ? 'got' : ''}" style="--fc:${F.color}">${emblemSvg(F.id, 22, F.color)}<div><b>${F.name}</b><small>${P[F.id] ? `${P[F.id]}回遊んだ` : 'まだ遊んでいない'}${C ? `　最短 ${C.turn}ターン　${BAL.diff[C.diff]?.label || ''}` : ''}${ch.length ? `<br>戦況：${ch.join('・')}` : ''}</small></div>${C ? `<span class="rk r${C.rank}">${C.rank}</span>` : '<span class="lr-no">未クリア</span>'}</div>`; }).join('')}</div>
     <h4>見た結末</h4>
     <div class="lr-end">${Object.entries(ENDING_KIND).map(([k, E]) => `<div class="${RE[k] ? 'got' : ''}"><b>${E.name}${RE[k] ? '' : '<span class="dim">（未達成）</span>'}</b><small>${RE[k] ? E.desc + '<br>' : ''}条件：${E.cond}</small></div>`).join('')}</div><p class="dim small">結末は上から順に見て、最初に当てはまったものになります。</p>
     <p class="dim small">通算の戦歴は、この画面ができてからの戦いを数えています。</p>`;
@@ -16637,7 +16688,7 @@ function memRecord(sc) {
 async function openMemories(tab = 'scene') {
   const M = memStore(); let fsel = UI.memF || 'all';
   const TB = [['scene', '場面'], ['music', '音楽']];
-  const facs = FACTIONS.filter(F => M.some(m => m.play === F.id));
+  const facs = BASE_FACTIONS.filter(F => M.some(m => m.play === F.id));
   const render = () => {
     if (tab === 'music') return tabsHtml(TB, tab) + musicHtml();
     const list = M.map((m, i) => ({ m, i })).filter(({ m }) => fsel === 'all' || m.play === fsel);
