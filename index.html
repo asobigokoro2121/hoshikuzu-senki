@@ -806,7 +806,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v185</span>
+    <span class="t-ver">v186</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -930,7 +930,7 @@ const FACTIONS = [
 ];
 // 戦況「傭兵団の独立」のときだけ加わる9つめの勢力（遊ぶ勢力には選べない）
 const MRC_FAC = { id: 'mrc', name: '自由傭兵団', short: '傭兵', color: '#c9b98a', capital: 'n_libera', diff: 3, extra: true,
-  trait: '寄せ集め：他勢力の量産機と母艦を買い集めて戦う', desc: '各地の傭兵が自由都市リベラに集まり、どこにも雇われない一つの勢力として旗を揚げた。' };
+  trait: '寄せ集め：他勢力の量産機と母艦を買い集めて戦う（製造費 +30%）', desc: '各地の傭兵が自由都市リベラに集まり、どこにも雇われない一つの勢力として旗を揚げた。' };
 const BASE_FACTIONS = FACTIONS.slice(); // 遊べる8勢力（記録・図鑑・勢力選びはこちら）
 const FAC = Object.fromEntries([...FACTIONS, MRC_FAC].map(f => [f.id, f]));
 // ゲーム中の勢力一覧：傭兵団の独立のときだけ傭兵団を加える
@@ -2371,12 +2371,14 @@ function isRepairBase(area) { const k = kindOf(area); return k === 'capital' || 
 function queueOf(area) { const A = G.areas[area]; if (!A.q) A.q = A.prod ? [A.prod] : []; delete A.prod; return A.q; }
 function freeLines(area) { return Math.max(0, linesOf(area) - queueOf(area).length); }
 function queuedUnits(f) { let n = 0; for (const [id, A] of Object.entries(G.areas)) if (A.owner === f) n += queueOf(id).filter(p => p.kind === 'unit').length; return n; }
-function unitCost(f, t) { const c = UNITS[t].cost; return f === 'ugf' && c <= 400 ? Math.round(c * (1 - BAL.massDiscount)) : c; }
+function unitCost(f, t) { const c = UNITS[t].cost; return f === 'ugf' && c <= 400 ? Math.round(c * (1 - BAL.massDiscount)) : f === 'mrc' ? mrcPrice(c) : c; }
+// 自由傭兵団は自前の工場がなく、他勢力から買い付けるので割高（機体・母艦とも）
+const MRC_COST_K = 1.3, mrcPrice = c => Math.round(c * MRC_COST_K / 10) * 10;
 function buildList(f, area) {
   const map = AREAS[area].map;
   const lic = G.fac[f]?.lic || {};
   const units = Object.values(UNITS).filter(T => (T.f === f || lic[T.id]) && T.bt > 0).map(T => ({ kind: 'unit', t: T.id, cost: unitCost(f, T.id), bt: T.bt, lic: T.f !== f, ok: map === 'space' ? T.apt.space !== '×' : T.apt.plain !== '×' || T.apt.sea !== '×' }));
-  const ships = Object.entries(SHIPS).filter(([t, S]) => (S.f === f || G.fac[f]?.slic?.[t]) && S.bt > 0).map(([t, S]) => ({ kind: 'ship', t, cost: S.cost, bt: S.bt, ok: S.terrain === 'both' || (S.terrain === 'space') === (map === 'space') }));
+  const ships = Object.entries(SHIPS).filter(([t, S]) => (S.f === f || G.fac[f]?.slic?.[t]) && S.bt > 0).map(([t, S]) => ({ kind: 'ship', t, cost: f === 'mrc' ? mrcPrice(S.cost) : S.cost, bt: S.bt, ok: S.terrain === 'both' || (S.terrain === 'space') === (map === 'space') }));
   return [...units, ...ships];
 }
 function orderProduction(f, area, kind, t) {
@@ -3901,7 +3903,7 @@ const BRIEFING = {
   psy: '迫害を逃れた感応者たちは、山あいのホロウ要塞に集った。数は少なく、資金も乏しい。\nだが感応者の操るビットは、どの勢力の兵より鋭い。一人ひとりを大切に育て、少数精鋭で道を切り開け。',
   orb: '天柱同盟は、地上と宇宙を結ぶ軌道エレベーター「天の柱」を守ってきた。どの勢力にも属さず、橋として中立を貫いてきたが、戦火はついに柱のふもとまで迫った。\nこの勢力の母艦は、地上と宇宙のどちらにも入れる。ふたつの戦場をつないで戦え。',
   jup: '地球圏から最も遠い木星で、開拓者たちは重力と嵐に耐えて生きてきた。地球の争いは、もはや他人事ではない。\n領土は小さいが、機体は戦うたびに自ら傷を癒やす。外縁の資源を固め、月と小惑星帯へ打って出よ。',
-  mrc: '金で戦い、金で裏切る――それが傭兵だと誰もが言う。だが自由都市リベラに集まった者たちは、初めて誰にも雇われずに旗を揚げた。\n領土はリベラひとつ、資金もない。自前の工場はなく、他勢力の量産機と母艦を買い集めて戦う。腕利きの傭兵たちと放浪者ゼファーの腕で、地球圏を勝ち取れ。',
+  mrc: '金で戦い、金で裏切る――それが傭兵だと誰もが言う。だが自由都市リベラに集まった者たちは、初めて誰にも雇われずに旗を揚げた。\n領土はリベラひとつ、資金もない。自前の工場はなく、他勢力の量産機と母艦を割高で買い集めて戦う。腕利きの傭兵たちと放浪者ゼファーの腕で、地球圏を勝ち取れ。',
 };
 const EPILOGUE = {
   ugf: { win: '統合政府の旗のもと、地球圏はふたたびひとつになった。だが、宇宙へ渡った人々の声を聞くことも、これからの統治者の務めだ。', lose: '首都セントラルは陥落した。地上の秩序は崩れ、新たな時代が始まろうとしている。' },
