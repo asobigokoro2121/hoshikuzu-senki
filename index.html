@@ -806,7 +806,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v186</span>
+    <span class="t-ver">v187</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15262,7 +15262,7 @@ function runThumbQ(budget) {
 function unitBtns(u, extra = '') {
   const can = evoOptions(u).length > 0, up = canLvUp(u), lmax = u.lv >= BAL.maxLv;
   const mm = (u.mod || 0) >= BAL.modMax;
-  return `${can ? `<button class="btn small gold" data-act="u-evo" data-uid="${u.uid}">進化</button>` : ''}<button class="btn small ${up ? 'gold' : ''}" data-act="u-lvup" data-uid="${u.uid}" ${up ? '' : 'disabled'} title="経験値を使ってHP・攻撃力を${Math.round(BAL.lvHp * 100)}%上げる">${lmax ? 'Lv最大' : `Lv上げ ${lvUpCost(u)}EXP`}</button><button class="btn small" data-act="u-mod" data-uid="${u.uid}" ${mm ? 'disabled' : ''} title="HP+${Math.round(BAL.modHp * 100)}%・攻撃+${Math.round(BAL.modDmg * 100)}%">${chal('nomod', u.f) ? '改造不可' : mm ? '改造MAX' : `改造 ${fmt(modCost(u))}`}</button>${repairCostUnit(u) ? `<button class="btn small" data-act="u-repair" data-uid="${u.uid}" ${canPayRepair(u.f, unitArea(u)) && G.fac[u.f].funds >= repairCostUnit(u) ? '' : 'disabled'} title="${canPayRepair(u.f, unitArea(u)) ? 'HPを全回復する' : '自軍のエリアにいるときだけ修理できます'}">修理 ${fmt(repairCostUnit(u))}</button>` : ''}<button class="btn small" data-act="u-pilot" data-uid="${u.uid}">搭乗者</button><button class="btn small" data-act="u-part" data-uid="${u.uid}">パーツ</button>${extra}<button class="btn small danger" data-act="u-scrap" data-uid="${u.uid}">解体</button>`;
+  return `${can ? `<button class="btn small gold" data-act="u-evo" data-uid="${u.uid}">進化</button>` : ''}<button class="btn small ${up ? 'gold' : ''}" data-act="u-lvup" data-uid="${u.uid}" ${up ? '' : 'disabled'} title="経験値を使ってHP・攻撃力を${Math.round(BAL.lvHp * 100)}%上げる">${lmax ? 'Lv最大' : `Lv上げ ${lvUpCost(u)}EXP`}</button><button class="btn small" data-act="u-mod" data-uid="${u.uid}" ${mm ? 'disabled' : ''} title="HP+${Math.round(BAL.modHp * 100)}%・攻撃+${Math.round(BAL.modDmg * 100)}%">${mm ? '改造MAX' : `改造 ${fmt(modCost(u))}`}</button>${repairCostUnit(u) ? `<button class="btn small" data-act="u-repair" data-uid="${u.uid}" ${canPayRepair(u.f, unitArea(u)) && G.fac[u.f].funds >= repairCostUnit(u) ? '' : 'disabled'} title="${canPayRepair(u.f, unitArea(u)) ? 'HPを全回復する' : '自軍のエリアにいるときだけ修理できます'}">修理 ${fmt(repairCostUnit(u))}</button>` : ''}<button class="btn small" data-act="u-pilot" data-uid="${u.uid}">搭乗者</button><button class="btn small" data-act="u-part" data-uid="${u.uid}">パーツ</button>${extra}<button class="btn small danger" data-act="u-scrap" data-uid="${u.uid}">解体</button>`;
 }
 async function handleUnitAct(act, t, M, rerender) {
   const uid = t.dataset.uid, u = G.units[uid];
