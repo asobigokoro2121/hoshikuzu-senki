@@ -807,7 +807,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v191</span>
+    <span class="t-ver">v192</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -828,7 +828,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
       <button id="btn-log" class="ibtn">記録</button>
       <button id="btn-menu" class="ibtn" aria-label="メニュー">≡ メニュー</button>
     </header>
-    <div class="infobar"><button id="mission" class="mchip" hidden></button><button id="season" class="mchip season" hidden></button><button id="relic" class="mchip relic" hidden></button><div id="ticker" class="ticker" aria-live="polite"></div></div>
+    <div class="infobar"><button id="mission" class="mchip" hidden></button><button id="mjob" class="mchip relic" hidden></button><button id="season" class="mchip season" hidden></button><button id="relic" class="mchip relic" hidden></button><div id="ticker" class="ticker" aria-live="polite"></div></div>
     <nav id="map-tabs" class="tabs"><button data-tab="earth"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm-1.2 2.1A8 8 0 0 0 4.3 9.6c1.5.2 2.6.9 3 2.2.4 1.5-.5 2.4-.2 3.6.3 1 1.4 1.6 1.4 3 0 .6-.1 1-.3 1.4a8 8 0 0 0 9.7-2.6c-1-.2-1.8-.8-2-1.9-.3-1.6 1.2-2.4.9-3.9-.2-1-1.3-1.4-2.4-1.3-1.5.1-2.6-.5-2.6-1.8 0-1.3 1-1.9.9-3.2Z"/></svg>地上</button><button data-tab="space"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M12 6.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Zm-9.6 9.9c-.9-1.6 1.2-4.1 4.8-6.3l.2 1.9c-2.4 1.6-3.6 3.1-3.3 3.7.6 1 5.2-.3 10.1-3.2 4.9-2.8 8.1-6 7.5-7-.3-.5-1.9-.4-4.1.4l-1.6-1.2c3.4-1.3 6.2-1.5 7-.1 1.1 1.9-2.7 6.2-8.5 9.6-5.8 3.3-11.1 4.1-12.1 2.2Z"/></svg>宇宙</button></nav>
     <div class="mapwrap"><canvas id="map-cv"></canvas><button id="map-zoom" class="map-zoom" aria-label="地図の全体表示を切り替える">全体</button><div id="phase" class="phase" hidden></div></div>
     <button id="sheet-tog" class="sheet-tog" aria-label="情報欄の大きさを切り替える"></button>
@@ -1066,7 +1066,13 @@ const PARTS = {
   booster: { name: 'ブースター', desc: '速度+1' },
   armor:   { name: '増加装甲', desc: `最大HP+${20 * HPX}` },
   scope:   { name: '照準スコープ', desc: '射撃系ダメージ+10%' },
+  // 巨大兵器を倒したときだけ手に入る専用パーツ
+  g_core:  { name: '巨人の装甲核', desc: `最大HP+${60 * HPX}（ギガスの残骸から）`, rare: true },
+  h_lens:  { name: '円環の結晶', desc: 'ビーム攻撃のダメージ+15%（ハローの残骸から）', rare: true },
+  l_core:  { name: '群体の核', desc: '戦闘中、HPが少しずつ回復する（毎秒最大HPの0.8%・レギオンの残骸から）', rare: true },
 };
+const COMMON_PARTS = Object.keys(PARTS).filter(k => !PARTS[k].rare); // ふつうに手に入るパーツ
+const GIANT_PART = { gigas: 'g_core', ufo: 'h_lens', legion: 'l_core' };
 
 // ===================== 機体 =====================
 // id|名前|種別|コスト|HP|速度|生産ターン(0=生産不可)|進化経験値|射撃,近接,特殊|特殊能力|適性(宇宙 平地 山岳 砂漠 海)|進化先|頭,胴,装備
@@ -2267,6 +2273,74 @@ function newGame(player, diff, scen = null) {
   return G;
 }
 // ===================== 戦況（一度クリアすると選べる、遊び方が変わる条件） =====================
+// 戦況ごとの、ターンの始めの出来事
+async function scenTurnEvents() {
+  if (G.scen === 'hegemon') await pactEvent();
+  if (G.player === 'mrc') { await contractEvent(); await bountyEvent(); }
+}
+// 巨大勢力の台頭：包囲網への誘い（4ターン目以降に一度）。加わると12ターンのあいだ加盟勢力とは戦わない
+const PACT = { from: 4, turns: 12, reward: 1500 };
+async function pactEvent() {
+  const H = G.hegemon, P = G.pact;
+  if (P?.on) {
+    if (!G.fac[H]?.alive) { G.pact.on = false; G.fac[G.player].funds += PACT.reward; const got = [pick(COMMON_PARTS), pick(COMMON_PARTS)]; for (const k of got) G.fac[G.player].parts[k] = (G.fac[G.player].parts[k] || 0) + 1;
+      L(`【包囲網】${FAC[H].name}が倒れ、包囲網は役目を終えた。資金 +${PACT.reward}`, 'good');
+      await HOOKS.event({ title: '包囲網の勝利', body: `${FAC[H].name}は倒れ、包囲網は役目を終えた。<br>加盟した勢力から、礼として資金 <b>${fmt(PACT.reward)}</b> とパーツ「${got.map(k => PARTS[k].name).join('」「')}」が届いた。<br><span class="dim">ここから先は、また互いに敵どうしだ。</span>` }); return; }
+    if (G.turn >= P.until) { G.pact.on = false; L('【包囲網】約束の期限が切れた。加盟していた勢力は、ふたたび敵になる。', 'event'); }
+    return;
+  }
+  if (P || G.turn < PACT.from || !G.fac[H]?.alive) return;
+  const allies = FACTIONS.filter(F => F.id !== H && F.id !== G.player && G.fac[F.id].alive), lead = allies[0] && STORY_CAST[allies[0].id]?.lead;
+  if (!allies.length) return;
+  G.evT = G.turn;
+  const c = await HOOKS.choice({ title: '包囲網への誘い', face: lead, body: `大きくなりすぎた${FAC[H].name}を止めるため、${allies.map(F => F.short).join('・')}が手を結ぼうとしている。<br>「この包囲網に加わってくれないか。${PACT.turns}ターンのあいだ、我々はお互いに矛を向けない」<br><span class="dim">加わると、加盟した勢力はあなたを攻めてこない。あなたが加盟した勢力を攻めると、約束は破れる。${FAC[H].name}が倒れたとき約束が続いていれば、礼が届く。</span>`,
+    options: [`包囲網に加わる（${PACT.turns}ターン）`, '断って、どこにもつかない'] });
+  if (c === 0) { G.pact = { on: true, until: G.turn + PACT.turns }; L(`【包囲網】${FAC[H].name}包囲網に加わった（ターン${G.pact.until}まで）。`, 'event'); }
+  else { G.pact = { on: false, refused: 1 }; L(`【包囲網】包囲網への誘いを断った。各勢力は${FAC[H].name}との戦いに力を注いでいる。`, 'event'); }
+}
+// 傭兵団：他勢力からの攻略の依頼。引き受けて期限までに落とせば報酬
+const CONTRACT = { from: 3, gap: [3, 5], chance: 0.55, turns: 6 };
+async function contractEvent() {
+  const C = G.contract;
+  if (C) { if (G.turn > C.due) { G.contract = null; G.contractNext = G.turn + randi(...CONTRACT.gap); L(`【依頼】${AREAS[C.area].name}攻略の依頼は、期限が切れて流れた。`, 'bad'); } return; }
+  if (G.turn < (G.contractNext ?? CONTRACT.from) || G.jobT === G.turn || Math.random() > CONTRACT.chance) return;
+  const targets = frontierTargets().filter(a => { const o = G.areas[a].owner; return o && o !== G.player && G.fac[o]?.alive; });
+  if (!targets.length) return;
+  const a = pick(targets), foe = G.areas[a].owner, clients = FACTIONS.filter(F => F.id !== foe && F.id !== G.player && G.fac[F.id].alive);
+  if (!clients.length) return;
+  const by = pick(clients).id, kv = { capital: 1400, factory: 700, resource: 500, city: 400, launch: 400, port: 350, fort: 300 }[AREAS[a].kind] || 300;
+  const reward = Math.round((kv + Math.min(1200, areaDefense(a, foe) * 0.25)) / 50) * 50;
+  G.jobT = G.turn; // 依頼と賞金首は、同じターンに重ならないように
+  const c = await HOOKS.choice({ title: '依頼', face: STORY_CAST[by]?.lead, body: `${FAC[by].name}から、自由傭兵団への依頼が届いた。<br>「${FAC[foe].name}の<b>${AREAS[a].name}</b>を落としてほしい。期限は${CONTRACT.turns}ターン。報酬は資金 <b>${fmt(reward)}</b> だ」<br><span class="dim">引き受けて期限までに${AREAS[a].name}を自軍のものにすると、報酬が入ります。</span>`,
+    options: ['引き受ける', '断る'] });
+  if (c === 0) { G.contract = { by, foe, area: a, due: G.turn + CONTRACT.turns, reward }; L(`【依頼】${FAC[by].short}の依頼を引き受けた：${AREAS[a].name}をターン${G.contract.due}までに攻略（報酬 ${reward}）`, 'event'); }
+  else G.contractNext = G.turn + randi(...CONTRACT.gap);
+}
+// 傭兵団：敵の名有りパイロットにかかる賞金。自軍の戦闘で撃墜か捕獲をすると報酬
+const BOUNTY = { from: 5, gap: [4, 7], chance: 0.45, turns: 10 };
+async function bountyEvent() {
+  const B = G.bounty;
+  if (B) { const p = G.pilots[B.pid];
+    if (!p || p.alive === false || G.turn > B.until) { G.bounty = null; G.bountyNext = G.turn + randi(...BOUNTY.gap); L(`【手配書】${PILOT_BASE[B.pid]?.name || ''}の賞金は${G.turn > B.until ? '期限が切れて' : 'ほかの者の手で'}取り下げられた。`, 'event'); }
+    return; }
+  if (G.turn < (G.bountyNext ?? BOUNTY.from) || G.jobT === G.turn || Math.random() > BOUNTY.chance) return;
+  const cand = Object.values(G.units).filter(u => u.f !== G.player && G.fac[u.f]?.alive && G.pilots[u.pil]?.named && G.pilots[u.pil].alive !== false && PILOT_BASE[u.pil]);
+  if (!cand.length) return;
+  const u = pick(cand), p = G.pilots[u.pil], ace = Object.values(STORY_CAST).some(C => C.ace === p.id);
+  const reward = Math.round((ace ? 2000 : 1200) * rand(0.9, 1.15) / 50) * 50;
+  G.jobT = G.turn; G.bounty = { pid: p.id, f: u.f, reward, until: G.turn + BOUNTY.turns };
+  L(`【手配書】${FAC[u.f].short}の${p.name}に賞金 ${reward} がかかった（ターン${G.bounty.until}まで）`, 'event');
+  await HOOKS.event({ title: '手配書', face: p.id, body: `闇の掲示板に、<b>${FAC[u.f].name}の${p.name}</b>（${UNITS[u.t].name}）の手配書が出回った。<br>賞金は資金 <b>${fmt(reward)}</b>。期限はターン${G.bounty.until}まで。<br><span class="dim">自軍の戦闘で撃墜するか、捕獲すると賞金が入ります。</span>` });
+}
+// 戦闘のあとに、依頼と賞金首を確かめる
+function mercJobCheck(ctx, pre) {
+  if (G.player !== 'mrc') return;
+  const C = G.contract;
+  if (C && G.areas[C.area].owner === G.player) { G.fac[G.player].funds += C.reward; L(`【依頼達成】${AREAS[C.area].name}を落とした。${FAC[C.by].short}から報酬 ${C.reward}`, 'good'); G.contract = null; G.contractNext = G.turn + randi(...CONTRACT.gap); }
+  const B = G.bounty;
+  if (B && pre?.bountyIn) { const p = G.pilots[B.pid];
+    if (p && (p.alive === false || p.f === G.player)) { G.fac[G.player].funds += B.reward; L(`【手配書】${p.name}を${p.alive === false ? '撃墜した' : '捕らえた'}。賞金 ${B.reward}`, 'good'); G.bounty = null; G.bountyNext = G.turn + randi(...BOUNTY.gap); } }
+}
 const SCENARIOS = [
   { id: 'hegemon', name: '巨大勢力の台頭', desc: 'ゲーム開始の時点で、どこか一つの勢力がまわりの土地を呑み込み、大きくなっている。' },
   { id: 'giants', name: '巨大兵器の時代', desc: '巨大兵器が序盤から現れる。倒すか、しばらく暴れて眠りにつくと次の一体が目を覚まし、ギガス・ハロー・レギオンの順に三体すべてが現れる。' },
@@ -2288,8 +2362,9 @@ function scenHegemon() {
     for (const b of shuffle(AREAS[a].links.slice())) {
       if (seen.has(b)) continue; seen.add(b);
       const o = G.areas[b].owner;
-      if (o === G.player || AREAS[b].kind === 'capital' || squadsAt(b).length) continue;
-      q.push(b); if (o !== H && take.length < SCEN.hegemonTake) take.push(b);
+      if (o === G.player) continue; // プレイヤーの土地は越えない
+      q.push(b); // 首都や母艦のいる土地は取らないが、その先へは広がる
+      if (o !== H && AREAS[b].kind !== 'capital' && !squadsAt(b).length && take.length < SCEN.hegemonTake) take.push(b);
     }
   }
   const cheap = Object.values(UNITS).filter(T => T.f === H && T.bt > 0).sort((x, y) => x.cost - y.cost);
@@ -2332,7 +2407,7 @@ function capOf(f) { return (G && G.fac[f]?.capital) || FAC[f].capital; }
 // エリアの種類：移した先の首都は「首都」として扱う（生産ライン・砲台・修理・収入）
 function kindOf(id) { const k = AREAS[id].kind; if (k !== 'capital' && G) { const o = G.areas[id]?.owner; if (o && capOf(o) === id) return 'capital'; } return k; }
 const PIL = id => G.pilots[id] || PILOT_BASE[id];
-function maxHpOf(u) { const T = UNITS[u.t]; return T.hp + Math.round(T.hp * BAL.modHp * (u.mod || 0)) + (u.part === 'armor' ? 20 : 0) + Math.round(T.hp * BAL.lvHp * (u.lv - 1)); }
+function maxHpOf(u) { const T = UNITS[u.t]; return T.hp + Math.round(T.hp * BAL.modHp * (u.mod || 0)) + (u.part === 'armor' ? 20 : u.part === 'g_core' ? 60 : 0) + Math.round(T.hp * BAL.lvHp * (u.lv - 1)); }
 function unitsAt(area, f) { return Object.values(G.units).filter(u => u.ar === area && (!f || u.f === f)); }
 function squadsAt(area, f) { return Object.values(G.squads).filter(s => s.area === area && (!f || s.f === f)); }
 function squadsOf(f) { return Object.values(G.squads).filter(s => s.f === f); }
@@ -2729,7 +2804,7 @@ function simulateBattle(ctx) {
   let result = null;
   for (let t = 0; t < BAL.qs.time && !result; t++) {
     // 自己再生・修理フィールド
-    for (const x of ents) { if (!alive(x) || x.ship || x.fort) continue; if (x.ab === 'regen') x.hp = Math.min(x.maxHp, x.hp + x.maxHp * regenRate(x.c?.t)); if (x.ab === 'medic') for (const y of ents) if (y !== x && y.s === x.s && alive(y) && !y.ship && !y.fort) y.hp = Math.min(y.maxHp, y.hp + y.maxHp * BAL.medicRate * 0.5); }
+    for (const x of ents) { if (!alive(x) || x.ship || x.fort) continue; if (x.ab === 'regen') x.hp = Math.min(x.maxHp, x.hp + x.maxHp * regenRate(x.c?.t)); if (x.c?.part === 'l_core') x.hp = Math.min(x.maxHp, x.hp + x.maxHp * 0.008); if (x.ab === 'medic') for (const y of ents) if (y !== x && y.s === x.s && alive(y) && !y.ship && !y.fort) y.hp = Math.min(y.maxHp, y.hp + y.maxHp * BAL.medicRate * 0.5); }
     for (const e of shuffle([...ents])) {
       if (!alive(e)) continue;
       const foes = ents.filter(x => x.s !== e.s && alive(x));
@@ -2813,6 +2888,7 @@ function retreatArea(f, area, sq) {
 }
 // 戦闘結果を状態に反映。戻り値は結果画面用のまとめ
 function applyBattleResult(ctx, res) {
+  const jobPre = { bountyIn: !!(G.bounty && ctx.sides.some(S => S.f === G.player) && ctx.sides.some(S => S.f !== G.player && S.cs.some(c => c.pilot?.id === G.bounty.pid))) };
   // 図鑑：自軍が戦った相手の機体・パイロット・艦を「遭遇」として記録する
   if (G.enc && ctx.sides.some(S => S.f === G.player)) {
     const E = G.enc; E.su = E.su || {}; E.sp = E.sp || {}; E.ss = E.ss || {};
@@ -2928,6 +3004,7 @@ function applyBattleResult(ctx, res) {
     }
   }
   if (typeof gameEvent === 'function') gameEvent('battle', { ctx, res, sum, pilOf });
+  mercJobCheck(ctx, jobPre);
   return sum;
 }
 
@@ -2989,6 +3066,7 @@ function checkOver() {
 async function executeMove(sid, to) {
   const sq = G.squads[sid]; if (!sq) return;
   const f = sq.f, from = sq.area;
+  { const o = G.areas[to]?.owner; if (G.pact?.on && f === G.player && o && o !== G.player && o !== G.hegemon) { G.pact.on = false; G.pact.broken = 1; L(`【包囲網】${FAC[o].name}を攻めたことで、包囲網の約束を破った。加盟していた勢力は、ふたたび敵になる。`, 'bad'); } }
   if (typeof rogueAt === 'function' && rogueAt(to)) return await rogueDefend(sid, to); // 巨大兵器のいるエリアへ攻め込む
   const owner = G.areas[to].owner;
   const defending = owner && owner !== f && areaHasForces(to, owner);
@@ -3072,6 +3150,7 @@ async function endTurn() {
   if (!G.over) await newTurn();
 }
 async function newTurn() {
+  mercJobCheck(null, null);
   G.turn++;
   for (const F of FACTIONS) {
     const f = F.id; if (!G.fac[f].alive) continue;
@@ -3114,7 +3193,7 @@ async function newTurn() {
   if (typeof rogueTurn === 'function') await rogueTurn(); // 巨大兵器の回復と出現
   await seasonTurn(); // 地形の季節
   await relicTurn(); // 古戦場の残骸
-  if (G.fac[G.player].alive) { refreshMercs(); await randomEvent(); if (typeof factionEvent === 'function') await factionEvent(); await wandererEvent(); await zephyrAwakenEvent(); await aceDuelEvent(); await mercJoinEvent(); }
+  if (G.fac[G.player].alive) { refreshMercs(); await randomEvent(); if (typeof factionEvent === 'function') await factionEvent(); await wandererEvent(); await zephyrAwakenEvent(); await aceDuelEvent(); await mercJoinEvent(); await scenTurnEvents(); }
   if (typeof gameEvent === 'function') gameEvent('turn', {});
   checkOver();
 }
@@ -3412,7 +3491,7 @@ async function randomEvent() {
     const a = pick(cand); G.areas[a].owner = null;
     ev = { title: '反乱', body: `守りのない${AREAS[a].name}で反乱が起き、中立地帯になった。` };
   } else if (kind === 'supply') {
-    const pk = pick(Object.keys(PARTS)); F.parts[pk] = (F.parts[pk] || 0) + 1;
+    const pk = pick(COMMON_PARTS); F.parts[pk] = (F.parts[pk] || 0) + 1;
     ev = { title: '補給艦の到着', body: `補給艦が予備の部品を届けた。パーツ「${PARTS[pk].name}」（${PARTS[pk].desc}）を手に入れた。` };
   } else if (kind === 'tieup') {
     const cand = mine.filter(u => (u.mod || 0) < BAL.modMax); if (!cand.length) return;
@@ -3479,7 +3558,7 @@ async function randomEvent() {
     if (F.funds < 500) return;
     const c = await HOOKS.choice({ title: '密輸船', body: '密輸船が、出どころの怪しい部品を売りたいと言ってきた。パーツ2つで資金500。', options: ['資金500で買う', '断る'] });
     if (c !== 0) { L('【密輸船】取引を断った。', 'event'); return; }
-    F.funds -= 500; const got = [pick(Object.keys(PARTS)), pick(Object.keys(PARTS))]; for (const pk of got) F.parts[pk] = (F.parts[pk] || 0) + 1;
+    F.funds -= 500; const got = [pick(COMMON_PARTS), pick(COMMON_PARTS)]; for (const pk of got) F.parts[pk] = (F.parts[pk] || 0) + 1;
     ev = { title: '密輸品', body: `パーツ「${got.map(k => PARTS[k].name).join('」「')}」を手に入れた。` };
   } else if (kind === 'training') { // 合同演習：パイロットが育つ
     const ps = Object.values(G.pilots).filter(p => p.f === f && p.named && p.alive && !p.joinT);
@@ -3647,6 +3726,7 @@ async function cpuPhase(f) {
       for (const a of moveTargets(sq)) {
         const o = G.areas[a].owner;
         if (o === f) continue;
+        if (o && o === G.player && G.pact?.on && f !== G.hegemon) continue; // 包囲網の約束：加盟勢力はプレイヤーを攻めない
         if (rogueAt(a) && my < roguePower() * 0.8) continue; // 巨大兵器には、十分な戦力がなければ挑まない
         if (pinned && !squadsAt(a).some(s => s.f !== f)) continue; // 首都を離れるのは、迫る敵部隊を迎え撃つときだけ
         const kindV = { capital: 60, factory: 30, resource: 20, city: 15, launch: 12, port: 10, fort: 8 }[AREAS[a].kind] || 5;
@@ -3660,6 +3740,7 @@ async function cpuPhase(f) {
           if (squadsAt(a, o).length && AREAS[a].links.filter(b => G.areas[b].owner === f).length >= 2) score += 10;
         }
         if (AREAS[a].owner0 === f) score += 12; // 奪われた元の領土を取り戻す
+        if (G.scen === 'hegemon' && o && o === G.hegemon && f !== G.hegemon) score += 22; // 巨大勢力の台頭：みんなで巨大勢力を叩く
         score += rand(0, 8);
         if (score > bestScore) { bestScore = score; best = a; }
       }
@@ -3762,13 +3843,27 @@ async function rogueTurn() {
     R.st = 3; R.downT = G.turn; L(`【巨大兵器】${rogueName()}は動きを止め、${AREAS[R.area].name}の大地に沈んでいった。`, 'event'); return;
   }
   if (R?.st === 1) { R.hp = Math.min(rogueMaxHp(), R.hp + Math.round(rogueMaxHp() * ROGUE.healTurn)); return; }
+  if (G.rogueOmen) { const O = G.rogueOmen; if (G.turn >= O.at) { G.rogueOmen = null; await rogueSpawn(O.k); } return; } // 予兆のあと、決まったターンに現れる
   if (G.scen === 'giants') { // 巨大兵器の時代：序盤から現れ、倒されると次の一体が目を覚ます（三体すべて）
     const left = ['gigas', 'ufo', 'legion'].filter(k => !(G.rogueSeen || []).includes(k)); // ギガス → ハロー → レギオンの順にだんだん強く
     if (!left.length || (R && R.st === 1) || G.turn < SCEN.giantsFrom || (R && G.turn - (R.downT || 0) < SCEN.giantsGap) || Math.random() > SCEN.giantsChance) return;
-    await rogueSpawn(left[0]); return;
+    await rogueOmen(left[0]); return;
   }
   if (R || G.turn < ROGUE.from || !nearUnify() || Math.random() > ROGUE.chance) return;
-  await rogueSpawn();
+  await rogueOmen(pick(rogueKinds()));
+}
+// 出現の予兆：現れる2ターン前に知らせる（地上か宇宙か、だいたいの場所がわかる）
+const ROGUE_OMEN = {
+  gigas: '地上のどこかで、地の底から響くような地鳴りが続いている。古い記録では、この揺れは旧時代の巨大兵器が目を覚ます前触れとされる。',
+  ufo: '各地の観測所が、雲の上に浮かぶ不自然な光の輪をとらえた。正体はわからない。近いうちに、何かが降りてくる。',
+  legion: '宇宙を漂う無数の残骸が、ひとつの方向へゆっくりと流れはじめた。暗礁宙域のあたりで、何かが寄り集まろうとしている。',
+};
+const OMEN_TURNS = 2;
+async function rogueOmen(k) {
+  if (!k || G.rogueOmen) return;
+  G.rogueOmen = { k, at: G.turn + OMEN_TURNS };
+  L(`【予兆】${ROGUE_OMEN[k]}（${OMEN_TURNS}ターン後に何かが現れる）`, 'big');
+  await HOOKS.event({ title: '巨大兵器の予兆', col: '#ff9a4a', body: `${ROGUE_OMEN[k]}<br><span class="dim">${OMEN_TURNS}ターン後に、巨大兵器が現れます。守りを固めるか、迎え撃つ準備をしましょう。</span>` });
 }
 // どれが現れるか：レギオンは難易度「極」のときだけ
 function rogueKinds() { return Object.keys(ROGUE_TYPES).filter(k => !ROGUE_TYPES[k].extreme || G.diff === 'extreme'); }
@@ -3812,7 +3907,7 @@ async function rogueDown(by) {
   const F = G.fac[by];
   if (by === G.player) {
     F.funds += T.reward;
-    const got = [pick(Object.keys(PARTS)), pick(Object.keys(PARTS)), pick(Object.keys(PARTS))];
+    const got = [GIANT_PART[R.k] || pick(COMMON_PARTS), pick(COMMON_PARTS), pick(COMMON_PARTS)]; // 1つはその巨大兵器だけの専用パーツ
     for (const pk of got) F.parts[pk] = (F.parts[pk] || 0) + 1;
     G.giantKills = (G.giantKills || 0) + 1;
     if (typeof awardMedal === 'function') { awardMedal('giant'); if (R.k !== 'gigas') awardMedal('giant_' + R.k); if (G.giantKills >= 3) awardMedal('giant3'); }
@@ -3904,7 +3999,7 @@ const BRIEFING = {
   psy: '迫害を逃れた感応者たちは、山あいのホロウ要塞に集った。数は少なく、資金も乏しい。\nだが感応者の操るビットは、どの勢力の兵より鋭い。一人ひとりを大切に育て、少数精鋭で道を切り開け。',
   orb: '天柱同盟は、地上と宇宙を結ぶ軌道エレベーター「天の柱」を守ってきた。どの勢力にも属さず、橋として中立を貫いてきたが、戦火はついに柱のふもとまで迫った。\nこの勢力の母艦は、地上と宇宙のどちらにも入れる。ふたつの戦場をつないで戦え。',
   jup: '地球圏から最も遠い木星で、開拓者たちは重力と嵐に耐えて生きてきた。地球の争いは、もはや他人事ではない。\n領土は小さいが、機体は戦うたびに自ら傷を癒やす。外縁の資源を固め、月と小惑星帯へ打って出よ。',
-  mrc: '金で戦い、金で裏切る――それが傭兵だと誰もが言う。だが自由都市リベラに集まった者たちは、初めて誰にも雇われずに旗を揚げた。\n領土はリベラひとつ、資金もない。自前の工場はなく、他勢力の量産機と母艦を割高で買い集めて戦う。腕利きの傭兵たちと放浪者ゼファーの腕で、地球圏を勝ち取れ。',
+  mrc: '金で戦い、金で裏切る――それが傭兵だと誰もが言う。だが自由都市リベラに集まった者たちは、初めて誰にも雇われずに旗を揚げた。\n領土はリベラひとつ、資金もない。自前の工場はなく、他勢力の量産機と母艦を割高で買い集めて戦う。依頼をこなし、賞金首を狩って稼ぎながら、腕利きの傭兵たちと放浪者ゼファーの腕で地球圏を勝ち取れ。',
 };
 const EPILOGUE = {
   ugf: { win: '統合政府の旗のもと、地球圏はふたたびひとつになった。だが、宇宙へ渡った人々の声を聞くことも、これからの統治者の務めだ。', lose: '首都セントラルは陥落した。地上の秩序は崩れ、新たな時代が始まろうとしている。' },
@@ -3978,7 +4073,7 @@ function newMission() {
   }
   // 撃破
   const n = Math.min(10, 3 + Math.floor(T / 8));
-  C.push({ w: 6, m: { kind: 'kill', need: n, prog: 0, due: T + 5, reward: { funds: 250 + n * 90, part: pick(Object.keys(PARTS)) } } });
+  C.push({ w: 6, m: { kind: 'kill', need: n, prog: 0, due: T + 5, reward: { funds: 250 + n * 90, part: pick(COMMON_PARTS) } } });
   // 撃沈：近くに敵艦がいるとき
   const enemySq = Object.values(G.squads).filter(s => s.f !== f && front.includes(s.area));
   if (enemySq.length) C.push({ w: 5, m: { kind: 'sink', need: 1, prog: 0, due: T + 6, reward: { funds: 500, pilot: true } } });
@@ -4623,7 +4718,7 @@ const FX = {
   own(f, id) { const p = G.pilots[id]; return p && p.alive !== false && p.f === f && !p.joinT ? p : null; },
   gold(f, v) { G.fac[f].funds += v; return `資金 ${v >= 0 ? '+' : '−'}${Math.abs(v)}`; },
   parts(f, n, k) {
-    const got = []; for (let i = 0; i < n; i++) { const pk = k || pick(Object.keys(PARTS)); G.fac[f].parts[pk] = (G.fac[f].parts[pk] || 0) + 1; got.push(PARTS[pk].name); }
+    const got = []; for (let i = 0; i < n; i++) { const pk = k || pick(COMMON_PARTS); G.fac[f].parts[pk] = (G.fac[f].parts[pk] || 0) + 1; got.push(PARTS[pk].name); }
     return `パーツ「${got.join('」「')}」を入手`;
   },
   // 首都に機体を配備する。置けなければ資金に換える
@@ -13370,6 +13465,7 @@ function fire(B, e, s) {
 
 // 機体の特殊能力（戦闘中に働くもの）
 function abilityTick(B, e, dt) {
+  if (e.part === 'l_core' && e.alive && e.hp < e.maxHp) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.008 * dt); // 群体の核
   const ab = e.T.ab; if (!ab) return;
   if (ab === 'regen' && e.hp < e.maxHp) { e.hp = Math.min(e.maxHp, e.hp + e.maxHp * regenRate(e.T?.id) * dt); if (Math.random() < dt * 1.5) B.fx.push({ kind: 'heal', x: e.x + rand(-8, 8), y: e.y - 10, t: 0, life: 0.6 }); }
   if (ab === 'overdrive' && !e.od && e.hp < e.maxHp * 0.5) { e.od = true; B.texts.push({ x: e.x, y: e.y - 34, text: 'オーバードライブ！', col: '#ff9a4a', t: 0, life: 1.4, big: true }); B.fx.push({ kind: 'ring', x: e.x, y: e.y, r: 40, t: 0, life: 0.4, col: '#ff9a4a' }); SFX.play('awaken'); }
@@ -13682,6 +13778,7 @@ function hurt(B, src, tgt, pow, attr, wcat) {
   if (sk === 'brawler' && (wcat === 'melee' || wcat === 'dash')) d *= 1.2;
   if (sk === 'sniper' && wcat === 'rail') d *= 1.15;
   if (src.part === 'scope' && ['rapid', 'rifle', 'charge', 'shell', 'shotgun', 'rail', 'sweep'].includes(wcat)) d *= 1.1;
+  if (src.part === 'h_lens' && attr === 'beam') d *= 1.15; // 円環の結晶
   let crit = false;
   if (wcat !== 'self' && src.pilot) {
     const st = CRIT_STAT[wcat]; let cc = st ? (src.pilot[st] || 0) : 10;
@@ -15054,6 +15151,8 @@ function renderSeason() {
 }
 function renderMission() {
   renderSeason();
+  { const j = $('#mjob'), C = G.contract, B = G.bounty; if (j) { j.hidden = !(C || B) || UI.busy; // 傭兵団：依頼と賞金首
+    if (!j.hidden) j.innerHTML = C ? `<span class="mk">依頼</span><span class="mt">${AREAS[C.area].name}を攻略</span><span class="ml">あと${Math.max(0, C.due - G.turn)}ターン</span>` : `<span class="mk">手配</span><span class="mt">${PILOT_BASE[B.pid]?.name || ''}</span><span class="ml">${fmt(B.reward)}</span>`; } }
   const m = G.mission, el = $('#mission');
   if (!m || m.done || UI.busy) { el.hidden = true; return; }
   const left = missionLeft(m);
@@ -16024,7 +16123,7 @@ async function openSettings(fromTitle) {
 }
 function slotInfo(k) {
   const s = load(k); if (!s) return null;
-  try { const d = JSON.parse(s); return { f: d.player, turn: d.turn, at: d.savedAt }; } catch (e) { return null; }
+  try { const d = JSON.parse(s); return { f: d.player, turn: d.turn, at: d.savedAt, sc: d.scen }; } catch (e) { return null; }
 }
 function autosave() { if (G && !G.over) { G.savedAt = Date.now(); store('hsk_auto', serialize()); zukanSync(); } }
 async function openSaveLoad(mode) {
@@ -16032,7 +16131,7 @@ async function openSaveLoad(mode) {
   const render = () => keys.map(([k, label]) => {
     const i = slotInfo(k);
     const d = i?.at ? new Date(i.at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-    return `<div class="slot"><div><b>${label}</b><br><span class="dim">${i ? `${FAC[i.f].name}・ターン${i.turn}・${d}` : '空き'}</span></div><div class="slot-btns">
+    return `<div class="slot"><div><b>${label}</b><br><span class="dim">${i ? `${FAC[i.f]?.name || ''}${i.sc ? `・戦況「${SCENARIOS.find(s => s.id === i.sc)?.name || ''}」` : ''}・ターン${i.turn}・${d}` : '空き'}</span></div><div class="slot-btns">
       ${mode === 'save' && k !== 'hsk_auto' ? `<button class="btn small primary" data-act="save" data-k="${k}">保存</button>` : ''}
       ${i ? `<button class="btn small" data-act="load" data-k="${k}">読み込む</button>` : ''}
       ${i && k !== 'hsk_auto' ? `<button class="btn small danger" data-act="del" data-k="${k}">消す</button>` : ''}</div></div>`;
@@ -16158,6 +16257,8 @@ function boot(data) {
   $('#sheet-tog').addEventListener('click', () => { SETTINGS.sheetBig = !SETTINGS.sheetBig; saveSettings(); SFX.play('select'); renderAll(); });
   $('#relic').addEventListener('click', () => { const R = G?.relic; if (!R?.site) return; SFX.play('select'); const id = R.site; UI.sel = id; UI.tab = AREAS[id].map; ensureVisible(id); renderAll(); });
   $('#season').addEventListener('click', () => { const S = seasonNow(); if (!S) return; SFX.play('select'); openModal({ title: `天候：${SEASONS[S.terrain].name}`, cls: 'small', body: `<p>${seasonDesc(S)}</p><p class="dim">あと${S.until - G.turn + 1}ターン続きます。</p>`, buttons: [{ label: '閉じる', value: 'ok', cls: 'primary' }] }); });
+  $('#mjob').addEventListener('click', () => { const C = G?.contract, B = G?.bounty; if (!C && !B) return; SFX.play('select');
+    openModal({ title: '傭兵の仕事', cls: 'small', body: `${C ? `<div class="mbrief"><span class="mb-k">依頼</span><b>${AREAS[C.area].name}を攻略（${FAC[C.foe].short}の領土）</b><p>依頼主：${FAC[C.by].name}<br>期限：ターン${C.due}まで（あと${Math.max(0, C.due - G.turn)}ターン）<br>報酬：資金 ${fmt(C.reward)}</p></div>` : ''}${B ? `<div class="mbrief"><span class="mb-k">手配書</span><b>${FAC[B.f]?.short || ''}の${PILOT_BASE[B.pid]?.name || ''}</b><p>自軍の戦闘で撃墜か捕獲<br>期限：ターン${B.until}まで<br>賞金：資金 ${fmt(B.reward)}</p></div>` : ''}` }); });
   $('#mission').addEventListener('click', () => { const m = G?.mission; if (!m || m.done) return; SFX.play('select'); openModal({ title: '現在の作戦', cls: 'small', body: `<div class="mbrief"><span class="mb-k">${MISSION_KIND[m.kind]}</span><b>${missionTitle(m)}</b><p>${m.kind === 'kill' ? `進み具合：${m.prog}/${m.need}機<br>` : ''}期限：ターン${m.due}まで（あと${missionLeft(m)}ターン）<br>報酬：${missionReward(m)}</p></div>` }); });
   $('#btn-start').addEventListener('click', () => { if (!UI.pickFaction) return; SFX.play('ok'); newGameStart(); });
   $('#btn-back').addEventListener('click', () => { SFX.play('select'); show('title'); });
