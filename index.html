@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}.rk-tbl{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0 8px}.rk-tbl th,.rk-tbl td{border:1px solid rgba(255,255,255,.15);padding:3px 6px;text-align:left}.rk-tbl th{background:rgba(255,255,255,.07)}.rk-tbl td:first-child,.rk-tbl th:first-child{text-align:center;width:3em}.rk-ul{margin:4px 0 8px 1.2em;padding:0}.rk-ul li{margin:2px 0}
 .brief-scen{margin-top:10px;padding:8px 10px;border:1px solid var(--gold);border-radius:8px;color:var(--text);font-size:13px}.brief-scen b{color:var(--gold)}
+.b-chip:disabled{opacity:.3;text-decoration:line-through;pointer-events:none}
 </style>
 </head>
 <body>
@@ -806,7 +807,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v190</span>
+    <span class="t-ver">v191</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -3260,8 +3261,8 @@ async function zephyrAwakenEvent() {
   if (c !== 0) { L('【ゼファー覚醒】月輪の光は、静かに消えていった。', 'event'); return; }
   const lv = AWAKEN.lv, hp = Math.round(UNITS[AWAKEN.unit].hp * AWAKEN.hpK);
   const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: AWAKEN.stat, me: AWAKEN.stat, sp: AWAKEN.stat, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
-  const ctx = { area: capOf(G.player), attacker: 1, aiTier: AWAKEN.tier, sides: [{ f: G.player, sid: null, garrison: null, fort: null, ship: null, cs: [combatant(u.uid)] }, { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [shadow] }], player: true, duel: true,
-    duelTitle: 'ゼファー覚醒', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタスと、月輪の光から現れた<b>星の影</b>の一対一です。</p><p class="dim">星の影は真リベルタスの力をすべて使ってきます。撃破されてもゼファーと機体は失われません。時間切れのときは、残りHPの割合が多い方の勝ちです。</p>` };
+  const ctx = { area: capOf(G.player), attacker: 1, aiTier: AWAKEN.tier, noAuto: true, sides: [{ f: G.player, sid: null, garrison: null, fort: null, ship: null, cs: [combatant(u.uid)] }, { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [shadow] }], player: true, duel: true,
+    duelTitle: 'ゼファー覚醒', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタスと、月輪の光から現れた<b>星の影</b>の一対一です。</p><p class="dim">星の影は真リベルタスの力をすべて使ってきます。撃破されてもゼファーと機体は失われません。時間切れのときは、残りHPの割合が多い方の勝ちです。この戦いはオートにできません。</p>` };
   const res = await HOOKS.duel(ctx);
   { const RR = records(); if (!RR.shadowMet) { RR.shadowMet = 1; saveRecords(); } } // 勝ち負けに関係なく、戦えば模擬戦で星の影と再戦できる
   const r = res.units[u.uid]; if (r && G.units[u.uid]) { u.hp = clamp(r.dead ? 1 : r.hp, 1, maxHpOf(u)); u.foughtT = G.turn; const gain = Math.round(BAL.expBattle * 2 + r.dmg * BAL.expPerDmg); u.exp += gain; u.xp += gain; growPilot(zp, gain, r.use); }
@@ -12964,7 +12965,7 @@ function startBattle(ctx, root) {
     const terrain = AREAS[ctx.area].terrain;
     const B = BT = {
       ctx, root, resolve, terrain, t: 0, over: null, endT: 0, intro: 1.3,
-      auto: SETTINGS.battleAuto, everAuto: !!SETTINGS.battleAuto, speed: 1, zoom: false, paused: false,
+      auto: !ctx.noAuto && SETTINGS.battleAuto, everAuto: !ctx.noAuto && !!SETTINGS.battleAuto, speed: 1, zoom: false, paused: false,
       ents: [], shots: [], swings: [], bits: [], fx: [], texts: [], obstacles: [],
       turrets: [], ctrl: null, lock: null, camY: 0, retreatArmed: 0, cut: null, cutQ: [], cutCd: 0, cutN: 0, said: new Set(),
       input: { x: 0, y: 0, held: [false, false, false], keys: {}, t: [0, 0, 0], seq: 0 },
@@ -14282,7 +14283,7 @@ function buildBattleDom(B) {
   const cv = document.createElement('canvas'); cv.className = 'b-canvas'; root.appendChild(cv);
   B.canvas = cv; B.c2d = cv.getContext('2d');
   const top = document.createElement('div'); top.className = 'b-top';
-  top.innerHTML = `<button class="b-chip" data-act="pause">停止</button><button class="b-chip" data-act="zoom">全体</button><button class="b-chip" data-act="speed">×${B.speed}</button><button class="b-chip ${B.auto ? 'on' : ''}" data-act="auto">AUTO</button><button class="b-chip warn" data-act="retreat">撤退</button>`;
+  top.innerHTML = `<button class="b-chip" data-act="pause">停止</button><button class="b-chip" data-act="zoom">全体</button><button class="b-chip" data-act="speed">×${B.speed}</button><button class="b-chip ${B.auto ? 'on' : ''}" data-act="auto" ${B.ctx.noAuto ? 'disabled' : ''}>AUTO</button><button class="b-chip warn" data-act="retreat">撤退</button>`;
   root.appendChild(top);
   const ordB = document.createElement('button'); ordB.className = 'b-chip b-order'; ordB.dataset.act = 'order'; root.appendChild(ordB);
   const swapB = document.createElement('button'); swapB.className = 'b-chip b-swap'; swapB.dataset.act = 'swap'; root.appendChild(swapB);
@@ -14305,7 +14306,7 @@ function buildBattleDom(B) {
     if (act === 'pause') B.paused = !B.paused;
     if (act === 'zoom') B.zoom = !B.zoom;
     if (act === 'speed') { B.speed = B.speed === 1 ? 2 : B.speed === 2 ? 4 : 1;  }
-    if (act === 'auto') { B.auto = !B.auto; if (B.auto) B.everAuto = true; }
+    if (act === 'auto' && !B.ctx.noAuto) { B.auto = !B.auto; if (B.auto) B.everAuto = true; } // noAuto：オートにできない戦い（ストーリーの星の影）
     if (act === 'retreat') {
       if (B.retreatArmed > 0) endBattle(B, 1, 'retreat');
       else { B.retreatArmed = 2.5; B.texts.push({ x: B.ctrl?.x || BW / 2, y: (B.ctrl?.y || BH / 2) - 40, text: 'もう一度押すと撤退', col: '#ffc04d', t: 0, life: 2.5, big: true }); }
@@ -15708,10 +15709,10 @@ HOOKS.scene = sc => openScene(sc);
 HOOKS.duel = async ctx => {
   const W = ctx.sides[1].cs[0], mine = ctx.sides[0].cs;
   const body = ctx.duelBody || `<div class="ev-face">${heroHtml(W.t, '#c9b98a', 190)}</div><p><b>${W.pilot.name}</b>（${UNITS[W.t].name}）1機と、自軍のいちばん強い3機で戦います。</p><div class="chips">${mine.map(c => `<span class="chip"><span class="uthumb" data-thumb="${c.t}" data-size="40"></span>${c.name}</span>`).join('')}</div><p class="dim">撃破されても機体とパイロットは失われません。</p>`;
-  const pm = openModal({ title: ctx.duelTitle || '放浪者との決闘', cls: 'small', dismiss: false, body, buttons: [{ label: 'オートで戦う', value: 'auto' }, { label: '手動で戦う', value: 'manual', cls: 'primary' }] });
+  const pm = openModal({ title: ctx.duelTitle || '放浪者との決闘', cls: 'small', dismiss: false, body, buttons: ctx.noAuto ? [{ label: '戦う（オートなし）', value: 'manual', cls: 'primary' }] : [{ label: 'オートで戦う', value: 'auto' }, { label: '手動で戦う', value: 'manual', cls: 'primary' }] });
   fillThumbs(modalStack[modalStack.length - 1].el, FAC[G.player].color);
   const v = await pm;
-  SETTINGS.battleAuto = v === 'auto';
+  if (!ctx.noAuto) SETTINGS.battleAuto = v === 'auto';
   MUSIC.play('danger'); ctx.played = true; show('battle');
   const res = await startBattle(ctx, $('#scr-battle'));
   MUSIC.play(res.winner === 0 ? 'win' : 'lose', 'map');
