@@ -810,7 +810,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v194</span>
+    <span class="t-ver">v195</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -16625,13 +16625,13 @@ function arenaTopHtml(key, unit) {
   if (!L2.length) return '';
   return `<div class="ar-top"><h4>記録</h4>${L2.map((e, i) => `<div class="ar-rk"><b class="${i ? '' : 'gold'}">${i + 1}位</b><span class="ar-v">${unit(e.v)}</span><span class="ar-ts">${e.ts.map(t => UNITS[t] ? `<span class="uthumb" data-thumb="${t}" data-col="${unitCol(t)}" data-size="30" title="${UNITS[t].name}"></span>` : '').join('')}</span><small>${e.d}</small></div>`).join('')}</div>`;
 }
-// 模擬戦：星の影との一騎打ち（本編でゼファー覚醒イベントに勝つと遊べる）。ゼファーのリベルタスはLv20・改造なし・パイロットLv20
+// 模擬戦：星の影との一騎打ち（本編でゼファー覚醒イベントに勝つと遊べる）。ゼファーのリベルタスはLv20・改造なし・パイロットLv30
 function shadowOpen() { const R = records(); return !!(R.awakened || R.shadowMet); }
 async function runShadowTrial() {
   if (!shadowOpen()) return; // 本編で覚醒イベントを戦ってから（負けてもよい）
   const prevG = G, f = 'ugf';
   newGame(f, 'normal'); G.arena = true;
-  G.pilots[WANDERER.pilot] = { ...PILOT_BASE[WANDERER.pilot], id: WANDERER.pilot, f, origin: f, named: true, lv: 20, exp: 0, alive: true };
+  G.pilots[WANDERER.pilot] = { ...PILOT_BASE[WANDERER.pilot], id: WANDERER.pilot, f, origin: f, named: true, lv: BAL.pilotMaxLv, exp: 0, alive: true };
   const uid = createUnit(f, WANDERER.unit, { ar: capOf(f) }, WANDERER.pilot), u = G.units[uid]; u.lv = 20; u.mod = 0; u.hp = maxHpOf(u);
   const lv = AWAKEN.lv, hp = Math.round(UNITS[AWAKEN.unit].hp * AWAKEN.hpK);
   const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: AWAKEN.stat, me: AWAKEN.stat, sp: AWAKEN.stat, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
