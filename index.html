@@ -289,7 +289,10 @@ h1, h2, h3, h4 { font-family: var(--f-disp); font-weight: 400; margin: 0; text-w
 .set-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .menu { display: grid; gap: 8px; }
 .slot { display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 8px 10px; }
-.slot-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.slot { flex-wrap: wrap; }
+.slot > div:first-child { min-width: 0; flex: 1 1 190px; }
+.slot-btns { display: flex; gap: 6px; justify-content: flex-end; flex: 0 0 auto; margin-left: auto; }
+.slot-btns .btn { white-space: nowrap; flex: 0 0 auto; }
 
 /* トースト */
 #toasts { position: absolute; top: 172px; left: 0; right: 0; display: grid; justify-items: center; gap: 6px; pointer-events: none; z-index: 30; }
@@ -807,7 +810,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v193</span>
+    <span class="t-ver">v194</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -5493,7 +5496,7 @@ const MUSIC = {
 // 座標：1機の高さは約84ユニット。原点は腹部、足裏は y=+41。+x が機体の向き（右）。
 // 塗り：セル調。右下に影の縁、左上に明るい縁、外側に濃い主線。光源は左上。
 // 体（キャッシュ）→ 武器を持つ腕（照準に合わせて回転）→ 右肩の装甲、の3層で描く。
-const ART = { style: 'rugged', chamfer: 0.85, mute: 0.14, K: 2, cache: new Map(), max: 70, lwm: 1, gm: 1, ao: 1, gloss: 0.36, v2: true, v3: true, cel: 1.8 }; // lwm 線の太さ倍率 / gm 光のにじみ倍率
+const ART = { style: 'rugged', chamfer: 0.85, mute: 0.14, K: 2, cache: new Map(), max: 70, lwm: 1, gm: 1, ao: 1, gloss: 0.36, v2: true, v3: true, cel: 1.8, glint: 1, micro: true }; // glint つやの一閃 / micro 小さな部品と溝 // lwm 線の太さ倍率 / gm 光のにじみ倍率
 const OL = '#0b0d1a';
 function rgb3(h) { const n = parseInt(h.slice(1, 7), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
 function mixc(a, b, t) { const A = rgb3(a), B = rgb3(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
@@ -5632,6 +5635,34 @@ function partRugged(c, path, col, o, d) {
     }
     // 塗装のはげ：縁に沿って点々と明るい地金
     if (w > 4 && hh > 4 && lum > 0.12) { c.save(); c.setLineDash([0.5 + r(3) * 0.7, 2.4 + r(5) * 3]); c.lineDashOffset = r(7) * 5; c.strokeStyle = 'rgba(205,210,220,.5)'; c.lineWidth = 0.75 * ART.lwm; c.stroke(path); c.restore(); }
+    // つやの一閃：塗装面の左上に、斜めのくっきりした光（アニメ塗りのハイライト）
+    if (ART.glint && lum > 0.2 && w > 4 && hh > 4 && o.glint !== false) {
+      const gx = bb[0] + w * (0.12 + r(9) * 0.14), gw = Math.max(0.9, w * 0.14), sl = hh * 0.62;
+      c.fillStyle = `rgba(255,255,250,${(lum > 0.7 ? 0.62 : 0.46) * ART.glint})`;
+      c.beginPath(); c.moveTo(gx, bb[1] - 1); c.lineTo(gx + gw, bb[1] - 1); c.lineTo(gx + gw - sl * 0.5, bb[1] + sl); c.lineTo(gx - sl * 0.5, bb[1] + sl); c.closePath(); c.fill();
+      c.fillStyle = `rgba(255,255,250,${0.3 * ART.glint})`; const g2 = gx + gw * 1.8;
+      c.beginPath(); c.moveTo(g2, bb[1] - 1); c.lineTo(g2 + gw * 0.4, bb[1] - 1); c.lineTo(g2 + gw * 0.4 - sl * 0.42, bb[1] + sl * 0.85); c.lineTo(g2 - sl * 0.42, bb[1] + sl * 0.85); c.closePath(); c.fill();
+    }
+    // 小さな部品：大きな装甲板に、通気口・注意の縞・刻印のどれかを1つ（板ごとに決まる）
+    if (ART.micro && w > 7 && hh > 7 && o.panel !== false && o.micro !== false) {
+      const kind = r(8), mx = bb[0] + w * (0.5 + r(10) * 0.12), my = bb[1] + hh * (0.56 + r(11) * 0.1), s = Math.min(w, hh) * 0.2;
+      if (c.isPointInPath(path, mx * 1, my * 1) && c.isPointInPath(path, (mx + s * 1.6) * 1, (my + s) * 1)) {
+        if (kind < 0.36) { // 通気口：細い溝を3本
+          for (let i = 0; i < 3; i++) { const y = my + i * s * 0.42; c.fillStyle = rgbaOf(dk, 0.95); c.fillRect(mx, y, s * 1.6, s * 0.2); c.fillStyle = rgbaOf(lt, 0.55); c.fillRect(mx, y + s * 0.2, s * 1.6, s * 0.08); }
+        } else if (kind < 0.56) { // 注意の縞：黄と黒の斜め縞
+          c.save(); c.beginPath(); c.rect(mx, my, s * 1.6, s * 0.55); c.clip(); c.fillStyle = 'rgba(230,180,40,.85)'; c.fillRect(mx, my, s * 1.6, s * 0.55);
+          c.fillStyle = 'rgba(20,18,24,.85)'; for (let i = -1; i < 5; i++) { const x = mx + i * s * 0.4; c.beginPath(); c.moveTo(x, my + s * 0.55); c.lineTo(x + s * 0.2, my + s * 0.55); c.lineTo(x + s * 0.4, my); c.lineTo(x + s * 0.2, my); c.closePath(); c.fill(); }
+          c.restore();
+        } else if (kind < 0.76) { // 刻印：小さな札と線
+          c.fillStyle = rgbaOf(dk, 0.7); c.fillRect(mx, my, s * 1.5, s * 0.62); c.fillStyle = rgbaOf(lt, 0.75); c.fillRect(mx + s * 0.15, my + s * 0.14, s * 0.7, s * 0.1); c.fillRect(mx + s * 0.15, my + s * 0.36, s * 1.1, s * 0.1);
+        }
+      }
+    }
+    // 暗い金属：細かな溝（関節・骨組みらしさ）
+    if (ART.micro && lum < 0.3 && w > 3.5 && hh > 4.5 && o.rib !== false) {
+      c.strokeStyle = 'rgba(255,255,255,.16)'; c.lineWidth = 0.34 * ART.lwm; c.beginPath();
+      for (let y = bb[1] + 1.4; y < bb[3] - 0.8; y += 1.5) { c.moveTo(bb[0], y); c.lineTo(bb[2], y); } c.stroke();
+    }
     // 暗い金属：鈍い映り込み
     if (lum < 0.3 && w > 2 && hh > 2) { const m = c.createLinearGradient(0, bb[1], 0, bb[3]); m.addColorStop(0, 'rgba(255,255,255,.12)'); m.addColorStop(0.35, 'rgba(255,255,255,0)'); c.fillStyle = m; c.fill(path); }
   }
@@ -16594,18 +16625,18 @@ function arenaTopHtml(key, unit) {
   if (!L2.length) return '';
   return `<div class="ar-top"><h4>記録</h4>${L2.map((e, i) => `<div class="ar-rk"><b class="${i ? '' : 'gold'}">${i + 1}位</b><span class="ar-v">${unit(e.v)}</span><span class="ar-ts">${e.ts.map(t => UNITS[t] ? `<span class="uthumb" data-thumb="${t}" data-col="${unitCol(t)}" data-size="30" title="${UNITS[t].name}"></span>` : '').join('')}</span><small>${e.d}</small></div>`).join('')}</div>`;
 }
-// 模擬戦：星の影との一騎打ち（本編でゼファー覚醒イベントに勝つと遊べる）。ゼファーのリベルタスはLv20・改造なし
+// 模擬戦：星の影との一騎打ち（本編でゼファー覚醒イベントに勝つと遊べる）。ゼファーのリベルタスはLv20・改造なし・パイロットLv20
 function shadowOpen() { const R = records(); return !!(R.awakened || R.shadowMet); }
 async function runShadowTrial() {
   if (!shadowOpen()) return; // 本編で覚醒イベントを戦ってから（負けてもよい）
   const prevG = G, f = 'ugf';
   newGame(f, 'normal'); G.arena = true;
-  G.pilots[WANDERER.pilot] = { ...PILOT_BASE[WANDERER.pilot], id: WANDERER.pilot, f, origin: f, named: true, lv: 18, exp: 0, alive: true };
+  G.pilots[WANDERER.pilot] = { ...PILOT_BASE[WANDERER.pilot], id: WANDERER.pilot, f, origin: f, named: true, lv: 20, exp: 0, alive: true };
   const uid = createUnit(f, WANDERER.unit, { ar: capOf(f) }, WANDERER.pilot), u = G.units[uid]; u.lv = 20; u.mod = 0; u.hp = maxHpOf(u);
   const lv = AWAKEN.lv, hp = Math.round(UNITS[AWAKEN.unit].hp * AWAKEN.hpK);
   const shadow = { uid: 'z_shadow', temp: true, t: AWAKEN.unit, name: '星の影', hp, maxHp: hp, lv, part: null, f: 'mrc', pilot: { id: 'z_shadow', name: '星の影', sh: AWAKEN.stat, me: AWAKEN.stat, sp: AWAKEN.stat, pil: 3, sen: 2, cmd: 0, skill: 'evade' } };
   const ctx = { area: 'e_central', attacker: 1, aiTier: AWAKEN.tier, arena: true, sides: [{ f, sid: null, garrison: null, fort: null, ship: null, cs: [combatant(uid)] }, { f: 'mrc', sid: null, garrison: null, fort: null, ship: null, cs: [shadow] }], player: true, duel: true,
-    duelTitle: '模擬戦：星の影', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタス（機体Lv${u.lv}・改造なし・パイロットLv18）と、<b>星の影</b>（真リベルタス・Lv${lv}・HP${hp}・腕前ランク${AWAKEN.tier}）の一対一です。</p><p class="dim">ゼファー覚醒イベントの再戦です。撃破されても何も失われません。時間切れのときは、残りHPの割合が多い方の勝ちです。</p>` };
+    duelTitle: '模擬戦：星の影', duelBody: `<div class="ev-face">${heroHtml(AWAKEN.unit, '#ffd56a', 190)}</div><p>ゼファーのリベルタス（機体Lv${u.lv}・改造なし・パイロットLv${G.pilots[WANDERER.pilot].lv}）と、<b>星の影</b>（真リベルタス・Lv${lv}・HP${hp}・腕前ランク${AWAKEN.tier}）の一対一です。</p><p class="dim">ゼファー覚醒イベントの再戦です。撃破されても何も失われません。時間切れのときは、残りHPの割合が多い方の勝ちです。</p>` };
   UI.keepBgm = true;
   const res = await HOOKS.duel(ctx);
   UI.keepBgm = false; G = prevG; show('title');
