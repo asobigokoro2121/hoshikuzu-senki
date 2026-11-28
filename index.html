@@ -810,7 +810,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v195</span>
+    <span class="t-ver">v196</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -15569,7 +15569,7 @@ async function openCaptain(sid) {
 async function openParts(uid) {
   const u = G.units[uid], F = G.fac[G.player];
   const body = `<p>装備中：<b>${u.part ? PARTS[u.part].name : 'なし'}</b>${u.part ? ' <button class="btn tiny" data-act="off">外す</button>' : ''}</p><p class="dim">パーツは機体を解体すると手に入ることがあります。</p>
-    ${Object.entries(PARTS).map(([k, P]) => `<button class="prow" data-act="eq" data-k="${k}" ${F.parts[k] ? '' : 'disabled'}><b>${P.name} ×${F.parts[k] || 0}</b><span class="dim">${P.desc}</span></button>`).join('')}`;
+    ${Object.entries(PARTS).filter(([k, P]) => !P.rare || F.parts[k] > 0).map(([k, P]) => `<button class="prow" data-act="eq" data-k="${k}" ${F.parts[k] ? '' : 'disabled'}><b>${P.name} ×${F.parts[k] || 0}</b><span class="dim">${P.desc}</span></button>`).join('')}`;
   await openModal({ title: 'パーツの付け替え', body, onAct: (act, t, M) => {
     if (act === 'eq') { equipPart(uid, t.dataset.k); SFX.play('ok'); M.close('ok'); }
     if (act === 'off') { equipPart(uid, null); M.close('ok'); }
