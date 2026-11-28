@@ -806,7 +806,7 @@ body:has(#layer .modal) #toasts { top: 58px; }
     </div>
     <p class="t-foot">スマホはスティックとボタン、PCは WASD と J・K・L で操作</p>
     <p class="t-secret" id="t-secret" hidden></p>
-    <span class="t-ver">v187</span>
+    <span class="t-ver">v188</span>
   </section>
 
   <section id="scr-faction" class="scr" hidden>
@@ -12689,7 +12689,11 @@ const PFACE = (() => {
   }
   // モブ：勢力（出身）の1枚から、一般兵はヘルメット姿・志願兵などはヘルメットなしの顔を名前で選ぶ
   function mobOf(p) {
-    const M = mobs[p.origin || p.f]; if (!M) return null;
+    let M = mobs[p.origin || p.f];
+    if (!M && (p.origin || p.f) === 'mrc') { // 自由傭兵団のモブ：各勢力の流れ者から選ぶ（ヘルメットなしの顔を優先）
+      const ks = Object.keys(mobs).filter(k => mobs[k].N.length), k = ks[hashStr('m' + p.id + (p.name || '')) % ks.length]; if (k) return { im: mobs[k].im, r: mobs[k].N[hashStr(p.id + (p.name || '')) % mobs[k].N.length], mob: true };
+    }
+    if (!M) return null;
     const vol = (p.name || '').startsWith('志願兵') || p.noHelm, pool = (vol ? M.N : M.H).length ? (vol ? M.N : M.H) : M.H.concat(M.N);
     return { im: M.im, r: pool[hashStr(p.id + (p.name || '')) % pool.length], mob: true };
   }
